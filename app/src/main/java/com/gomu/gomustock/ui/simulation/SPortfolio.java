@@ -37,19 +37,18 @@ public class SPortfolio {
         sellstockList = sellstock_db.sellstockDao().getAll();
     }
 
-    public List<BuyStockDBData> getPortfolio_dummy() {
+    public BuyStockDBData getPortfolio_dummy() {
         BuyStockDBData onebuystock = new BuyStockDBData();
         onebuystock.buy_date = "20230115";
         onebuystock.stock_name = "삼성전자";
         onebuystock.stock_code = "005930";
         onebuystock.buy_price = 0 ;
         onebuystock.buy_quantity = 0;
-        List<BuyStockDBData> temp = new ArrayList<>();
-        temp.add(onebuystock);
-        return temp;
+
+        return onebuystock;
     }
-    public List<BuyStockDBData> getPortfolio() {
-        return last_buylist;
+    public BuyStockDBData getPortfolio() {
+        return last_buylist.get(0);
     }
     public List<BuyStockDBData> getBuyList() { return buystockList; }
     public List<SellStockDBData> getSellList() { return sellstockList; }
@@ -292,14 +291,13 @@ public class SPortfolio {
     }
 
 
-    public void loadExcel2DB2(List<String> codelist) {
+    public void loadExcel2DB2(String stock_code) {
 
         // 엑셀파일에서 시험용 매수주식 이력을 읽어들인다
         buystockList = buystock_db.buystockDao().getAll();
         // 엑셀파일에서 시험용 매도주식 이력을 읽어들인다
-
         sellstockList = sellstock_db.sellstockDao().getAll();
-        String stock_code = codelist.get(0);
+
         if(buystockList.size() == 0) {
 
             int withdrawal=0, remain_cache=0;

@@ -60,4 +60,9 @@ public class SBuyStock {
         int test = 0;
     }
 
+    public void reset() {
+        buystock_db = SBuyStockDB.getInstance(context);
+        buystockList = buystock_db.buystockDao().getAll();
+        buystock_db.buystockDao().reset(buystockList);
+    }
 }

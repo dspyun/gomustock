@@ -116,6 +116,7 @@ public class SimulationFragment extends Fragment {
         return view;
     }
     public void SimulationView(View view) {
+        BuyStockDBData lastbuy = new BuyStockDBData();
         List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
         initialize_color();
 
@@ -129,7 +130,8 @@ public class SimulationFragment extends Fragment {
         //testdata.add("005930_testset.xls");
         //myportfolio.loadExcel2DB(testdata);
         //myportfolio.loadDB2Portfolio();
-        lastbuylist = sim_portfolio.getPortfolio();
+        //lastbuy = sim_portfolio.getPortfolio();
+        //lastbuylist.add(lastbuy);
 
         // 종목별 balance 결과 쭝 평가액변화를 차트에 보여준다.
         MyChart stock_chart = new MyChart();
@@ -151,7 +153,7 @@ public class SimulationFragment extends Fragment {
         recyclerView = view.findViewById(R.id.sim_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        if(lastbuylist.size()==0) lastbuylist = sim_portfolio.getPortfolio_dummy();
+        lastbuylist.add(sim_portfolio.getPortfolio_dummy());
         simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
         recyclerView.setAdapter(simul_adapter);
 
@@ -390,31 +392,27 @@ public class SimulationFragment extends Fragment {
     }
 
     public void simulation() {
-        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+
         SCache mycache = new SCache();
         mycache.initialize();
-        sim_portfolio = new SPortfolio(getActivity());
-        List<String> testdata = new ArrayList<>();
-        /*
-        for(int i =0;i<sim_stock.size();i++) {
-            testdata.add(sim_stock.get(i));
-        }
-         */
-        testdata.add(sim_stock.get(0));
-        sim_portfolio.loadExcel2DB2(testdata);
-        sim_portfolio.loadDB2Portfolio();
-        lastbuylist = sim_portfolio.getPortfolio();
-
-        // 포트폴리오 정보와 가격 히스토리를 가지고
-        // 수익변화차트 데이터를 만든다
+        BuyStockDBData lastbuy = new BuyStockDBData();
+        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
         List<MyBalance> balancelist = new ArrayList<>();
-        for(int i =0;i<lastbuylist.size();i++) {
-            MyBalance onebalance = new MyBalance(lastbuylist.get(i).stock_code);
-            onebalance.prepareDataset(sim_portfolio.getBuyList(),sim_portfolio.getSellList());
+        for(int i=0;i<sim_stock.size();i++) {
+            sim_portfolio = new SPortfolio();
+            sim_portfolio.buystock.reset();
+            sim_portfolio.sellstock.reset();
+            sim_portfolio.loadExcel2DB2(sim_stock.get(i));
+            sim_portfolio.loadDB2Portfolio();
+            lastbuy = sim_portfolio.getPortfolio();
+            lastbuylist.add(lastbuy);
+            // 포트폴리오 정보와 가격 히스토리를 가지고
+            // 수익변화차트 데이터를 만든다
+            MyBalance onebalance = new MyBalance(lastbuy.stock_code);
+            onebalance.prepareDataset(sim_portfolio.getBuyList(), sim_portfolio.getSellList());
             onebalance.makeBalancedata();
             balancelist.add(onebalance);
         }
-
         // 종목별 balance 결과 중 평가액변화를 차트에 보여준다.
         MyChart stock_chart = new MyChart();
         List<FormatChart> stockchart = new ArrayList<FormatChart>();
@@ -425,7 +423,7 @@ public class SimulationFragment extends Fragment {
                 String stock_code = "";
                 onechartdata = balancelist.get(i).getEstimStock();
                 stock_code = balancelist.get(i).stock_code;
-                stockchart = stock_chart.buildChart_int(onechartdata, stock_code, context.getColor(R.color.Red));
+                stockchart = stock_chart.buildChart_int(onechartdata, stock_code, chartcolor.get(i));
             }
             lineChart = (LineChart) view.findViewById(R.id.sim_stock_chart);
             stock_chart.setYMinmax(0, 0);
@@ -462,7 +460,6 @@ public class SimulationFragment extends Fragment {
         recyclerView = view.findViewById(R.id.sim_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        if(lastbuylist.size()==0) lastbuylist = sim_portfolio.getPortfolio_dummy();
         simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
         recyclerView.setAdapter(simul_adapter);
 

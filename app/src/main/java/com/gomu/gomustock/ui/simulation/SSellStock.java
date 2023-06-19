@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SSellStock {
 
-    private final SSellStockDB sellstock_db;
+    private SSellStockDB sellstock_db;
 
     List<SellStockDBData> sellstockList;
 
@@ -85,5 +85,10 @@ public class SSellStock {
             }
         }
         return newLi;
+    }
+    public void reset() {
+        sellstock_db = SSellStockDB.getInstance(context);
+        sellstockList = sellstock_db.sellstockDao().getAll();;
+        sellstock_db.sellstockDao().reset(sellstockList);
     }
 }
