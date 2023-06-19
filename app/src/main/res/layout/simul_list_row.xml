@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- xml 종목명 평가손익 평가금액, 현재가 -->
+    <!-- 주문가능 보유수량 수익률 매입금액, 평단가-->
+    <!-- extention1 종목명  현재가-->
+    <!-- extention1 하락액  하락률-->
+    <!-- extention2 차트, 매수, 매도, 자동-->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="5"
+        android:orientation="horizontal"
+        android:rowCount="2">
+        <TextView
+            android:id="@+id/sim_stock_name"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/sim_estim_profit"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/sim_estim_price"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/sim_cur_price"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/sim_button_expanable"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="40dp"
+            android:layout_column="4"
+            android:layout_rowSpan="2"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:src="@drawable/plus48px"/>
+
+        <TextView
+            android:id="@+id/sim_hold_quantity"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/sim_profit_rate"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/sim_buy_price"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/sim_ave_price"
+            android:layout_width="@dimen/grid_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textSize="14sp" />
+
+    </GridLayout>
+</LinearLayout>
