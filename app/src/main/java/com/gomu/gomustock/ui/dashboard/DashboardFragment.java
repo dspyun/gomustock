@@ -59,7 +59,7 @@ public class DashboardFragment extends Fragment {
         mysignal = new MySignal(getActivity());
 
         stop_flag = true;
-        scoring_thread.start();
+        //scoring_thread.start();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         bd_adapter = new BoardAdapter(getActivity());

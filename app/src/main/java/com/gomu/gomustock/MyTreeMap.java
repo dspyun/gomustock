@@ -114,10 +114,10 @@ public class MyTreeMap {
 
         String STOCKDIR = Environment.getExternalStorageDirectory().getPath() + "/gomustock/";;
         String PathFile = STOCKDIR+"treemap"+".html";;
-        /*
+
         if(region.equals("domestic"))  webView.loadUrl("file:///android_asset/category.html");
         else if(region.equals("oversea")) webView.loadUrl("file:///android_asset/category.html");
-         */
+
         //webView.loadUrl("file:///android_asset/treemap.html");
     }
 

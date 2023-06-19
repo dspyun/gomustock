@@ -25,7 +25,6 @@ import com.gomu.gomustock.FormatStockInfo;
 import com.gomu.gomustock.MyChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
-import com.gomu.gomustock.MyTreeMap;
 import com.gomu.gomustock.R;
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MAType;
@@ -62,9 +61,10 @@ public class BoardSubActivity extends AppCompatActivity {
             setContentView(R.layout.board_sub_popup);
 
             webView = (WebView) findViewById(R.id.category_web_view);
-            //show_popup_treemap(webView, suboption.getRegion());
-            MyTreeMap mytree = new MyTreeMap(context);
-            mytree.treemap(webView, suboption.getRegion());;
+            show_popup_treemap(webView, suboption.getRegion());
+            // 이래는 트리맵차트 시험용...계속 개발 중
+            //MyTreeMap mytree = new MyTreeMap(context);
+            //mytree.treemap(webView, suboption.getRegion());;
 
         } else {
             setContentView(R.layout.board_sub_info);
@@ -89,7 +89,7 @@ public class BoardSubActivity extends AppCompatActivity {
 
             List<FormatChart> chartlist = new ArrayList<FormatChart>();
             List<String> temp = new ArrayList<>();
-            temp = myexcel.oa_readPrice60(stock_code + ".xls", false);
+            temp = myexcel.oa_readItem(stock_code + ".xls","CLOSE", false);
             chart1_data1 = mystat.string2float(temp, 1);
             bband_chart.buildChart_float(chart1_data1, stock_code, Color.RED);
             bb_chart = bbands_test(stock_code);
@@ -178,7 +178,7 @@ public class BoardSubActivity extends AppCompatActivity {
         List<List<Float>> threechart = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = 60;
+        final int TOTAL_PERIODS = 30;
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -195,7 +195,7 @@ public class BoardSubActivity extends AppCompatActivity {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readPrice60(stock_code+".xls",false);
+        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
         List<Double> closedata = myexcel.string2double(close_str,1);
 
         for (int i =  0; i < closePrice.length; i++) {
@@ -255,7 +255,7 @@ public class BoardSubActivity extends AppCompatActivity {
 
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = 60;
+        final int TOTAL_PERIODS = 30;
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -274,7 +274,7 @@ public class BoardSubActivity extends AppCompatActivity {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readPrice60(stock_code+".xls",false);
+        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);

@@ -127,13 +127,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         pricelist = new ArrayList<String>();
         standard_chart = new MyChart();
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
-        pricelist = myexcel.oa_readPrice60(stock_code+".xls", false);
+        pricelist = myexcel.oa_readItem(stock_code+".xls","CLOSE", false);
         chart_data1 = mystat.oa_standardization(pricelist);
         standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
 
-        pricelist = myexcel.oa_readIndex60("코스피 200"+".xls", false);
+        pricelist = myexcel.oa_readItem("069500"+".xls","CLOSE", false);
         chart_data2 = mystat.oa_standardization(pricelist);
-        chartlist = standard_chart.buildChart_float(chart_data2,"코스피 200",context.getColor(R.color.White));
+        chartlist = standard_chart.buildChart_float(chart_data2,"KODEX 200",context.getColor(R.color.White));
         standard_chart.setYMinmax(-3, 3);
 
         standard_chart.multi_chart(lineChart,chartlist,"표준화차트",false);
@@ -150,12 +150,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         web_stockinfo = myexcel.readStockinfo(false);
         // 주식정보에 전달받은 스코어정보를 넣고
         if(web_stockinfo.size() > 0) {
+            /*
             for (int i = 0; i < scoreinfo.size(); i++) {
                 if (scoreinfo.get(i).stock_code.equals(web_stockinfo.get(i).stock_code)) {
                     web_stockinfo.get(i).score = scoreinfo.get(i).score;
                 }
             }
-
+            */
             // 정보를 모두 string으로 변환
             for(int i=0;i<web_stockinfo.size();i++) {
                 if(stock_code.equals( web_stockinfo.get(i).stock_code )) {

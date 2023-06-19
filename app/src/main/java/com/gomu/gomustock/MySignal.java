@@ -191,7 +191,7 @@ public class MySignal {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readPrice60(stock_code + ".xls", false);
+        close_str = myexcel.oa_readItem(stock_code + ".xls","CLOSE", false);
         List<Double> closedata = myexcel.string2double(close_str, 1);
 
         for (int i = 0; i < closePrice.length; i++) {
