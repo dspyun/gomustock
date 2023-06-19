@@ -4,6 +4,7 @@ import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import com.gomu.gomustock.FormatTestData;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.ui.simulation.SBuyStockDB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,5 +85,10 @@ public class BuyStock {
             }
         }
         return newLi;
+    }
+    public void reset() {
+        buystock_db = BuyStockDB.getInstance(context);
+        buystockList = buystock_db.buystockDao().getAll();
+        buystock_db.buystockDao().reset(buystockList);
     }
 }

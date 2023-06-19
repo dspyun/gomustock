@@ -33,7 +33,6 @@ import com.gomu.gomustock.databinding.FragmentHomeBinding;
 import com.gomu.gomustock.portfolio.BuyStockDB;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
 import com.gomu.gomustock.portfolio.Cache;
-import com.gomu.gomustock.portfolio.Portfolio;
 import com.gomu.gomustock.portfolio.SellStockDBData;
 
 import java.util.ArrayList;
@@ -81,13 +80,17 @@ public class HomeFragment extends Fragment {
         // 최종 보유주식과 매매 히스토리를 만든다.
         Cache mycache = new Cache();
         mycache.initialize();
+        BuyStockDBData lastbuy = new BuyStockDBData();
+        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+        List<MyBalance> balancelist = new ArrayList<>();
+
         myportfolio = new Portfolio(getActivity());
         myportfolio.loadDB2Portfolio();
         portfolio = myportfolio.getPortfolio();
 
         // 포트폴리오 정보와 가격 히스토리를 가지고
         // 종목펼 수익변화차트 데이터를 만든다
-        List<MyBalance> balancelist = new ArrayList<>();
+
         for(int i =0;i<portfolio.size();i++) {
             MyBalance onebalance = new MyBalance(portfolio.get(i).stock_code);
             onebalance.prepareDataset(myportfolio.getBuyList(),myportfolio.getSellList());
@@ -95,7 +98,6 @@ public class HomeFragment extends Fragment {
             balancelist.add(onebalance);
         }
         int size = balancelist.size();
-
 
         // 각 종목의 balance의 평가액과 현금을 총합한다.
         if(size != 0 ) {

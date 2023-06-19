@@ -1,6 +1,13 @@
-package com.gomu.gomustock.portfolio;
+package com.gomu.gomustock.ui.home;
 
 import android.app.Activity;
+
+import com.gomu.gomustock.portfolio.BuyStock;
+import com.gomu.gomustock.portfolio.BuyStockDB;
+import com.gomu.gomustock.portfolio.BuyStockDBData;
+import com.gomu.gomustock.portfolio.SellStock;
+import com.gomu.gomustock.portfolio.SellStockDB;
+import com.gomu.gomustock.portfolio.SellStockDBData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,8 +182,23 @@ public class Portfolio {
 
     public List<String> extract_sellstock_name() {
 
-        SellStock mysell = new SellStock();
-        return mysell.getSellStockList();
+        ArrayList<String> oldLi = new ArrayList<String>();;
+        ArrayList<String> newLi = new ArrayList<String>();
+
+        // buylist에서 주식명만 뽑아서 주식명 리스트를 만든다
+        for(int i=0;i<sellstockList.size();i++) {
+            oldLi.add(sellstockList.get(i).stock_name);
+        }
+
+        // 주식명리스트에서 중복된 주식명을 제외한 주식명들은
+        // 새로운 ArrayList에 요소를 추가
+        for(String strValue : oldLi) {
+            // 중복 요소가 없는 경우 요소를 추가
+            if(!newLi.contains(strValue)) {
+                newLi.add(strValue);
+            }
+        }
+        return newLi;
 
     }
     // buylist는 삼성+하이닉스+삼성+삼성+하이닉스 이런 순으로 저장되어 있다

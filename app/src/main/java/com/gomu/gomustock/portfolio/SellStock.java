@@ -10,7 +10,7 @@ import java.util.List;
 
 public class SellStock {
 
-    private final SellStockDB sellstock_db;
+    private SellStockDB sellstock_db;
 
     public List<SellStockDBData> sellstockList;
 
@@ -87,5 +87,10 @@ public class SellStock {
             }
         }
         return newLi;
+    }
+    public void reset() {
+        sellstock_db = SellStockDB.getInstance(context);
+        sellstockList = sellstock_db.sellstockDao().getAll();;
+        sellstock_db.sellstockDao().reset(sellstockList);
     }
 }

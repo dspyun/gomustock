@@ -5,7 +5,7 @@ import android.app.Activity;
 import com.gomu.gomustock.FormatTestData;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.PortfolioData;
+import com.gomu.gomustock.ui.home.PortfolioData;
 import com.gomu.gomustock.portfolio.SellStockDBData;
 
 import java.util.ArrayList;

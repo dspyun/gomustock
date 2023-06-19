@@ -30,7 +30,6 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.portfolio.BuyStock;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
 import com.gomu.gomustock.portfolio.Cache;
-import com.gomu.gomustock.portfolio.PortfolioData;
 import com.gomu.gomustock.portfolio.SellStock;
 
 import java.text.SimpleDateFormat;

@@ -12,7 +12,7 @@ import java.util.List;
 public class SBuyStock {
     SBuyStockDB buystock_db;
 
-    List<BuyStockDBData> buystockList = new ArrayList<>();
+    List<BuyStockDBData> buystockList;
 
     public SBuyStock() {
         buystock_db = SBuyStockDB.getInstance(context);
@@ -33,10 +33,10 @@ public class SBuyStock {
 
     public void add(String stock_code) {
 
-        int withdrawal=0, remain_cache=0;
+        int withdrawal, remain_cache=0;
 
-        String name="", code="", date="";
-        int quan=0, price=0;
+        String name, code, date;
+        int quan, price;
         List<FormatTestData> simBuylist = new ArrayList<FormatTestData>();
 
         MyExcel myexcel = new MyExcel();

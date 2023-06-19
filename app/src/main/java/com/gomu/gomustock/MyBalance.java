@@ -2,7 +2,7 @@ package com.gomu.gomustock;
 
 import com.gomu.gomustock.portfolio.BuyStockDBData;
 import com.gomu.gomustock.portfolio.Cache;
-import com.gomu.gomustock.portfolio.Portfolio;
+import com.gomu.gomustock.ui.home.Portfolio;
 import com.gomu.gomustock.portfolio.SellStockDBData;
 
 import java.util.ArrayList;
@@ -119,15 +119,17 @@ public class MyBalance {
         int quantity=0;
         int listsize = inputDate.size();
         for(int i=0;i<listsize;i++) {
-            quantity += inputBuyQuantity.get(i);
-            quantity -= inputSellQuantity.get(i);
+            quantity = quantity + inputBuyQuantity.get(i);
+            quantity = quantity - inputSellQuantity.get(i);
             outputQuantity.set(i, quantity);
+            quantity = 0;
         }
         // 현금변화량을 계산한다
         for(int i=0;i<listsize;i++) {
             cache = cache - inputBuyQuantity.get(i)*inputStockprice.get(i);
             cache = cache + inputSellQuantity.get(i)*inputStockprice.get(i);
             outputCache.set(i, cache);
+            cache = 0;
         }
         // 평가액 변화량을 계산한다
         // 일일보유수량*일일종가
@@ -188,7 +190,13 @@ public class MyBalance {
         }
 
          */
-        return outputEstim;
+
+        List<Integer> estim_rev = new ArrayList<>();
+        for(int i=outputEstim.size()-1;i>=0;i--) {
+            estim_rev.add(outputEstim.get(i));
+        }
+        return estim_rev;
+        //return outputEstim;
     }
 
     public List<Integer> getTotalAsset() {
