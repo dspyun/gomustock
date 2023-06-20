@@ -400,11 +400,11 @@ public class SimulationFragment extends Fragment {
         List<MyBalance> balancelist = new ArrayList<>();
         for(int i=0;i<sim_stock.size();i++) {
             sim_portfolio = new SPortfolio();
-            sim_portfolio.buystock.reset();
-            sim_portfolio.sellstock.reset();
-            sim_portfolio.loadExcel2DB2(sim_stock.get(i));
+            sim_portfolio.buystock.reset(); // buydb를 비운다
+            sim_portfolio.sellstock.reset(); // selldb를 비운다
+            sim_portfolio.loadExcel2DB(sim_stock.get(i)); // 과거>현재 순의 시험데이터를 DB로 넣는다.
             sim_portfolio.loadDB2Portfolio();
-            lastbuy = sim_portfolio.getPortfolio();
+            lastbuy = sim_portfolio.getPortfolio(); // 과거>현재 순으로  정렬된 데이터.
             lastbuylist.add(lastbuy);
             // 포트폴리오 정보와 가격 히스토리를 가지고
             // 수익변화차트 데이터를 만든다

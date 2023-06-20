@@ -74,14 +74,10 @@ public class Portfolio {
         last_buylist = assemble_lastbuylist();
         int now_price=0;
 
+        /*
         int size = last_buylist.size();
         for(int i =0; i<size;i++) {
-            /*
-            String stock_name = last_buylist.get(i).stock_name;
-            if(stock_name.equals("삼성전자")) now_price = 65000;
-            else if(stock_name.equals("SK하이닉스")) now_price = 95000;
-            else now_price = 65000;
-             */
+
             // 매수한 주식을 현재가로 재평가한다
             PortfolioData estim_info = new PortfolioData();
             estim_info = estim_buystock(last_buylist.get(i), now_price);
@@ -89,6 +85,7 @@ public class Portfolio {
             portfolioList.add(i, estim_info);
         }
         //-----------------------------------------------------
+        */
         return portfolioList;
     }
     public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {

@@ -104,19 +104,26 @@ public class MyChart {
     public void single_float(LineChart linechart, List<Float> chartdata, String description, boolean GRID_SHOW) {
         //LineChart lineChart = linechart;
         ArrayList<Entry> entrychart = new ArrayList<>();
-        LineData bardata = new LineData();
+        LineData linedata = new LineData();
 
         int size = chartdata.size();
         for(int i=0;i<size;i++ ) {
             entrychart.add(new Entry(i,chartdata.get(i)));
         }
         // 데이터가 담긴 Arraylist 를 BarDataSet 으로 변환한다.
-        LineDataSet lineDataSet = new LineDataSet(entrychart, "bardataset");
+        linedata.addDataSet(setLinedata(entrychart,Color.CYAN,description));
+        /*
+        LineDataSet lineDataSet = new LineDataSet(entrychart, "linedata");
         lineDataSet.setColor(Color.CYAN);
         lineDataSet.setValueTextColor(Color.WHITE);
-        bardata.addDataSet(lineDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
+        lineDataSet.setDrawValues(false);
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setDrawCircles(false);
 
-        linechart.setData(bardata); // 차트에 위의 DataSet 을 넣는다.
+        linedata.addDataSet(lineDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
+        */
+
+        linechart.setData(linedata); // 차트에 위의 DataSet 을 넣는다.
         setyRAxis(linechart,false,false);
         setxAaxis(linechart, false, false);
         //setyLAxis(barChart,false,false);

@@ -22,6 +22,8 @@ public class SPortfolio {
     List<BuyStockDBData> last_buylist = new ArrayList<BuyStockDBData>();
     SBuyStock buystock = new SBuyStock();
     SSellStock sellstock = new SSellStock();
+
+    MyExcel myexcel = new MyExcel();
     public SPortfolio(Activity mycontext) {
         this.context = mycontext;
         buystock_db = SBuyStockDB.getInstance(context);
@@ -56,26 +58,24 @@ public class SPortfolio {
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
     public List<PortfolioData> loadDB2Portfolio() {
 
+        // 과거>현재 순으로 저장된 최종 보유리스트를 불러온다.
         last_buylist = assemble_lastbuylist();
         int now_price=0;
-
+        /*
         int size =  last_buylist.size();
         for(int i =0; i<size;i++) {
-            /*
-            String stock_name = last_buylist.get(i).stock_name;
-            if(stock_name.equals("삼성전자")) now_price = 65000;
-            else if(stock_name.equals("SK하이닉스")) now_price = 95000;
-            else now_price = 65000;
-             */
+
             // 매수한 주식을 현재가로 재평가한다
             PortfolioData estim_info = new PortfolioData();
             estim_info = estim_buystock(last_buylist.get(i), now_price);
             // 재평가한 주식정보를 화면에 보여줄 포트폴리오 리스트에 넣는다
             portfolioList.add(i, estim_info);
         }
+        */
         //-----------------------------------------------------
         return portfolioList;
     }
+
     public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
         String stock_name; // 종목명
         int estim_profit, estim_price; // 평가손익
@@ -126,13 +126,15 @@ public class SPortfolio {
         return newLi;
     }
 
-    // buylist는 삼성+하이닉스+삼성+삼성+하이닉스 이런 순으로 저장되어 있다
-    // 이것을 삼성+하이닉스로 재정렬하고 액수, 수량도 재조합한다
+    // buylist를 읽어서 누정매수량, 누정매수액으로 구성된 buylist를 만들어준다. > 차트 그릴 때 써야 한다.
     public List<BuyStockDBData> make_buy_portfolio() {
         ArrayList<String> stocknamelist = new ArrayList<String>();
         List<BuyStockDBData> buystockList_arranged = new ArrayList<>();
-
+        BuyStockDBData buystock_arranged;
         // 일단 종목명만 뽑아서 중복값 제거한다.
+        // 시실 이래 추출 메소드는 필요없다.
+        // 현재 한번에 한종목 데이터만 처리하기 때문아다.
+        // 그냥 stock_code로 저리해도 된다.
         stocknamelist = extract_buystock_name();
         // 중복된 종목 액수는 모두 합쳐서 하나의 종목으로 만든다
         // 중복되지 않은 종목명으로 총수량, 총매수액을 계산해서
@@ -141,11 +143,13 @@ public class SPortfolio {
         String mystock="";
         String dbstock="";
         int size =  stocknamelist.size();
+        // 엑셀2DB를 종료하고 DB를 읽어서 60일간의 buystockList를 채워놓았다.
+        // buystockList는 과거>핸재 순으로 데이터가 정렬되어 있다.
         int size1 =  buystockList.size();
         for(int i=0; i< size ;i++) {
             // 아래에 선언을 하는 이유는 한 번 턴을 돌고 난다음
             // buystock_arranged 를 비워주기 위해서이다
-            BuyStockDBData buystock_arranged = new BuyStockDBData();
+            buystock_arranged = new BuyStockDBData();
             int quantity=0, total_buy_price=0;
 
             for(int j=0; j< size1;j++ ) {
@@ -165,6 +169,9 @@ public class SPortfolio {
             else buystock_arranged.buy_price = total_buy_price/quantity;
             buystockList_arranged.add(buystock_arranged);
         }
+        // for 루프를 마치면
+        // 60일간 누정매수량, 누적매수액 일인 데이터가
+        // buystockList_arranged에 저장된다.
         return buystockList_arranged;
     }
 
@@ -235,9 +242,13 @@ public class SPortfolio {
 
         List<BuyStockDBData> last_buylist = new ArrayList<BuyStockDBData>();
 
+        // 누적매수량, 누정매수액이 저장된 리스트를 읽어온다.
+        // 과거>핸재 순으로 저장되어 있다.
         List<BuyStockDBData> buylist = new ArrayList<BuyStockDBData>();
         buylist = make_buy_portfolio();
 
+        // 누정매도량, 누정매도액이 저장된 리스트를 읽어온다
+        // 과거>현재 순으로 저정되어 있다.
         List<SellStockDBData> selllist = new ArrayList<SellStockDBData>();
         selllist = make_sell_portfolio();
 
@@ -279,29 +290,17 @@ public class SPortfolio {
                 }
             }
         }
-/*
-        List<BuyStockDBData> templist = new ArrayList<BuyStockDBData>();
-        templist = buylist;
-        for(int k = buylist.size();k>=0;k--) {
-            for(int j =0;j<last_buylist.size();j++) {
-                if (buylist.get(k).stock_name.equals(selllist.get(j).stock_name)) {
-                    templist.remove(k);
-                }
-            }
-        }
-
-        for(int i = 0;i<templist.size();i++) {
-            last_buylist.add(templist.get(i));
-        }
- */
         // 최종 남은 매수종목 및 가격, 수량이 현재 포트폴리오 임
+        // 과거>현재 순으로 저장되어 있다
         return last_buylist;
     }
 
 
-    public void loadExcel2DB2(String stock_code) {
+    public void loadExcel2DB(String stock_code) {
 
-        // 엑셀파일에서 시험용 매수주식 이력을 읽어들인다
+        // 엑셀파일에서 시험용 매수주식 이력을 읽어들인다.
+        // 시뮬레이션할 때는 필요없다. db reset하고 시작하니까
+        // 단지 초기화의 의미만...
         buystockList = buystock_db.buystockDao().getAll();
         // 엑셀파일에서 시험용 매도주식 이력을 읽어들인다
         sellstockList = sellstock_db.sellstockDao().getAll();
@@ -314,37 +313,40 @@ public class SPortfolio {
             int buyquan=0, sellquan=0, price=0,receipt=0;
             int buy_total_quan=0, sell_total_quan=0;
             List<FormatTestData> signallist = new ArrayList<FormatTestData>();
-
-            MyExcel myexcel = new MyExcel();
+            //시뮬레이션용 매수, 매도 시그널을 읽는다.
+            // 과거>현재 순으로 데이터가 정렬되었는데 DB로 넣으면 어떻게 정렬되는지 모르겠다. 일단 넣는다.
             signallist.addAll(myexcel.readtestset(stock_code+"_testset.xls", false));
 
             code = stock_code;
-            name = myexcel.find_stockname(code);
+            name = myexcel.find_stockname(code); // 이부분은 시간이 럴리는 함수라서 db로 개선필요? array로 넣고 array find를 활용?
             int size = signallist.size();
             for(int i=0;i<size;i++) {
-
+                // 시그널파일의 0번째가 가장 과거데이터이기 때문에 과거데이터부터 매수데이터를 DB에 넣는다
+                // 수량, 매수가, 매수일을 읽는다.
                 if(signallist.get(i).buy_quantity.equals("")) buyquan = 0;
                 else buyquan = Integer.parseInt(signallist.get(i).buy_quantity);
                 price = Integer.parseInt(signallist.get(i).price);
                 date = signallist.get(i).date;
-                // 그날의 매수현황을 db에 저장한다(매수시그널이 없으면 0으로, 있으면 시그널 만큼)
+                // 그날의 매수현황을 db에 저장한다(수량, 가격, 매수일을 저장한다.)
                 buystock.buy_insert2db(name, code, buyquan, price, date);
-                // 매수 후 매수액을 원금애써 빼줌
+                // 누적 매수애을 계산한다. 매수 후 매수액을 원금애써 빼줌
                 withdrawal = price * buyquan;
                 remain_cache = remain_cache - withdrawal;
                 buy_total_quan = buy_total_quan + buyquan;
 
-
-                // 매도시그널을 정수로 변환하고
+                // 과거>현재순으로 매도시그널 데이터를 DB에 넣는다.
+                // 매도량이 0이면 그냥 넣어주고 매도량이 1주라도 있으면
+                // 넣기 전에 매수량을 검사해서 매수량이 매도량보다 클때만 DB에 넣는다.
+                // 가지고 있는 것이 있으야지 팔수도 있으니까.
                 if (signallist.get(i).sell_quantity.equals("")) sellquan = 0;
                 else sellquan = Integer.parseInt(signallist.get(i).sell_quantity);
                 // 매도하기 전에 매도할 수량만큼 보유했는지 검사. 모자라면 매수량은 0으로
-                if(buy_total_quan < sellquan ) sellquan = 0;
+                if(buy_total_quan < sellquan ) sellquan = 0; // 매도시그널의 매도량이 보유량보다 적으면 매도량을 0으로.
                 if(sellquan > 0) {
-                    // 매도할 수 있으면, 매수량에서 매도량 뺌
+                    // 매도할 수 있으면, 일단 매수량에서 매도량 빼주고
                     buy_total_quan = buy_total_quan - sellquan;
                 }
-                // 그날의 매도현황을 db에 저장한다(매도시그널이 없으면 0으로, 있으면 시그널 만큼)
+                // 그날의 매도현황을 db에 저장한다(매도시그널이 없으면 0으로, 있으면 시그널만큼 저장됨(보유량이 있을 시에만))
                 sellstock.sell_insert2db(name, code, sellquan, price, date);
 
                 // 매도 후 매도액을 원금에 추가해줌
@@ -352,6 +354,8 @@ public class SPortfolio {
                 remain_cache = remain_cache + receipt;
                 sell_total_quan = sell_total_quan + sellquan;
             }
+            // for루프를 마치면 Excel data가 DB에 모두 덜어간 상태이다
+            // DB에 들어간 순서는 과거>현재 순으로 들어갔다. 히자만 나중에 읽을때도 동일한 순서인지는 모르겠다.
             // 잔고 = 잔고 - 매수액 : 위에서 계산된 매수액이 (-)가 붙어서 오기 때문에 (+)로 처리
             SCache mycache = new SCache();
             mycache.update_cache(remain_cache);
@@ -359,10 +363,9 @@ public class SPortfolio {
         }
         // 이렇게 하면 모든날짜의 매수/매도 히스토리 db(엑셀)가 만들어진다
         // 매수 매도 히스토리 db(엑셀)는 차트를 그리는데 사용된다.
-        // buystockList는 매수시스널 테이블과 동일해야 한다
-        // sellsignalList도 매도시그널 테이블과 동일해야 하지만 과매도가 나오면 안된다
-        // 과매도는 매도할 시점에 매수량이 없는데 매도를 하는 현상
-        // 위에서 모두 예외처리를 했지만 버그가 있을 수도 있다
+        // buystockList는 매수시스널 테이블과 동일해야 한고
+        // 과매도 수량은 모두 0으로 처리되어야 한다.
+        // 아래 리스트에서 엑셀파일의 데이터와 비교해야 검증할 수 있다.
         buystockList = buystock_db.buystockDao().getAll();
         //buystockList = buystock_db.buystockDao().getAll();
         sellstockList = sellstock_db.sellstockDao().getAll();
