@@ -20,7 +20,7 @@
                 android:id="@+id/bt_dl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="D/L"
+                android:text="정보DL"
                 android:layout_weight = "1"/>
             <Button
                 android:id="@+id/bt_update"

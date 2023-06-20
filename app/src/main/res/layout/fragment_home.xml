@@ -63,7 +63,7 @@ tools:context=".ui.home.HomeFragment">
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:layout_weight = "1"
-                    android:text="D/L"/>
+                    android:text="가격DL"/>
                 <Button
                     android:id="@+id/real_chart"
                     android:layout_width="wrap_content"

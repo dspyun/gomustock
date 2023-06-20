@@ -106,7 +106,7 @@ public class MyChart {
         ArrayList<Entry> entrychart = new ArrayList<>();
         LineData bardata = new LineData();
 
-        int size = chartlist.size();
+        int size = chartdata.size();
         for(int i=0;i<size;i++ ) {
             entrychart.add(new Entry(i,chartdata.get(i)));
         }
@@ -166,7 +166,7 @@ public class MyChart {
         BarData bardata = new BarData();
         List<Integer> color = new ArrayList<>();
 
-        int size = chartlist.size();
+        int size = chartdata.size();
         // 1. entry에 chart data를 넣는다
         for(int i=0;i<size;i++ ) {
             entrychart.add(new BarEntry(i,chartdata.get(i)));
