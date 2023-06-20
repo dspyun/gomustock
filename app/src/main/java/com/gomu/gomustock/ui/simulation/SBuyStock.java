@@ -13,7 +13,7 @@ public class SBuyStock {
     SBuyStockDB buystock_db;
 
     List<BuyStockDBData> buystockList;
-
+    MyExcel myexcel = new MyExcel();
     public SBuyStock() {
         buystock_db = SBuyStockDB.getInstance(context);
         buystockList = buystock_db.buystockDao().getAll();
@@ -39,11 +39,12 @@ public class SBuyStock {
         int quan, price;
         List<FormatTestData> simBuylist = new ArrayList<FormatTestData>();
 
-        MyExcel myexcel = new MyExcel();
+
         simBuylist.addAll(myexcel.readtestbuy(stock_code+"_testset.xls", false));
         code = stock_code;
         name = myexcel.find_stockname(code);
-        for(int i=0;i<simBuylist.size();i++) {
+        int size = simBuylist.size();
+        for(int i=0;i<size;i++) {
 
             if(simBuylist.get(i).buy_quantity.equals("")) quan = 0;
             else quan = Integer.parseInt(simBuylist.get(i).buy_quantity);

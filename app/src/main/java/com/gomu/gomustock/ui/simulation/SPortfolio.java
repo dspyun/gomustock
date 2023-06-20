@@ -59,7 +59,8 @@ public class SPortfolio {
         last_buylist = assemble_lastbuylist();
         int now_price=0;
 
-        for(int i =0; i<last_buylist.size();i++) {
+        int size =  last_buylist.size();
+        for(int i =0; i<size;i++) {
             /*
             String stock_name = last_buylist.get(i).stock_name;
             if(stock_name.equals("삼성전자")) now_price = 65000;
@@ -108,8 +109,9 @@ public class SPortfolio {
         ArrayList<String> oldLi = new ArrayList<String>();;
         ArrayList<String> newLi = new ArrayList<String>();
 
+        int size =  buystockList.size();
         // buylist에서 주식명만 뽑아서 주식명 리스트를 만든다
-        for(int i=0;i<buystockList.size();i++) {
+        for(int i=0;i<size;i++) {
             oldLi.add(buystockList.get(i).stock_name);
         }
 
@@ -138,13 +140,15 @@ public class SPortfolio {
 
         String mystock="";
         String dbstock="";
-        for(int i=0; i< stocknamelist.size();i++) {
+        int size =  stocknamelist.size();
+        int size1 =  buystockList.size();
+        for(int i=0; i< size ;i++) {
             // 아래에 선언을 하는 이유는 한 번 턴을 돌고 난다음
             // buystock_arranged 를 비워주기 위해서이다
             BuyStockDBData buystock_arranged = new BuyStockDBData();
             int quantity=0, total_buy_price=0;
 
-            for(int j=0; j< buystockList.size();j++ ) {
+            for(int j=0; j< size1;j++ ) {
                 mystock = stocknamelist.get(i);
                 dbstock = buystockList.get(j).stock_name;
                 if(mystock.equals(dbstock)) {
@@ -169,8 +173,9 @@ public class SPortfolio {
         ArrayList<String> oldLi = new ArrayList<String>();;
         ArrayList<String> newLi = new ArrayList<String>();
 
+        int size =  sellstockList.size();
         // selllist에서 주식명만 뽑아서 주식명 리스트를 만든다
-        for(int i=0;i<sellstockList.size();i++) {
+        for(int i=0;i<size;i++) {
             oldLi.add(sellstockList.get(i).stock_name);
         }
 
@@ -198,12 +203,13 @@ public class SPortfolio {
         // 재정렬된 buystocklist에 넣고 리턴한다
         String mystock="";
         String dbstock="";
-
-        for(int i=0; i< stocknamelist.size();i++) {
+        int size =  stocknamelist.size();
+        int size1 = sellstockList.size();
+        for(int i=0; i< size;i++) {
             SellStockDBData sellstock_arranged = new SellStockDBData();
             int quantity=0, total_sell_price=0;
             sellstock_arranged.stock_code = sellstockList.get(i).stock_code;
-            for(int j=0;j <sellstockList.size(); j++ ) {
+            for(int j=0;j < size1; j++ ) {
                 mystock = stocknamelist.get(i);
                 dbstock = sellstockList.get(j).stock_name;
                 if(mystock.equals(dbstock) ) {
@@ -239,12 +245,14 @@ public class SPortfolio {
         int buyprice=0, buyquantity=0, sellprice=0, sellquantity=0, diff_quantity=0;
         BuyStockDBData arraybuff;
 
-        for(int i=0; i<buylist.size(); i++ ) {
+        int size = buylist.size();
+        int size1 = selllist.size();
+        for(int i=0; i< size; i++ ) {
 
             String buystock = buylist.get(i).stock_name;
             buyquantity = buylist.get(i).buy_quantity;
             buyprice = buylist.get(i).buy_price;
-            for(int j=0;j<selllist.size();j++ ) {
+            for(int j=0;j<size1;j++ ) {
                 arraybuff = new BuyStockDBData();
                 String sellstock = selllist.get(j).stock_name;
                 sellquantity = selllist.get(j).sell_quantity;
@@ -312,7 +320,8 @@ public class SPortfolio {
 
             code = stock_code;
             name = myexcel.find_stockname(code);
-            for(int i=0;i<signallist.size();i++) {
+            int size = signallist.size();
+            for(int i=0;i<size;i++) {
 
                 if(signallist.get(i).buy_quantity.equals("")) buyquan = 0;
                 else buyquan = Integer.parseInt(signallist.get(i).buy_quantity);

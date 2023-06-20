@@ -32,14 +32,11 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     private Activity context;
     private LineChart lineChart;
 
-    private List<Float> chart_data1;
-    private List<Float> chart_data2;
-    MyChart standard_chart;
-
-    List<String> pricelist;
+    private List<Float> chart_data1 = new ArrayList<Float>();;
+    private List<Float> chart_data2 =new ArrayList<Float>();;
+    MyChart standard_chart = new MyChart();
+    public List<String> pricelist = new ArrayList<String>();
     List<String> buycodelist = new ArrayList<String>();
-    MyExcel myexcel;
-    MyStat mystat;
 
     BoardAdapter bd_adapter;
     TextView myinform;
@@ -47,23 +44,26 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
     List<FormatStockInfo> scoreinfo = new ArrayList<FormatStockInfo>();
     boolean stop_flag;
+    MyExcel myexcel;
+    List<FormatChart> chartlist = new ArrayList<FormatChart>();
     public BoardAdapter(Activity context)
     {
         this.context = context;
         //this.dataList = dataList;
         myexcel = new MyExcel();
-        mystat = new MyStat();
         ReadBuyList();
         initInfoArray();
     }
 
 
     public void initInfoArray() {
+        int size;
         web_stockinfo = myexcel.readStockinfo(false);
         if(web_stockinfo.size()==0) {
             // size가 0이면 파일이 없음. 초기화 해줘야 함
             // 초기화는 일단 code만 넣어주는 것으로
-            for(int i =0;i<buycodelist.size();i++) {
+             size = buycodelist.size();
+            for(int i =0;i<size;i++) {
                 FormatStockInfo temp = new FormatStockInfo();
                 temp.stock_code = buycodelist.get(i);
                 web_stockinfo.add(temp);
@@ -71,7 +71,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             }
             int i=0;
         }
-        for(int i =0;i<buycodelist.size();i++) {
+        size = buycodelist.size();
+        for(int i =0;i<size;i++) {
             FormatStockInfo temp = new FormatStockInfo();
             temp.stock_code = buycodelist.get(i);
             scoreinfo.add(temp);
@@ -82,7 +83,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         notifyDataSetChanged();
     }
     public void putScoreinfo(String stock_code, String score) {
-        for(int i =0;i<scoreinfo.size();i++) {
+        int size = scoreinfo.size();
+        for(int i =0;i< size ;i++) {
             if(scoreinfo.get(i).stock_code.equals(stock_code)) {
                 scoreinfo.get(i).score = score;
             }
@@ -112,24 +114,23 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         String stock_code = buycodelist.get(position);
 
         // information text view에 종목번호를 넣는다
-        MyExcel myexcel = new MyExcel();
+
         String stock_name = myexcel.find_stockname(stock_code);
-        holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
+        //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
+        holder.tvStockinfo.setText(web_stockinfo.get(position).toString());
 
         // 차트에 코스피와 종목 데이터를 넣어준다
-        chart_data1 = new ArrayList<Float>();
-        chart_data2 = new ArrayList<Float>();
-        pricelist = new ArrayList<String>();
+
         standard_chart = new MyChart();
-        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        chartlist = new ArrayList<FormatChart>();
         pricelist = myexcel.oa_readItem(stock_code+".xls","CLOSE", false);
         pricelist = myexcel.arrangeRev_string(pricelist);
-        chart_data1 = mystat.oa_standardization(pricelist);
+        chart_data1 = myexcel.oa_standardization(pricelist);
         standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
 
         pricelist = myexcel.oa_readItem("069500"+".xls","CLOSE", false);
         pricelist = myexcel.arrangeRev_string(pricelist);
-        chart_data2 = mystat.oa_standardization(pricelist);
+        chart_data2 = myexcel.oa_standardization(pricelist);
         chartlist = standard_chart.buildChart_float(chart_data2,"KODEX 200",context.getColor(R.color.White));
         standard_chart.setYMinmax(-3, 3);
 
@@ -156,7 +157,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             */
             // 정보를 모두 string으로 변환
             String temp;
-            for(int i=0;i<web_stockinfo.size();i++) {
+            int size = web_stockinfo.size();
+            for(int i=0;i<size;i++) {
                 if(stock_code.equals( web_stockinfo.get(i).stock_code )) {
                     //temp = web_stockinfo.get(position).toString();
                     temp = web_stockinfo.get(i).toString();
@@ -174,16 +176,19 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         MyWeb myweb = new MyWeb();
         // 리스트버퍼를 초기화해서 이전에 남아있던 내용을 모두 없애준다
         web_stockinfo.clear();
-        for(int i =0;i<buycodelist.size();i++) {
+        int size = buycodelist.size();
+        for(int i =0;i< size;i++) {
             FormatStockInfo temp = new FormatStockInfo();
             temp.stock_code = buycodelist.get(i);
             web_stockinfo.add(temp);
         }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 FormatStockInfo result1;
-                for(int i =0;i<buycodelist.size();i++) {
+                int size = buycodelist.size();
+                for(int i =0;i<size;i++) {
                     FormatStockInfo info = new FormatStockInfo();
                     info = myweb.getStockinfo(buycodelist.get(i));
                     info.stock_code = buycodelist.get(i);

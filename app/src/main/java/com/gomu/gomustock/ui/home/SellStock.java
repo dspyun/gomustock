@@ -64,7 +64,8 @@ public class SellStock {
         tdlist.addAll(myexcel.readtestsell(stock_code+"_testset.xls", false));
         code = stock_code;
         name = myexcel.find_stockname(code);
-        for(int i=0;i<tdlist.size();i++) {
+        int size = tdlist.size();
+        for(int i=0;i<size;i++) {
 
             if(tdlist.get(i).sell_quantity.equals("")) quan = 0;
             else quan = Integer.parseInt(tdlist.get(i).sell_quantity);
@@ -90,8 +91,9 @@ public class SellStock {
         List<String> oldLi = new ArrayList<String>();;
         List<String> newLi = new ArrayList<String>();
 
+        int size = sellstockList.size();
         // selllist에서 주식명만 뽑아서 주식명 리스트를 만든다
-        for(int i=0;i<sellstockList.size();i++) {
+        for(int i=0;i<size;i++) {
             oldLi.add(sellstockList.get(i).stock_name);
         }
 

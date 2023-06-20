@@ -88,7 +88,8 @@ public class MyBalance {
 
         int index=0;
         // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
-        for(int i=0; i < buystockList.size();i++) {
+        int size = buystockList.size();
+        for(int i=0; i < size ;i++) {
             index = inputDate.indexOf(buystockList.get(i).buy_date);
             inputBuyQuantity.set(index,buystockList.get(i).buy_quantity);
         }
@@ -105,7 +106,8 @@ public class MyBalance {
         //sellstockList = myportfolio.getSellList();
         int index =0;
         // date를 비교해보고 date가 있으면 해당날짜의 매도량을 copy한다
-        for(int i=0; i < sellstockList.size();i++) {
+        int size =sellstockList.size();
+        for(int i=0; i < size;i++) {
             index = inputDate.indexOf(sellstockList.get(i).sell_date);
             inputSellQuantity.set(index,sellstockList.get(i).sell_quantity);
         }

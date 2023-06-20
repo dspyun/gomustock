@@ -60,7 +60,8 @@ public class MyChart {
     public void setYMinmax(int min, int max) {
         List<Integer> temp = new ArrayList<>();
         if(min==0) {
-            for(int i = 0;i<chartlist.size();i++) {
+            int size = chartlist.size();
+            for(int i = 0;i<size;i++) {
                 temp.add((int) chartlist.get(i).min);
                 temp.add((int) chartlist.get(i).max);
             }
@@ -76,8 +77,8 @@ public class MyChart {
         LineChart lineChart=chart;
         List<FormatChart> chartlist1 = new ArrayList<FormatChart>();
         LineData lineData = new LineData();
-
-        for(int j=0;j<chartlist.size();j++) {
+        int size = chartlist.size();
+        for(int j=0;j<size;j++) {
             LineDataSet linedate1 = setLinedata(chartlist.get(j).entries, chartlist.get(j).color, chartlist.get(j).name);
             lineData.addDataSet(linedate1);
         }
@@ -105,7 +106,8 @@ public class MyChart {
         ArrayList<Entry> entrychart = new ArrayList<>();
         LineData bardata = new LineData();
 
-        for(int i=0;i<chartdata.size();i++ ) {
+        int size = chartlist.size();
+        for(int i=0;i<size;i++ ) {
             entrychart.add(new Entry(i,chartdata.get(i)));
         }
         // 데이터가 담긴 Arraylist 를 BarDataSet 으로 변환한다.
@@ -164,13 +166,14 @@ public class MyChart {
         BarData bardata = new BarData();
         List<Integer> color = new ArrayList<>();
 
+        int size = chartlist.size();
         // 1. entry에 chart data를 넣는다
-        for(int i=0;i<chartdata.size();i++ ) {
+        for(int i=0;i<size;i++ ) {
             entrychart.add(new BarEntry(i,chartdata.get(i)));
         }
         BarDataSet barDataSet = new BarDataSet(entrychart, "bardataset");
 
-        for(int i=0;i<chartdata.size();i++) {
+        for(int i=0;i<size;i++) {
             if(chartdata.get(i)<0) color.add(ContextCompat.getColor(context,R.color.CharBlue));
             else color.add(ContextCompat.getColor(context,R.color.Salmon));
         }

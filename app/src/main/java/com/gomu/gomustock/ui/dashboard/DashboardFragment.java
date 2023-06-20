@@ -1,7 +1,6 @@
 package com.gomu.gomustock.ui.dashboard;
 
 import static android.content.ContentValues.TAG;
-
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.content.Intent;
@@ -65,8 +64,10 @@ public class DashboardFragment extends Fragment {
         bd_adapter = new BoardAdapter(getActivity());
         binding.recyclerView.setAdapter(bd_adapter);
 
-        // zoom image link는 스마트폰 > 줌투자 > 새탭에서 이미지열기 > 링크 복사를 해서 사용한다
+        ImageView na_zumimage =  binding.zumchartNa;
         ImageView kr_zumimage = binding.zumchartKr;
+        // zoom image link는 스마트폰 > 줌투자 > 새탭에서 이미지열기 > 링크 복사를 해서 사용한다
+
         String kr_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/sise/siseMainKOSPI.png?sid=1686905920750";
         Glide.with(context).load(kr_imageUrl)
                 .skipMemoryCache(true)
@@ -74,7 +75,6 @@ public class DashboardFragment extends Fragment {
                 .into(kr_zumimage);
         kr_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
-        ImageView na_zumimage =  binding.zumchartNa;
         String na_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/world/continent/NAS@IXIC.png?1686905626226";
         Glide.with(context).load(na_imageUrl)
                 .skipMemoryCache(true)
@@ -118,7 +118,8 @@ public class DashboardFragment extends Fragment {
             public void onClick(View v) {
                 //bd_adapter.adapter_refresh();
                 mysignal.calcScore();
-                for(int i =0; i< mysignal.scorebox.size();i++) {
+                int size = mysignal.scorebox.size();
+                for(int i =0; i< size;i++) {
                     String stock_code = mysignal.scorebox.get(i).stock_code;
                     if(stock_code.equals("코스피 200")) continue;
                     int score = mysignal.scorebox.get(i).score;
@@ -168,7 +169,8 @@ public class DashboardFragment extends Fragment {
                     Thread.sleep(1000);
                     //Toast.makeText(context, "test thread", Toast.LENGTH_SHORT).show();
                     mysignal.calcScore();
-                    for(int i =0; i< mysignal.scorebox.size();i++) {
+                    int size = mysignal.scorebox.size();
+                    for(int i =0; i< size;i++) {
                         String stock_code = mysignal.scorebox.get(i).stock_code;
                         if(stock_code.equals("코스피 200")) continue;
                         int score = mysignal.scorebox.get(i).score;

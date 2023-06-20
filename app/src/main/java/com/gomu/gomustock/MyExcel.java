@@ -113,7 +113,8 @@ public class MyExcel extends MyStat{
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
                     // 현재 컬럼의 내용을 추가한다.
-                    for(int i=0; i < sheet.getColumn(col).length-1; i++) {
+                    int size = sheet.getColumn(col).length;
+                    for(int i=0; i < size-1; i++) {
                         contents = sheet.getCell(col, i).getContents();
                         mArrayBuffer.add(contents);
                     }
@@ -192,7 +193,8 @@ public class MyExcel extends MyStat{
                 //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
 
                 if(writablesheet != null) {
-                    for(int row =0;row<history.size();row++) {
+                    int size = history.size();
+                    for(int row =0;row<size;row++) {
                         writablesheet.addCell(new Label(0, row, history.get(row).date));
                         writablesheet.addCell(new Label(1, row, history.get(row).open));
                         writablesheet.addCell(new Label(2, row, history.get(row).high));
@@ -235,7 +237,8 @@ public class MyExcel extends MyStat{
                 //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
 
                 if(writablesheet != null) {
-                    for(int row =0;row<fogn.size();row++) {
+                    int size = fogn.size();
+                    for(int row =0;row<size;row++) {
                         // 0번은 날짜 입력하는 컬럼으로 남겨둔다. 현재 미구현
                         writablesheet.addCell(new Label(1, row, fogn.get(row)));
                         writablesheet.addCell(new Label(2, row, agency.get(row)));
@@ -292,7 +295,8 @@ public class MyExcel extends MyStat{
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
                     if(header != TRUE) start = 1;
-                    for(int i=start;i<sheet.getColumn(column).length;i++) {
+                    int size = sheet.getColumn(column).length;
+                    for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
                         // 종가는 6번째 컬럼의 값
                         pricebuffer.add(sheet.getCell(column, i).getContents());
@@ -330,7 +334,8 @@ public class MyExcel extends MyStat{
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
                     if(header != TRUE) start = 1;
-                    for(int i=start;i<sheet.getColumn(6).length;i++) {
+                    int size = sheet.getColumn(6).length;
+                    for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
                         // 종가는 6번째 컬럼의 값
                         mArrayBuffer.add(sheet.getCell(6, i).getContents());
@@ -374,7 +379,8 @@ public class MyExcel extends MyStat{
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
                     if(header != TRUE) start = 1;
-                    for(int i=start;i<sheet.getColumn(6).length;i++) {
+                    int size = sheet.getColumn(6).length;
+                    for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
                         // 종가는 6번째 컬럼의 값
                         mArrayBuffer.add(sheet.getCell(6, i).getContents());
@@ -416,7 +422,8 @@ public class MyExcel extends MyStat{
             path.add(dir.getParent());
         }
 
-        for (int i=0; i<fileslist.length-1;i++) {
+        int size = fileslist.length;
+        for (int i=0; i<size-1;i++) {
             java.io.File file = fileslist[i];
             path.add(file.getParentFile().getName());
 
@@ -527,11 +534,13 @@ public class MyExcel extends MyStat{
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
-                    for(int i =0 ; i<sheet.getColumn(0).length ;i++) {
+                    int size = sheet.getColumn(0).length;
+                    for(int i =0 ; i<size ;i++) {
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
                     }
-                    for(int i =0 ; i<sheet.getColumn(1).length ;i++) {
+                    size = sheet.getColumn(1).length;
+                    for(int i =0 ; i<size ;i++) {
                         ETF_NO.add(sheet.getCell(1, i).getContents());
                         ETF_NAME.add(sheet.getCell(3, i).getContents());
                     }
@@ -576,11 +585,13 @@ public class MyExcel extends MyStat{
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
-                    for(int i =0 ; i<sheet.getColumn(0).length ;i++) {
+                    int size = sheet.getColumn(0).length;
+                    for(int i =0 ; i<size ;i++) {
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
                     }
-                    for(int i =0 ; i<sheet.getColumn(1).length ;i++) {
+                    size = sheet.getColumn(1).length;
+                    for(int i =0 ; i<size ;i++) {
                         ETF_NO.add(sheet.getCell(1, i).getContents());
                         ETF_NAME.add(sheet.getCell(3, i).getContents());
                     }
@@ -641,6 +652,7 @@ public class MyExcel extends MyStat{
             BufferedReader reader = new BufferedReader(isr);
             //BufferedReader reader = Files.newBufferedReader(Paths.get(PathFile));
             String line;
+
             for(int i=0;(line = reader.readLine()) != null;i++) {
                 kospiarray.add(line);
             }
@@ -671,7 +683,8 @@ public class MyExcel extends MyStat{
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
                     if(header != TRUE) start = 0;
-                    for(int i=start;i<sheet.getColumn(0).length;i++) {
+                    int size = sheet.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
                         // 종가는 6번째 컬럼의 값
                         testdata = new FormatTestData();
@@ -714,7 +727,8 @@ public class MyExcel extends MyStat{
                     // line1, col1에서 contents를 읽는다.
                     int start = 0;
                     if(header != TRUE) start = 0;
-                    for(int i=start;i<sheet.getColumn(0).length;i++) {
+                    int size = sheet.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
                         // formatOA class의 구조로 저장된다
                         // 종가는 6번째 컬럼의 값
                         testdata = new FormatTestData();
@@ -756,9 +770,10 @@ public class MyExcel extends MyStat{
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
                     int start = 0;
                     if(header != TRUE) start = 0;
-                    for(int i=start;i<sheet.getColumn(0).length;i++) {
+                    for(int i=start;i<size;i++) {
                         // sell quantity를 읽는ㄴ다
                         testdata = new FormatTestData();
                         testdata.date = sheet.getCell(0, i).getContents();
@@ -801,7 +816,8 @@ public class MyExcel extends MyStat{
 
                 if(writablesheet != null) {
                     // header 때문에 1부터 시작해야 한다
-                    for(int row =0;row < buy.size();row++) {
+                    int size = buy.size();
+                    for(int row =0;row < size ;row++) {
                         writablesheet.addCell(new Label(0, row, date.get(row)));
                         writablesheet.addCell(new Label(1, row, price.get(row)));
                         writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row))));
@@ -828,8 +844,8 @@ public class MyExcel extends MyStat{
 
     public List<FormatTestData> removeHeader(List<FormatTestData> input) {
         List<FormatTestData> temp = new ArrayList<FormatTestData>();
-
-        for(int i = 0;i<input.size()-1; i++ ) {
+        int size = input.size();
+        for(int i = 0;i< size-1; i++ ) {
             temp.add(input.get(i+1));
         }
         return temp;
@@ -850,9 +866,9 @@ public class MyExcel extends MyStat{
                 workbook.createSheet("sheet1", 0);
                 writablesheet = workbook.getSheet(0);
                 //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
-
+                int size = information.size();
                 if(writablesheet != null) {
-                    for(int row =0;row<information.size();row++) {
+                    for(int row =0;row<size;row++) {
                         writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
                         writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
                         writablesheet.addCell(new Label(2, row, information.get(row).per));
@@ -901,9 +917,10 @@ public class MyExcel extends MyStat{
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
                     int start = 0;
                     if(header != TRUE) start = 1;
-                    for(int i=start;i<sheet.getColumn(0).length;i++) {
+                    for(int i=start;i<size;i++) {
                         FormatStockInfo temp = new FormatStockInfo();
                         temp.stock_code = sheet.getCell(0, i).getContents();
                         temp.stock_name = sheet.getCell(1, i).getContents();
@@ -994,7 +1011,8 @@ public class MyExcel extends MyStat{
             if(wb != null) {
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
-                    for(int i=0;i<sheet.getColumn(0).length;i++) {
+                    int size = sheet.getColumn(0).length;
+                    for(int i=0;i<size;i++) {
                         sb.append(spc10 +"[");
                         sb.append("'"+sheet.getCell(0, i).getContents()+"',"+spc4); // name
                         sb.append("'"+sheet.getCell(1, i).getContents()+"',"+spc4); // area

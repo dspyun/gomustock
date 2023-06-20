@@ -40,7 +40,8 @@ public class MySignal {
         buystockList = buystock_db.buystockDao().getAll();
         // buy stock list에서 중복된 종목을 제거한다
         Set<String> set = new HashSet<String>();
-        for(int i =0;i < buystockList.size();i++ ) {
+        int size = buystockList.size();
+        for(int i =0;i < size ;i++ ) {
             set.add(buystockList.get(i).stock_code);
         }
         Iterator<String> iter = set.iterator();
@@ -53,7 +54,8 @@ public class MySignal {
 
     public void calcScore() {
         addPerioddata();
-        for(int i =0;i<scorebox.size();i++) {
+        int size = scorebox.size();
+        for(int i =0;i< size;i++) {
             //if(mixlist.get(i).stock_name.equals("코스피 200")) continue;
             String temp = scorebox.get(i).stock_code;
             int score = scoring(temp);
@@ -64,7 +66,8 @@ public class MySignal {
 
     public String getSignal(String stock_code) {
         String result="";
-        for(int i =0;i<scorebox.size();i++) {
+        int size = scorebox.size();
+        for(int i =0;i<size;i++) {
             if(scorebox.get(i).stock_code.equals(stock_code)) {
                 result = String.valueOf(scorebox.get(i).score);
                 break;
@@ -78,7 +81,8 @@ public class MySignal {
     }
     public void addPerioddata() {
         MyExcel myexcel = new MyExcel();
-        for (int i = 0; i < scorebox.size(); i++) {
+        int size = scorebox.size();
+        for (int i = 0; i < size; i++) {
             FormatScore onemix = new FormatScore();
             onemix = scorebox.get(i);
             srcdata = myexcel.oa_readItem(onemix.stock_code+".xls", "CLOSE", false);
@@ -123,7 +127,8 @@ public class MySignal {
     }
 
     public int find_index(String stock_code) {
-        for (int i = 0; i < scorebox.size();i++) {
+        int size = scorebox.size();
+        for (int i = 0; i < size ;i++) {
             if(stock_code.equals(scorebox.get(i).stock_code))
             {
                 return i;
@@ -140,12 +145,14 @@ public class MySignal {
                 // TODO Auto-generated method stub
                 MyWeb myweb = new MyWeb();
                 scorebox.clear();
-                for(int i =0;i<buylist.size();i++) {
+                int size = buylist.size();
+                for(int i =0;i<size;i++) {
                     FormatScore temp = new FormatScore();
                     temp.stock_code = buylist.get(i);
                     scorebox.add(temp);
                 }
-                for (int i = 0; i < buylist.size(); i++) {
+
+                for (int i = 0; i < size; i++) {
                     try {
                         FormatScore onemix = new FormatScore();
                         String temp = myweb.getCurrentStockPrice(buylist.get(i));
@@ -193,8 +200,8 @@ public class MySignal {
         List<String> close_str = new ArrayList<>();
         close_str = myexcel.oa_readItem(stock_code + ".xls","CLOSE", false);
         List<Double> closedata = myexcel.string2double(close_str, 1);
-
-        for (int i = 0; i < closePrice.length; i++) {
+        int size =  closePrice.length;
+        for (int i = 0; i < size; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
 
@@ -210,7 +217,8 @@ public class MySignal {
         int score=0;
         double diff=0, average=0;
         double sum = 0;
-        for(int i = 0 ;i<mystddev.size();i++) {
+        size = mystddev.size();
+        for(int i = 0 ;i<size;i++) {
             sum += mystddev.get(i);
         }
         average = sum/mystddev.size();

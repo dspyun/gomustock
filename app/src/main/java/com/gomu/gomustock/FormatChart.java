@@ -17,7 +17,8 @@ public class FormatChart {
     }
     public void intEntry(List<Integer> data) {
         entries = new ArrayList<>();
-        for(int i=0;i<data.size();i++ ) {
+        int size = data.size();
+        for(int i=0;i<size;i++ ) {
             entries.add(new Entry(i, data.get(i)));
         }
         this.max = (float) Collections.max(data);
@@ -25,7 +26,8 @@ public class FormatChart {
     }
     public void floatEntry(List<Float> data) {
         entries = new ArrayList<>();
-        for(int i=0;i<data.size();i++ ) {
+        int size = data.size();
+        for(int i=0;i<size;i++ ) {
             entries.add(new Entry(i, data.get(i)));
         }
         this.max = Collections.max(data);
