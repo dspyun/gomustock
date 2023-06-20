@@ -1,10 +1,11 @@
-package com.gomu.gomustock.portfolio;
+package com.gomu.gomustock.ui.home;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import com.gomu.gomustock.FormatTestData;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.ui.simulation.SBuyStockDB;
+import com.gomu.gomustock.portfolio.BuyStockDB;
+import com.gomu.gomustock.portfolio.BuyStockDBData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,20 @@ public class BuyStock {
         buystockList = buystock_db.buystockDao().getAll();
     }
 
+    public void add_stock2buydb(int position, String name, String stock_code, int quantity, int price, String date) {
+        //buystock_db = BuyStockDB.getInstance(context);
+        BuyStockDBData first_buystock_data= new BuyStockDBData();
 
+        first_buystock_data.stock_code = stock_code;
+        first_buystock_data.buy_date = date;
+        first_buystock_data.stock_name = name;
+        first_buystock_data.buy_quantity = quantity;
+        first_buystock_data.buy_price = price;
+        buystockList = buystock_db.buystockDao().getAll();
+        buystockList.add(position,first_buystock_data);
+        buystock_db.buystockDao().insertAll(buystockList);
+
+    }
     public void insert_stock2buydb(String name, String stock_code, int quantity, int price, String date) {
         //buystock_db = BuyStockDB.getInstance(context);
         BuyStockDBData first_buystock_data= new BuyStockDBData();

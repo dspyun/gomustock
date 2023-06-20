@@ -197,4 +197,34 @@ public class MyStat {
         }
         return closeprice;
     }
+
+    public List<Float> arrangeRev_float(List<Float> input) {
+        List<Float> temp = new ArrayList<>();
+        for (int i = input.size() - 1; i >= 0; i--) {
+            temp.add(input.get(i));
+        }
+        return temp;
+    }
+    public List<Integer> arrangeRev_int(List<Integer> input) {
+        List<Integer> temp = new ArrayList<>();
+        for (int i = input.size() - 1; i >= 0; i--) {
+            temp.add(input.get(i));
+        }
+        return temp;
+    }
+    public List<Double> arrangeRev_double(List<Double> input) {
+        List<Double> temp = new ArrayList<>();
+        for (int i = input.size() - 1; i >= 0; i--) {
+            temp.add(input.get(i));
+        }
+        return temp;
+    }
+
+    public List<String> arrangeRev_string(List<String> input) {
+        List<String> temp = new ArrayList<>();
+        for (int i = input.size() - 1; i >= 0; i--) {
+            temp.add(input.get(i));
+        }
+        return temp;
+    }
 }

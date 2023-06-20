@@ -1,7 +1,7 @@
 package com.gomu.gomustock;
 
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.Cache;
+import com.gomu.gomustock.ui.home.Cache;
 import com.gomu.gomustock.ui.home.Portfolio;
 import com.gomu.gomustock.portfolio.SellStockDBData;
 
@@ -28,6 +28,7 @@ public class MyBalance {
     List<BuyStockDBData> buystockList = new ArrayList<BuyStockDBData>();
     List<SellStockDBData> sellstockList = new ArrayList<SellStockDBData>();
     int balanace_valid;
+
     public MyBalance(String name) {
         this.stock_code = name;
         // 순서바꾸면 안됨. 차례로 데이터 들어가고 계산되어야 함
@@ -83,9 +84,8 @@ public class MyBalance {
         // buyquantity와 sellquantity도 불러와야 한다
         // db에서 불러와서 해당날짜 index에 저장해준다
         //buystockList = buystock_db.buystockDao().getAll();
-
-
         //buystockList = myportfolio.getBuyList();
+
         int index=0;
         // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
         for(int i=0; i < buystockList.size();i++) {
@@ -116,25 +116,39 @@ public class MyBalance {
         // 원금, 매수량/매수액, 매도량/매도액 테이블의 값을 가지고
         // 1년치 일일 잔액, 보유수량, 평가액 변화를 계산해서 엑셀에 저장한다
         // 보유수량 변화량을 계산한다.
+
+        // 어레이는 순서를 역순으로 바꿔준다
+        // 어레이는 최신날짜 > 과거날짜 순이다
+        // 하지만 누적계산은 과거날짜 > 최신 순으로 해야 한다
+        // 계산은 역순 어레이로 한 후, 반환한다
+        // 차트배열에서는 처음입력된 값이 가장 과거값이므로
+        // 과거날짜>최신날짜 순으로 정렬되어야 한다
+        List<Integer> inputStockprice_rev = new ArrayList<Integer>();
+        List<Integer> inputBuyQuantity_rev = new ArrayList<Integer>();
+        List<Integer> inputSellQuantity_rev = new ArrayList<Integer>();
+        inputStockprice_rev = myexcel.arrangeRev_int(inputStockprice);
+        inputBuyQuantity_rev = myexcel.arrangeRev_int(inputBuyQuantity);
+        inputSellQuantity_rev = myexcel.arrangeRev_int(inputSellQuantity);
+
         int quantity=0;
         int listsize = inputDate.size();
         for(int i=0;i<listsize;i++) {
-            quantity = quantity + inputBuyQuantity.get(i);
-            quantity = quantity - inputSellQuantity.get(i);
+            quantity = quantity + inputBuyQuantity_rev.get(i);
+            quantity = quantity - inputSellQuantity_rev.get(i);
             outputQuantity.set(i, quantity);
-            quantity = 0;
+            //quantity = 0;
         }
         // 현금변화량을 계산한다
         for(int i=0;i<listsize;i++) {
-            cache = cache - inputBuyQuantity.get(i)*inputStockprice.get(i);
-            cache = cache + inputSellQuantity.get(i)*inputStockprice.get(i);
+            cache = cache - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
+            cache = cache + inputSellQuantity_rev.get(i)*inputStockprice_rev.get(i);
             outputCache.set(i, cache);
-            cache = 0;
+            //cache = 0;
         }
         // 평가액 변화량을 계산한다
         // 일일보유수량*일일종가
         for(int i=0;i<listsize;i++) {
-            outputEstim.set(i, outputQuantity.get(i)*inputStockprice.get(i));
+            outputEstim.set(i, outputQuantity.get(i)*inputStockprice_rev.get(i));
         }
 
         // 총자산액
@@ -168,62 +182,27 @@ public class MyBalance {
     public List<Integer> getRemaincache() {
         // 만덜어진 balance data가 저장된 엑셀에서
         // 잔액을 읽어서 리턴해준다 차트데이터로 쓰인다.
-        /*
-        if(balanace_valid == -1) {
-            for(int i =0;i<60;i++) {
-                outputCache.add(0);
-            }
-        }
-
-         */
+        //List<Integer> temp = new ArrayList<>();
+        //temp = arrangeRev(outputCache);
         return outputCache;
     }
 
     public List<Integer> getEstimStock() {
         // 만덜어진 balance data가 저장된 엑셀에서
         // 잔액을 읽어서 리턴해준다 차트데이터로 쓰인다.
-        /*
-        if(balanace_valid == -1) {
-            for(int i =0;i<60;i++) {
-                outputEstim.add(0);
-            }
-        }
 
-         */
+        //List<Integer> temp = new ArrayList<>();
+        //temp = arrangeRev(outputEstim);
+        return outputEstim;
 
-        List<Integer> estim_rev = new ArrayList<>();
-        for(int i=outputEstim.size()-1;i>=0;i--) {
-            estim_rev.add(outputEstim.get(i));
-        }
-        return estim_rev;
-        //return outputEstim;
     }
 
     public List<Integer> getTotalAsset() {
         // 만덜어진 balance data가 저장된 엑셀에서
         // 총액을 읽어서 리턴해준다. 차트데이터로 쓰인다.
-        /*
-        if(balanace_valid == -1) {
-            for (int i = 0; i < 60; i++) {
-                outputTotal.add(0);
-            }
-        }
-         */
+        //List<Integer> temp = new ArrayList<>();
+        //temp = arrangeRev(outputTotal);
         return outputTotal;
     }
 
-    public List<Integer> plusRemaincache(List<Integer> input) {
-        List<Integer> sum = new ArrayList<Integer>();
-        for(int i =0;i<input.size();i++) {
-            sum.add(outputCache.get(i)+input.get(i));
-        }
-        return sum;
-    }
-    public List<Integer> plusEstimStock(List<Integer> input) {
-        List<Integer> sum = new ArrayList<Integer>();
-        for(int i =0;i<input.size();i++) {
-            sum.add(outputEstim.get(i)+input.get(i));
-        }
-        return sum;
-    }
 }

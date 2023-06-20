@@ -24,7 +24,6 @@ import com.gomu.gomustock.FormatChart;
 import com.gomu.gomustock.FormatStockInfo;
 import com.gomu.gomustock.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MAType;
@@ -81,18 +80,21 @@ public class BoardSubActivity extends AppCompatActivity {
             String stock_code = suboption.getStockcode();
             String stock_info = suboption.getStockinfo();
 
+            fogn_chart(stock_code);
+            agency_chart(stock_code);
+
             show_information(stock_name, stock_code, stock_info);
 
             MyExcel myexcel = new MyExcel();
-            MyStat mystat = new MyStat();
             MyChart bband_chart = new MyChart();
 
             List<FormatChart> chartlist = new ArrayList<FormatChart>();
             List<String> temp = new ArrayList<>();
             temp = myexcel.oa_readItem(stock_code + ".xls","CLOSE", false);
-            chart1_data1 = mystat.string2float(temp, 1);
+            temp = myexcel.arrangeRev_string(temp);
+            chart1_data1 = myexcel.string2float(temp, 1);
             bband_chart.buildChart_float(chart1_data1, stock_code, Color.RED);
-            bb_chart = bbands_test(stock_code);
+            bb_chart = bbands_test(stock_code, 60);
             bband_chart.buildChart_float(bb_chart.get(0), "upper", Color.GRAY);
             bband_chart.buildChart_float(bb_chart.get(1), "middle", Color.LTGRAY);
             chartlist = bband_chart.buildChart_float(bb_chart.get(2), "lower", Color.GRAY);
@@ -100,9 +102,7 @@ public class BoardSubActivity extends AppCompatActivity {
             bband_chart.multi_chart(bbnandChart, chartlist, "볼린저밴드", false);
             //lineChart.invalidate();
 
-            fogn_chart(stock_code);
-            agency_chart(stock_code);
-            adc_chart(stock_code);
+            adx_chart(stock_code, 60);
 
             mytext.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,12 +173,12 @@ public class BoardSubActivity extends AppCompatActivity {
     }
 
 
-    public List<List<Float>> bbands_test(String stock_code) {
+    public List<List<Float>> bbands_test(String stock_code, int total_period) {
 
         List<List<Float>> threechart = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = 30;
+        final int TOTAL_PERIODS = total_period;
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -196,8 +196,8 @@ public class BoardSubActivity extends AppCompatActivity {
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
         close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
-
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
@@ -251,14 +251,11 @@ public class BoardSubActivity extends AppCompatActivity {
         return threechart;
     }
 
-    public List<Float> adx_test(String stock_code) {
+    public List<Float> adx_test(String stock_code, int total_period) {
 
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = 30;
-
-        // The number of periods to average together.
-        final int PERIODS_AVERAGE = 5;
+        final int TOTAL_PERIODS = total_period;
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
@@ -275,32 +272,34 @@ public class BoardSubActivity extends AppCompatActivity {
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
         close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
         List<String> high_str = new ArrayList<>();
         high_str = myexcel.oa_readItem(stock_code+".xls","HIGH",false);
+        high_str = myexcel.arrangeRev_string(high_str);
         List<Double> highdata = myexcel.string2double(high_str,1);
         for (int i =  0; i < highPrice.length; i++) {
             highPrice[i] = (double) highdata.get(i);
         }
         List<String> low_str = new ArrayList<>();
         low_str = myexcel.oa_readItem(stock_code+".xls","LOW",false);
+        low_str = myexcel.arrangeRev_string(low_str);
         List<Double> lowdata = myexcel.string2double(low_str,1);
         for (int i =  0; i < lowPrice.length; i++) {
             lowPrice[i] = (double) lowdata.get(i);
         }
 
-
         Core c = new Core();
         //RetCode retCode = c.sma(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE, begin, length, out);
-        RetCode retCode = c.adx( 0, closePrice.length - 1,  highPrice, lowPrice, closePrice,
+        RetCode retCode = c.adx( 0, closePrice.length -1,  highPrice, lowPrice, closePrice,
            optInTimePeriod, begin, length,  outReal);
 
         if (retCode == RetCode.Success) {
             System.out.println("Output Start Period: " + begin.value);
-            System.out.println("Output End Period: " + (begin.value + length.value - 1));
+            System.out.println("Output Period length : " +length.value);
             int start = begin.value;
             int end = (begin.value + length.value);
             // 결과를 float 리스트로 패킹해서 전달한다
@@ -344,11 +343,11 @@ public class BoardSubActivity extends AppCompatActivity {
         fogn_chart.barchart_float(agencyChart,chart_data,"기관",false );
     }
 
-    public void adc_chart(String stock_code) {
+    public void adx_chart(String stock_code, int total_period) {
         MyChart fogn_chart = new MyChart();
         List<Float> chart_data = new ArrayList<>();
-        chart_data = adx_test(stock_code);
+        chart_data = adx_test(stock_code, total_period);
 
-        fogn_chart.single_float(subChart,chart_data,"ADC",false );
+        fogn_chart.single_float(subChart,chart_data,"ADX",false );
     }
 }

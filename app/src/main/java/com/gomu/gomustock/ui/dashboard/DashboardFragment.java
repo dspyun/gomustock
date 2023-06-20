@@ -95,31 +95,11 @@ public class DashboardFragment extends Fragment {
         kr_zumimage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 // 전체화면으로 보여준다
                 Intent intent = new Intent(getActivity(), BoardSubActivity.class);
                 BoardSubOption suboption = new BoardSubOption("popup","domestic");
                 intent.putExtra("class",suboption);
                 startActivity(intent);
-
-                /*
-                WebView tempview = binding.webTemp;
-                tempview.setVisibility(View.VISIBLE);
-
-                try {
-                    Bitmap bitmap = Bitmap.createBitmap(700,700,Bitmap.Config.ARGB_8888);
-
-                    Canvas canvas = new Canvas(bitmap);
-                    tempview.draw(canvas);
-
-                    ImageView kr_zumimage = binding.zumchartKr;
-                    kr_zumimage.setImageBitmap(bitmap);
-
-                } catch (Exception  e) {
-                    e.printStackTrace();
-                }
-                tempview.setVisibility(View.INVISIBLE);
-                */
 
             }
         });

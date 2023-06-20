@@ -23,7 +23,7 @@ import com.gomu.gomustock.MyOpenApi;
 import com.gomu.gomustock.MyWeb;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.ui.home.PortfolioData;
+import com.gomu.gomustock.portfolio.PortfolioData;
 
 import java.util.List;
 

@@ -1,9 +1,11 @@
-package com.gomu.gomustock.portfolio;
+package com.gomu.gomustock.ui.home;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import com.gomu.gomustock.FormatTestData;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.portfolio.SellStockDB;
+import com.gomu.gomustock.portfolio.SellStockDBData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,21 @@ public class SellStock {
         sellstock_db = SellStockDB.getInstance(context);
         sellstockList = sellstock_db.sellstockDao().getAll();
     }
+    public void add_stock2selldb(int position, String name, String stock_code, int quantity, int price, String date) {
+        //buystock_db = BuyStockDB.getInstance(context);
+        SellStockDBData first_sellstock_data= new SellStockDBData();
+
+        first_sellstock_data.stock_code = stock_code;
+        first_sellstock_data.sell_date = date;
+        first_sellstock_data.stock_name = name;
+        first_sellstock_data.sell_quantity = quantity;
+        first_sellstock_data.sell_price = price;
+        sellstockList = sellstock_db.sellstockDao().getAll();
+        sellstockList.add(position,first_sellstock_data);
+        sellstock_db.sellstockDao().insertAll(sellstockList);
+
+    }
+
     public void insert_stock2selldb(String name, String stock_code, int quantity, int price, String date) {
 
         SellStockDBData first_sellstock_data= new SellStockDBData();

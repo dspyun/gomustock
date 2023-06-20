@@ -181,7 +181,7 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                dl_NaverPrice30(sim_stock);
+                dl_NaverPriceByday(sim_stock, 60);
             }
         });
 
@@ -249,14 +249,14 @@ public class SimulationFragment extends Fragment {
         });
     }
 
-    public void dl_NaverPrice30(List<String> stocklist) {
+    public void dl_NaverPriceByday(List<String> stocklist, int day) {
         MyWeb myweb = new MyWeb();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
                 for(int i=0;i<stocklist.size();i++) {
-                    myweb.getNaverprice30(stocklist.get(i));
+                    myweb.getNaverpriceByday(stocklist.get(i),day);
                 }
             }
         }).start();

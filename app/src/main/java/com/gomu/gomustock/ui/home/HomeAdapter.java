@@ -27,10 +27,8 @@ import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyOpenApi;
 import com.gomu.gomustock.MyWeb;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.portfolio.BuyStock;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.Cache;
-import com.gomu.gomustock.portfolio.SellStock;
+import com.gomu.gomustock.portfolio.PortfolioData;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -227,11 +225,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
                 }
+                //dl_NaverPriceByday(stock_no,60);
 
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
 
+                // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
                 BuyStock buystock = new BuyStock();
                 buystock.insert_stock2buydb(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
 
@@ -240,7 +240,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 mycache.update_cache(buymoney);
 
                 // 매수를 하면 앱 리스타트
-                app_restart();
+                //app_restart();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
@@ -286,6 +286,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
 
+                // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
                 SellStock sellstock = new SellStock();
                 sellstock.insert_stock2selldb(name,stock_no,Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
 
@@ -452,7 +453,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         bt_tuja.setText(show_myaccount());
         bt_tuja = context.findViewById(R.id.account_tuja);
     }
-    private void app_restart() {
+    public void app_restart() {
 
         Intent intent = context.getIntent();
         context.overridePendingTransition(0, 0);
@@ -462,6 +463,19 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         context.overridePendingTransition(0, 0);
         context.startActivity(intent);
     }
+
+    public void dl_NaverPriceByday(String stock_code, int day) {
+        MyWeb myweb = new MyWeb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                myweb.getNaverpriceByday(stock_code, day);
+                //myweb.getNaverpriceByday("069500", day); // kodex 200 상품
+            }
+        }).start();
+    }
+
     public  List<BuyStockDBData> getBuylist() {
         return buyList;
     }

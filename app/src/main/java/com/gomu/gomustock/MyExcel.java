@@ -5,6 +5,8 @@ import static java.lang.Boolean.TRUE;
 
 import android.os.Environment;
 
+import com.gomu.gomustock.portfolio.BuyStockDBData;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -1028,5 +1030,21 @@ public class MyExcel extends MyStat{
         } finally {
 
         }
+    }
+    public int checkExcelfile(List<BuyStockDBData> stock_list) {
+        for(int i =0;i<stock_list.size();i++) {
+            String PathFile = STOCKDIR + stock_list.get(i).stock_code+".xls";
+            File file = new File(PathFile);
+            // 1. check if the file exists or not
+            boolean isExists = file.exists();
+
+            if(isExists) {
+                System.out.println("I find the existFile.txt");
+            } else {
+                System.out.println(stock_list.get(i).stock_code + " file does not exist.");
+                return -1;
+            }
+        }
+        return 1;
     }
 }

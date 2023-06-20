@@ -230,10 +230,11 @@ public class MyWeb {
         }
     }
 
-    public void getNaverprice30(String stock_code) {
+    public void getNaverpriceByday(String stock_code, int day) {
         List<FormatOHLCV> naverpricelist = new ArrayList<>();
         String page="";
-        for(int i =0;i<3;i++) {
+        int index = day/10;
+        for(int i =1;i<=index;i++) {
             page = Integer.toString(i);
             naverpricelist.addAll(getPrice10(stock_code,page));
         }

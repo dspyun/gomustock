@@ -21,15 +21,10 @@ import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.MyWeb;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.portfolio.BuyStock;
-import com.gomu.gomustock.portfolio.BuyStockDB;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
+import com.gomu.gomustock.ui.home.BuyStock;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 {
@@ -128,10 +123,12 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         standard_chart = new MyChart();
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
         pricelist = myexcel.oa_readItem(stock_code+".xls","CLOSE", false);
+        pricelist = myexcel.arrangeRev_string(pricelist);
         chart_data1 = mystat.oa_standardization(pricelist);
         standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
 
         pricelist = myexcel.oa_readItem("069500"+".xls","CLOSE", false);
+        pricelist = myexcel.arrangeRev_string(pricelist);
         chart_data2 = mystat.oa_standardization(pricelist);
         chartlist = standard_chart.buildChart_float(chart_data2,"KODEX 200",context.getColor(R.color.White));
         standard_chart.setYMinmax(-3, 3);
@@ -158,10 +155,15 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             }
             */
             // 정보를 모두 string으로 변환
+            String temp;
             for(int i=0;i<web_stockinfo.size();i++) {
                 if(stock_code.equals( web_stockinfo.get(i).stock_code )) {
-                    stock_info += web_stockinfo.get(position).toString();
-                    return stock_info;
+                    //temp = web_stockinfo.get(position).toString();
+                    temp = web_stockinfo.get(i).toString();
+                    if( temp != null) stock_info += temp;
+                    else  stock_info="";
+                } else {
+                    stock_info="";
                 }
             }
         }

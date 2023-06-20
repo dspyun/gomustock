@@ -2,10 +2,9 @@ package com.gomu.gomustock.ui.home;
 
 import android.app.Activity;
 
-import com.gomu.gomustock.portfolio.BuyStock;
 import com.gomu.gomustock.portfolio.BuyStockDB;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.SellStock;
+import com.gomu.gomustock.portfolio.PortfolioData;
 import com.gomu.gomustock.portfolio.SellStockDB;
 import com.gomu.gomustock.portfolio.SellStockDBData;
 
@@ -288,8 +287,10 @@ public class Portfolio {
                 }
             }
         }
+
         List<BuyStockDBData> templist = new ArrayList<BuyStockDBData>();
         templist = buylist;
+                /*
         for(int k = buylist.size();k>=0;k--) {
             for(int j =0;j<last_buylist.size();j++) {
                 if (buylist.get(k).stock_name.equals(selllist.get(j).stock_name)) {
@@ -297,9 +298,12 @@ public class Portfolio {
                 }
             }
         }
+                 */
+
         for(int i = 0;i<templist.size();i++) {
             last_buylist.add(templist.get(i));
         }
+
         // 최종 남은 매수종목 및 가격, 수량이 현재 포트폴리오 임
         return last_buylist;
     }

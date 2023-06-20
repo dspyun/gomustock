@@ -24,6 +24,7 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.FormatChart;
 import com.gomu.gomustock.MyBalance;
 import com.gomu.gomustock.MyChart;
+import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyOpenApi;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.MyTreeMap;
@@ -32,7 +33,6 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
 import com.gomu.gomustock.portfolio.BuyStockDB;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.Cache;
 import com.gomu.gomustock.portfolio.SellStockDBData;
 
 import java.util.ArrayList;
@@ -65,14 +65,15 @@ public class HomeFragment extends Fragment {
     private int DelaySecond=1;
 
     public MyOpenApi myopenapi = new MyOpenApi();
-
+    public MyExcel myexcel = new MyExcel();
+    View root;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
                 new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        root = binding.getRoot();
 
         recyclerView = root.findViewById(R.id.home_recycler_view);
 
@@ -80,9 +81,7 @@ public class HomeFragment extends Fragment {
         // 최종 보유주식과 매매 히스토리를 만든다.
         Cache mycache = new Cache();
         mycache.initialize();
-        BuyStockDBData lastbuy = new BuyStockDBData();
-        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
-        List<MyBalance> balancelist = new ArrayList<>();
+
 
         myportfolio = new Portfolio(getActivity());
         myportfolio.loadDB2Portfolio();
@@ -91,55 +90,9 @@ public class HomeFragment extends Fragment {
         // 포트폴리오 정보와 가격 히스토리를 가지고
         // 종목펼 수익변화차트 데이터를 만든다
 
-        for(int i =0;i<portfolio.size();i++) {
-            MyBalance onebalance = new MyBalance(portfolio.get(i).stock_code);
-            onebalance.prepareDataset(myportfolio.getBuyList(),myportfolio.getSellList());
-            onebalance.makeBalancedata();
-            balancelist.add(onebalance);
+        if(-1 != myexcel.checkExcelfile(portfolio)) {
+            drawChart();
         }
-        int size = balancelist.size();
-
-        // 각 종목의 balance의 평가액과 현금을 총합한다.
-        if(size != 0 ) {
-            List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
-            List<List<Integer>> remainmoney = new ArrayList<List<Integer>>();
-            for (int i = 0; i < balancelist.size(); i++) {
-                estimmoney.add(balancelist.get(i).getEstimStock());
-                remainmoney.add(balancelist.get(0).getRemaincache());
-            }
-            MyStat mystat = new MyStat();
-            List<Integer> last_estimmoney = mystat.sumlist(estimmoney);
-            List<Integer> last_remainmoney = mystat.sumlist(remainmoney);
-
-            // 총합된 평가액과 현금을 차트로 보여준다
-            MyChart money_chart = new MyChart();
-            // 합친내용을 차트에 보여준다
-            List<FormatChart> chartlist = new ArrayList<FormatChart>();
-            chartlist = money_chart.buildChart_int(last_estimmoney, "평가액", context.getColor(R.color.Red));
-            //chartlist = money_chart.buildChart_int(last_remainmoney, "잔액", context.getColor(R.color.White));
-
-            lineChart = (LineChart) root.findViewById(R.id.tuja_chart);
-            //money_chart.setYMinmax(0, 0);
-            money_chart.multi_chart(lineChart, chartlist, "자산증감", false);
-        }
-
-        // 종목별 balance 결과 쭝 평가액변화를 차트에 보여준다.
-        MyChart stock_chart = new MyChart();
-        List<FormatChart> stockchart = new ArrayList<FormatChart>();
-
-        if(size != 0 ) {
-            for (int i = 0; i < size; i++) {
-                List<Integer> onechartdata = new ArrayList<Integer>();
-                String stock_code = "";
-                onechartdata = balancelist.get(i).getEstimStock();
-                stock_code = balancelist.get(i).stock_code;
-                stockchart = stock_chart.buildChart_int(onechartdata, stock_code, context.getColor(R.color.Red));
-            }
-            lineChart = (LineChart) root.findViewById(R.id.tuja_detail_chart);
-            //stock_chart.setYMinmax(0, 0);
-            stock_chart.multi_chart(lineChart, stockchart, "종목별총액증감", false);
-        }
-
         // 계좌 정보 보여주기
         top_board(root);
 
@@ -161,12 +114,15 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+                List<BuyStockDBData> stock_list = myportfolio.getPortfolio();
                 List<String> buylist = new ArrayList<>();
-                buylist = ReadBuyList();
-                //dl_PriceNIndexhistory3M(buylist);
+                for(int i =0;i<stock_list.size();i++) {
+                    buylist.add(stock_list.get(i).stock_code);
+                }
                 dl_AgencyForeigne(buylist);
-                dl_NaverPrice30();
+                dl_NaverPriceByday(buylist, 60);
                 //dl_IndexHistory1Y("코스피 200");
+                //home_adapter.app_restart();
             }
         });
 
@@ -176,6 +132,8 @@ public class HomeFragment extends Fragment {
             public void onClick(View v)
             {
                 binding.realChart.setText("Data2DB");
+                //home_adapter.app_restart();
+
                 // backtest excel을 읽어 buydb, selldb에 나누어 저장한다
                 // myportfolio.loadExcel2DB("005930_testset.xls");
             }
@@ -242,6 +200,62 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+    public void drawChart() {
+        BuyStockDBData lastbuy = new BuyStockDBData();
+        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+        List<MyBalance> balancelist = new ArrayList<>();
+
+        for (int i = 0; i < portfolio.size(); i++) {
+            MyBalance onebalance = new MyBalance(portfolio.get(i).stock_code);
+            onebalance.prepareDataset(myportfolio.getBuyList(), myportfolio.getSellList());
+            onebalance.makeBalancedata();
+            balancelist.add(onebalance);
+        }
+        int size = balancelist.size();
+
+        // 각 종목의 balance의 평가액과 현금을 총합한다.
+        if (size != 0) {
+            List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
+            List<List<Integer>> remainmoney = new ArrayList<List<Integer>>();
+            for (int i = 0; i < balancelist.size(); i++) {
+                estimmoney.add(balancelist.get(i).getEstimStock());
+                remainmoney.add(balancelist.get(0).getRemaincache());
+            }
+            MyStat mystat = new MyStat();
+            List<Integer> last_estimmoney = mystat.sumlist(estimmoney);
+            List<Integer> last_remainmoney = mystat.sumlist(remainmoney);
+
+            // 총합된 평가액과 현금을 차트로 보여준다
+            MyChart money_chart = new MyChart();
+            // 합친내용을 차트에 보여준다
+            List<FormatChart> chartlist = new ArrayList<FormatChart>();
+            chartlist = money_chart.buildChart_int(last_estimmoney, "평가액", context.getColor(R.color.Red));
+            //chartlist = money_chart.buildChart_int(last_remainmoney, "잔액", context.getColor(R.color.White));
+
+            lineChart = (LineChart) root.findViewById(R.id.tuja_chart);
+            //money_chart.setYMinmax(0, 0);
+            money_chart.multi_chart(lineChart, chartlist, "자산증감", false);
+        }
+
+        // 종목별 balance 결과 쭝 평가액변화를 차트에 보여준다.
+        MyChart stock_chart = new MyChart();
+        List<FormatChart> stockchart = new ArrayList<FormatChart>();
+
+        if (size != 0) {
+            for (int i = 0; i < size; i++) {
+                List<Integer> onechartdata = new ArrayList<Integer>();
+                String stock_code = "";
+                onechartdata = balancelist.get(i).getEstimStock();
+                stock_code = balancelist.get(i).stock_code;
+                stockchart = stock_chart.buildChart_int(onechartdata, stock_code, context.getColor(R.color.Red));
+            }
+            lineChart = (LineChart) root.findViewById(R.id.tuja_detail_chart);
+            //stock_chart.setYMinmax(0, 0);
+            stock_chart.multi_chart(lineChart, stockchart, "종목별총액증감", false);
+        }
+    }
+
+
     public void dl_PriceHistory1Y(List<String> itemlist) {
         MyOpenApi myopenapi = new MyOpenApi();
         new Thread(new Runnable() {
@@ -252,13 +266,17 @@ public class HomeFragment extends Fragment {
             }
         }).start();
     }
-    public void dl_NaverPrice30() {
+    public void dl_NaverPriceByday(List<String> stock_code, int day) {
         MyWeb myweb = new MyWeb();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
-                myweb.getNaverprice30("005930");
+                for(int i=0;i<stock_code.size();i++) {
+                    myweb.getNaverpriceByday(stock_code.get(i), day);
+                }
+                myweb.getNaverpriceByday("069500", day); // kodex 200 상품
+                updatePortfolioPrice();
             }
         }).start();
     }
@@ -326,6 +344,7 @@ public class HomeFragment extends Fragment {
                     Thread.sleep(1L); // 잠시라도 정지해야 함
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
                     update_account();
+                    drawChart();
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -353,7 +372,7 @@ public class HomeFragment extends Fragment {
         bench_bt.setTextColor(context.getColor(R.color.MyGray));
     }
 
-    public List<String> ReadBuyList() {
+    public List<String> Read_BuyList() {
         BuyStockDB buystock_db;
         List<BuyStockDBData> buystockList = new ArrayList<>();
         List<String> buylist = new ArrayList<>();
