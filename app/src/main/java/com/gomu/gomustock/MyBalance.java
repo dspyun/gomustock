@@ -45,8 +45,8 @@ public class MyBalance {
         this.sellstockList=sellstockList;
         int listsize;
         MyDate mydate = new MyDate();
-        List<String>  temp = new ArrayList<String>();
-       // 날짜는 파일에서 읽어와서 카피한다.
+        List<String>  price = new ArrayList<String>();
+       // 날짜는 파일에서 읽어와서 카피한다. 현재>과거 순으로 정열되어 있다.
         inputDate.addAll(myexcel.oa_readItem(stock_code+".xls", "DATE", false));
         if(inputDate.size() <= 0) balanace_valid = -1;
 
@@ -66,11 +66,12 @@ public class MyBalance {
             inputStockprice.add(0);
         }
         // 엑셀에서 읽은 값은 모두 string이다. integer로 바꾼 다음 list에 저장한다
-        temp.addAll(myexcel.oa_readItem(stock_code+".xls", "CLOSE", false));
-        if(temp.size() <= 0) balanace_valid = -1;
-        listsize = temp.size();
+        price.addAll(myexcel.oa_readItem(stock_code+".xls", "CLOSE", false));
+        if(price.size() <= 0) balanace_valid = -1;
+        listsize = price.size();
         for(int i = 0; i< listsize; i++) {
-            inputStockprice.set(i,Integer.parseInt(temp.get(i)));
+            // price는 현재>과거 순으로 저정된다
+            inputStockprice.set(i,Integer.parseInt(price.get(i)));
         }
         // buylist db에서 매수량을 읽어서 해당날짜의 위치에 집어넣는다.
         loadBuyList(buystockList);
@@ -83,13 +84,16 @@ public class MyBalance {
         // 엑셀 페이블에 저장한다
         // buyquantity와 sellquantity도 불러와야 한다
         // db에서 불러와서 해당날짜 index에 저장해준다
-        //buystockList = buystock_db.buystockDao().getAll();
-        //buystockList = myportfolio.getBuyList();
+        // buystockList = buystock_db.buystockDao().getAll();
+        // buystockList = myportfolio.getBuyList();
 
         int index=0;
         // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
         int size = buystockList.size();
         for(int i=0; i < size ;i++) {
+            // inputBuyQuantity는 inputdate의 index 순으로
+            // buystockList의 데이터를 읽어 저짱하기 때문에
+            // 현재>과거 순으로 저장된다.
             index = inputDate.indexOf(buystockList.get(i).buy_date);
             inputBuyQuantity.set(index,buystockList.get(i).buy_quantity);
         }
@@ -108,6 +112,9 @@ public class MyBalance {
         // date를 비교해보고 date가 있으면 해당날짜의 매도량을 copy한다
         int size =sellstockList.size();
         for(int i=0; i < size;i++) {
+            // inputSellQuantity inputdate의 index 순으로
+            // buystockList의 데이터를 읽어 저짱하기 때문에
+            // 현재>과거 순으로 저장된다.
             index = inputDate.indexOf(sellstockList.get(i).sell_date);
             inputSellQuantity.set(index,sellstockList.get(i).sell_quantity);
         }
@@ -119,12 +126,12 @@ public class MyBalance {
         // 1년치 일일 잔액, 보유수량, 평가액 변화를 계산해서 엑셀에 저장한다
         // 보유수량 변화량을 계산한다.
 
-        // 어레이는 순서를 역순으로 바꿔준다
-        // 어레이는 최신날짜 > 과거날짜 순이다
-        // 하지만 누적계산은 과거날짜 > 최신 순으로 해야 한다
-        // 계산은 역순 어레이로 한 후, 반환한다
-        // 차트배열에서는 처음입력된 값이 가장 과거값이므로
-        // 과거날짜>최신날짜 순으로 정렬되어야 한다
+
+        // input 어레이는 최신날짜 > 과거날짜 순으로 정렬되어 있다
+        // 하지만 누적계산은 과거날짜 > 최신 순으로 해야 하고
+        // 차트배열에서도 과거>현재순으로 정렬된 값이 사용됨으로
+        // 과거날짜>최신날짜 순으로 역정렬해준다.
+        // 역순 정렬된 데이터로 계산한 후, 반환한다
         List<Integer> inputStockprice_rev = new ArrayList<Integer>();
         List<Integer> inputBuyQuantity_rev = new ArrayList<Integer>();
         List<Integer> inputSellQuantity_rev = new ArrayList<Integer>();
@@ -196,7 +203,6 @@ public class MyBalance {
         //List<Integer> temp = new ArrayList<>();
         //temp = arrangeRev(outputEstim);
         return outputEstim;
-
     }
 
     public List<Integer> getTotalAsset() {
