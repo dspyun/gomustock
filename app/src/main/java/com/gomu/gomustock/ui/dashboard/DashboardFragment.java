@@ -76,7 +76,6 @@ public class DashboardFragment extends Fragment {
                 .into(na_zumimage);
         na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         bd_adapter = new BoardAdapter(getActivity());
         binding.recyclerView.setAdapter(bd_adapter);
@@ -127,7 +126,6 @@ public class DashboardFragment extends Fragment {
                 bd_adapter.refresh();
             }
         });
-
         return root;
     }
 
@@ -148,7 +146,7 @@ public class DashboardFragment extends Fragment {
             //while(stop_flag) {
                 try {
                     mysignal.addCurprice();
-                    Thread.sleep(1000 * 2); // 1분에 한번씩 update
+                    Thread.sleep(10L);
                     myscoring();
                     stop_flag = false;
                 } catch (InterruptedException e) {
@@ -165,7 +163,7 @@ public class DashboardFragment extends Fragment {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10L);
                     //Toast.makeText(context, "test thread", Toast.LENGTH_SHORT).show();
                     mysignal.calcScore();
                     int size = mysignal.scorebox.size();

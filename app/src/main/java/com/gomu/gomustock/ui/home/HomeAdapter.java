@@ -50,14 +50,16 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     private Dialog dialog_buy; // 커스텀 다이얼로그
     private Dialog dialog_sell; // 커스텀 다이얼로그
     public Button bt_tuja;
-
+    MyExcel myexcel = new MyExcel();
 
     public HomeAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
         this.buyList = dataList;
         stop_flag = true;
+        myexcel.find_stockname("069500");
         update_thread.start();
+
         // getCurrentPrice();
         // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
         // openapi가 아니고 웹크롤링으로 구현필요
@@ -220,27 +222,35 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
                 String quantity = stock_quantity.getText().toString();
 
-                String stock_no = Find_StockNo(name);
+                String stock_no = myexcel.find_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
                 }
                 //dl_NaverPriceByday(stock_no,60);
 
+
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
+                BuyStockDBData onebuy = new BuyStockDBData();
+                onebuy.stock_code = stock_no;
+                onebuy.stock_name = name;
+                onebuy.buy_date = mybuydate;
+                onebuy.buy_quantity = Integer.parseInt(quantity);
+                onebuy.buy_price = Integer.parseInt(price);
+                buyList.add(onebuy);
+
                 BuyStock buystock = new BuyStock();
-                buystock.insert2db(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+                buystock.insert2db(onebuy);
 
                 Cache mycache = new Cache();
                 int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price)*-1;
                 mycache.update_cache(buymoney);
 
-                // 매수를 하면 앱 리스타트
-                //app_restart();
+                notifyDataSetChanged();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
@@ -254,13 +264,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         });
     }
 
-    public String Find_StockNo(String stockname) {
-        String value="";
-        MyExcel myexcel = new MyExcel();
-        value = myexcel.find_stockno(stockname);
-
-        return value;
-    }
 
     public void showDialog_sell(){
         dialog_sell.show(); // 다이얼로그 띄우기
@@ -276,7 +279,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
                 String quantity = stock_quantity.getText().toString();
 
-                String stock_no = Find_StockNo(name);
+                String stock_no = myexcel.find_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;

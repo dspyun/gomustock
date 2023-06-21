@@ -47,6 +47,11 @@ public class BuyStock {
         buystock_db.buystockDao().insert(first_buystock_data);
         //buystock_db.close();
     }
+    public void insert2db(BuyStockDBData onebuy) {
+        //buystock_db = BuyStockDB.getInstance(context);
+        buystock_db.buystockDao().insert(onebuy);
+        //buystock_db.close();
+    }
 
     public void add(String stock_code) {
 

@@ -2,11 +2,15 @@ package com.gomu.gomustock.ui.dashboard;
 
 import static android.view.View.INVISIBLE;
 
+import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -163,6 +167,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             //tvStockinfo = view.findViewById(R.id.textView2);
             tvStockinfo = view.findViewById(R.id.bd_stockinfo);
             tvscoreboard = view.findViewById(R.id.scoreboard);
+            tvscoreboard.setBackgroundColor(Color.DKGRAY);
 
             tvStockinfo.setOnClickListener(new View.OnClickListener() {
                 @Override
