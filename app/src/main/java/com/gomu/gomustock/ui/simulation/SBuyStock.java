@@ -18,7 +18,7 @@ public class SBuyStock {
         buystock_db = SBuyStockDB.getInstance(context);
         buystockList = buystock_db.buystockDao().getAll();
     }
-    public void buy_insert2db(String name, String stock_code, int quantity, int price, String date) {
+    public void insert2db(String name, String stock_code, int quantity, int price, String date) {
         //buystock_db = BuyStockDB.getInstance(context);
         BuyStockDBData first_buystock_data= new BuyStockDBData();
 
@@ -51,7 +51,7 @@ public class SBuyStock {
             price = Integer.parseInt(simBuylist.get(i).price);
             date = simBuylist.get(i).date;
             // db에 저장한다
-            buy_insert2db(name, code, quan, price, date);
+            insert2db(name, code, quan, price, date);
             withdrawal = price * quan;
             remain_cache = remain_cache - withdrawal;
         }

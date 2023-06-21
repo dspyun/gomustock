@@ -19,7 +19,7 @@ public class SSellStock {
         sellstock_db = SSellStockDB.getInstance(context);
         sellstockList = sellstock_db.sellstockDao().getAll();
     }
-    public void sell_insert2db(String name, String stock_code, int quantity, int price, String date) {
+    public void insert2db(String name, String stock_code, int quantity, int price, String date) {
 
         SellStockDBData first_sellstock_data= new SellStockDBData();
 
@@ -54,7 +54,7 @@ public class SSellStock {
             else quan = Integer.parseInt(simSellist.get(i).sell_quantity);
             price = Integer.parseInt(simSellist.get(i).price);
             date = simSellist.get(i).date;
-            sell_insert2db(name, code, quan, price, date);
+            insert2db(name, code, quan, price, date);
 
             // 위에서 매도한 애도액이 통장 입금액 receipt
             receipt = quan*price;

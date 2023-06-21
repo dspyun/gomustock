@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.simulation;
 
 import static android.content.ContentValues.TAG;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Looper;
@@ -12,9 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +28,8 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
 import com.gomu.gomustock.portfolio.PortfolioData;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
@@ -44,7 +49,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     private Dialog dialog_sell; // 커스텀 다이얼로그
     public Button bt_tuja;
 
-
+    Button buybt, sellbt;
     public SimulAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
@@ -194,6 +199,84 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         return buyList.size();
     }
 
+    public void showDialog_buy(){
+        dialog_buy.show(); // 다이얼로그 띄우기
+
+        dialog_buy.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                // 원하는 기능 구현
+
+                // dialog 화면에서 입력된 정보를 읽어온다
+                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
+                String name = stock_name.getText().toString();
+                EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
+                String price = stock_price.getText().toString();
+                EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
+                String quantity = stock_quantity.getText().toString();
+
+                Date buydate = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                String mybuydate = format.format(buydate);
+
+                SBuyStock buystock = new SBuyStock();
+                String stock_no = Find_StockNo(name);
+                buystock.insert2db(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+                dialog_buy.dismiss(); // 다이얼로그 닫기
+            }
+        });
+        //  버튼
+        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 원하는 기능 구현
+                dialog_buy.dismiss(); // 다이얼로그 닫기
+            }
+        });
+    }
+
+    public String Find_StockNo(String stockname) {
+        String value="";
+        if(stockname.equals("삼성전자")) value = "005930";
+        else if (stockname.equals("SK하이닉스")) value = "000660";
+        return value;
+    }
+
+    public void showDialog_sell(){
+        dialog_sell.show(); // 다이얼로그 띄우기
+        dialog_sell.findViewById(R.id.sellBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 원하는 기능 구현
+
+                EditText stock_name = dialog_sell.findViewById(R.id.stock_name);
+                String name = stock_name.getText().toString();
+                EditText stock_price = dialog_sell.findViewById(R.id.sell_price);
+                String price = stock_price.getText().toString();
+                EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
+                String quantity = stock_quantity.getText().toString();
+
+                Date buydate = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                String mybuydate = format.format(buydate);
+
+                SSellStock sellstock = new SSellStock();
+                String stock_no = Find_StockNo(name);
+                sellstock.insert2db(name,stock_no,Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+                dialog_sell.dismiss(); // 다이얼로그 닫기
+            }
+        });
+        //  버튼
+        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 원하는 기능 구현
+                dialog_sell.dismiss(); // 다이얼로그 닫기
+            }
+        });
+    }
+
 
     // expandable view를 구현하기 위한 view holder
     public class ViewHolder extends RecyclerView.ViewHolder
@@ -201,7 +284,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         TextView tv_name,tv_estim_profit,tv_estim_price,tv_cur_price;
         TextView tv_hold_quantity,tv_profit_rate,tv_buy_price,tv_ave_price;
         ImageView btexpand,btpricerefresh;
-        Button buybt, sellbt;
+
         //private View portfolio_list_view;
         LinearLayout portfolio_item;
 
@@ -224,6 +307,57 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             bt_tuja = view.findViewById(R.id.sim_account_info);
             //portfolio_item = view.findViewById(R.id.portfolio_item);
 
+            btexpand = view.findViewById(R.id.sim_button_expanable);
+            buybt = view.findViewById(R.id.sim_buy_stock);
+            sellbt = view.findViewById(R.id.sim_sell_stock);
+            // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
+
+            portfolio_item = view.findViewById(R.id.portfolio_item);
+            btexpand.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
+                    //onViewHolderItemClickListener.onViewHolderItemClick();
+                    if (selectedItems.get(finger_position)) {
+                        // 펼쳐진 Item을 클릭 시
+                        selectedItems.delete(finger_position);
+                        btexpand.setImageResource(R.drawable.minus48jpx);
+
+                    } else {
+                        // 직전의 클릭됐던 Item의 클릭상태를 지움
+                        selectedItems.delete(prePosition);
+                        // 클릭한 Item의 position을 저장
+                        selectedItems.put(finger_position, true);
+                        btexpand.setImageResource(R.drawable.plus48px);
+                    }
+                    // 해당 포지션의 변화를 알림
+                    String prepos = Integer.toString(prePosition);
+                    String fingerpos = Integer.toString(finger_position);
+                    Toast.makeText(context, "pre: "+prepos+" finger "+fingerpos, Toast.LENGTH_SHORT).show();
+                    if (prePosition != -1) notifyItemChanged(prePosition);
+                    notifyItemChanged(finger_position);
+                    // 클릭된 position 저장
+
+                    prePosition = finger_position;
+                }
+            });
+
+            buybt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, "go to buy", Toast.LENGTH_SHORT).show();
+                    showDialog_buy();
+                    //onViewHolderItemClickListener.onViewHolderItemClick();
+                }
+            });
+            sellbt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, "go to buy", Toast.LENGTH_SHORT).show();
+                    showDialog_sell();
+                    //onViewHolderItemClickListener.onViewHolderItemClick();
+                }
+            });
         }
         void addItem(BuyStockDBData data) {
             // 외부에서 item을 추가시킬 함수입니다.
@@ -232,9 +366,40 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
         public void onBind(PortfolioData data, int position, SparseBooleanArray selectedItems) {
             finger_position = position;
+            changeVisibility(selectedItems.get(position));
         }
 
     }
+
+    /**
+     * 클릭된 Item의 상태 변경
+     * @param isExpanded Item을 펼칠 것인지 여부
+     */
+    private void changeVisibility(final boolean isExpanded) {
+        // ValueAnimator.ofInt(int... values)는 View가 변할 값을 지정, 인자는 int 배열
+        // 600 : expandable list의 놎이값
+        ValueAnimator va = isExpanded ? ValueAnimator.ofInt(0, 150) : ValueAnimator.ofInt(150, 0);
+        // Animation이 실행되는 시간, n/1000초
+        va.setDuration(500);
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+
+                buybt.getLayoutParams().height = (int) animation.getAnimatedValue();
+                buybt.requestLayout();
+                // imageView가 실제로 사라지게하는 부분
+                buybt.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+
+                sellbt.getLayoutParams().height = (int) animation.getAnimatedValue();
+                sellbt.requestLayout();
+                // imageView가 실제로 사라지게하는 부분
+                sellbt.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+            }
+        });
+        // Animation start
+        va.start();
+    }
+
     public String show_myaccount() {
 
         SCache mycache = new SCache();

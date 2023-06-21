@@ -328,7 +328,7 @@ public class SPortfolio {
                 price = Integer.parseInt(signallist.get(i).price);
                 date = signallist.get(i).date;
                 // 그날의 매수현황을 db에 저장한다(수량, 가격, 매수일을 저장한다.)
-                buystock.buy_insert2db(name, code, buyquan, price, date);
+                buystock.insert2db(name, code, buyquan, price, date);
                 // 누적 매수애을 계산한다. 매수 후 매수액을 원금애써 빼줌
                 withdrawal = price * buyquan;
                 remain_cache = remain_cache - withdrawal;
@@ -347,7 +347,7 @@ public class SPortfolio {
                     buy_total_quan = buy_total_quan - sellquan;
                 }
                 // 그날의 매도현황을 db에 저장한다(매도시그널이 없으면 0으로, 있으면 시그널만큼 저장됨(보유량이 있을 시에만))
-                sellstock.sell_insert2db(name, code, sellquan, price, date);
+                sellstock.insert2db(name, code, sellquan, price, date);
 
                 // 매도 후 매도액을 원금에 추가해줌
                 receipt = sellquan * price;

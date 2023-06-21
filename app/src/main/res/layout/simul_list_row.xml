@@ -86,4 +86,27 @@
             android:textSize="14sp" />
 
     </GridLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <TableRow>
+            <Button
+                android:id="@+id/sim_buy_stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:text="매수"/>
+            <Button
+                android:id="@+id/sim_sell_stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:text="매도"/>
+        </TableRow>
+    </TableLayout>
 </LinearLayout>
