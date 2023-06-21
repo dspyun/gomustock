@@ -51,6 +51,10 @@ public class MyExcel extends MyStat{
     private String STOCKDIR = Environment.getExternalStorageDirectory().getPath() + "/gomustock/";;
     private String DOWNLOAD = Environment.getExternalStorageDirectory().getPath() + "/download/";
     private ArrayList<String> initInfo;
+    List<String> STOCK_NO = new ArrayList<String>();
+    List<String> STOCK_NAME = new ArrayList<String>();
+    List<String> ETF_NO = new ArrayList<String>();
+    List<String> ETF_NAME = new ArrayList<String>();
 
     public MyExcel(String filename) {
         ExcelFile=filename;
@@ -58,10 +62,12 @@ public class MyExcel extends MyStat{
         column00 = readColumn(filename,0);
         column01 = readColumn(filename,1);
         column02 = readColumn(filename,2);
+
     }
 
     public MyExcel() {
         //initInfo = readInitFile();
+
     }
 
     @Override
@@ -94,7 +100,6 @@ public class MyExcel extends MyStat{
             //wb1.close();
             //is1.close();
         }
-
     }
 
     public List<String> readColumn(String excelfile, int col) {
@@ -357,8 +362,7 @@ public class MyExcel extends MyStat{
             mArrayBuffer_rev.add(mArrayBuffer.get(i));
         }
         return mArrayBuffer_rev;
-
-         */
+        */
         return mArrayBuffer;
     }
 
@@ -512,20 +516,13 @@ public class MyExcel extends MyStat{
     }
 
 
-
-    public String find_stockno(String name) {
+    public void readStockDic() {
         InputStream is=null;
         Workbook wb=null;
         String stock_name=null;
         String stock_no=null;
         int line, col;
         String PathFile = STOCKDIR+"stocktable.xls";;
-        List<String> STOCK_NO = new ArrayList<String>();
-        List<String> STOCK_NAME = new ArrayList<String>();
-        List<String> ETF_NO = new ArrayList<String>();
-        List<String> ETF_NAME = new ArrayList<String>();
-        if(name.equals("코스피")) return "^KS11";
-        else if(name.equals("환율")) return "KRW=X";
 
         try {
             is =  new FileInputStream(PathFile);
@@ -539,6 +536,7 @@ public class MyExcel extends MyStat{
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
                     }
+
                     size = sheet.getColumn(1).length;
                     for(int i =0 ; i<size ;i++) {
                         ETF_NO.add(sheet.getCell(1, i).getContents());
@@ -552,10 +550,12 @@ public class MyExcel extends MyStat{
             e.printStackTrace();
         } catch (BiffException e) {
             e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
         }
+    }
+
+    public String find_stockno(String name) {
+        if(STOCK_NAME.isEmpty()) readStockDic();
+
         int index = STOCK_NAME.indexOf(name);
         if(index == -1 ) {
             index = ETF_NAME.indexOf(name);
@@ -565,49 +565,8 @@ public class MyExcel extends MyStat{
     }
 
     public String find_stockname(String number) {
-        InputStream is=null;
-        Workbook wb=null;
-        String stock_name=null;
-        String stock_no=null;
-        int line, col;
-        String PathFile = STOCKDIR+"stocktable.xls";;
-        List<String> STOCK_NO = new ArrayList<String>();
-        List<String> STOCK_NAME = new ArrayList<String>();
-        List<String> ETF_NO = new ArrayList<String>();
-        List<String> ETF_NAME = new ArrayList<String>();
-        if(number.equals("^KS11")) return "코스피";
-        else if(number.equals("KRW=X")) return "환율";
+        if(STOCK_NAME.isEmpty()) readStockDic();
 
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i =0 ; i<size ;i++) {
-                        STOCK_NO.add(sheet.getCell(1, i).getContents());
-                        STOCK_NAME.add(sheet.getCell(3, i).getContents());
-                    }
-                    size = sheet.getColumn(1).length;
-                    for(int i =0 ; i<size ;i++) {
-                        ETF_NO.add(sheet.getCell(1, i).getContents());
-                        ETF_NAME.add(sheet.getCell(3, i).getContents());
-                    }
-
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
         int index = STOCK_NO.indexOf(number);
         if(index == -1 ) {
             index = ETF_NO.indexOf(number);
@@ -900,7 +859,6 @@ public class MyExcel extends MyStat{
 
         }
     }
-
 
     public List<FormatStockInfo> readStockinfo(boolean header) {
         InputStream is=null;

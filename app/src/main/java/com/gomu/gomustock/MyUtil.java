@@ -3,16 +3,14 @@ package com.gomu.gomustock;
 import android.os.Environment;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
 public class MyUtil {
 
     public MyUtil() {
 
     }
+
+
+
     String PATH = Environment.getExternalStorageDirectory().getPath();
     public void shell_copy() {
 

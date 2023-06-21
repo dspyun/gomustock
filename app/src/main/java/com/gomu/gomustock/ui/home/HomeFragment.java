@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.FormatChart;
+import com.gomu.gomustock.FormatStockInfo;
 import com.gomu.gomustock.MyBalance;
 import com.gomu.gomustock.MyChart;
 import com.gomu.gomustock.MyExcel;
@@ -114,11 +115,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                List<BuyStockDBData> stock_list = myportfolio.getPortfolio();
-                List<String> buylist = new ArrayList<>();
-                for(int i =0;i<stock_list.size();i++) {
-                    buylist.add(stock_list.get(i).stock_code);
-                }
+                List<String> buylist = myportfolio.getOnlyBuyCode();
+                buylist.add("069500"); // 코덱스 200은 무조건 다운로드 해줌
                 dl_AgencyForeigne(buylist);
                 dl_NaverPriceByday(buylist, 60);
                 //dl_IndexHistory1Y("코스피 200");
@@ -131,11 +129,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                binding.realChart.setText("Data2DB");
-                //home_adapter.app_restart();
-
-                // backtest excel을 읽어 buydb, selldb에 나누어 저장한다
-                // myportfolio.loadExcel2DB("005930_testset.xls");
+                List<String> buylist = myportfolio.getOnlyBuyCode();
+                dl_getStockinfo(buylist);
             }
         });
 
@@ -391,6 +386,29 @@ public class HomeFragment extends Fragment {
         }
         return buylist;
     }
+
+    public void dl_getStockinfo(List<String> buycodelist) {
+        MyWeb myweb = new MyWeb();
+        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FormatStockInfo result1;
+                int size = buycodelist.size();
+                for(int i =0;i<size;i++) {
+                    FormatStockInfo info = new FormatStockInfo();
+                    info = myweb.getStockinfo(buycodelist.get(i));
+                    info.stock_code = buycodelist.get(i);
+                    web_stockinfo.add(i,info);
+                }
+                FormatStockInfo info1 = new FormatStockInfo();
+                info1.setHeader();
+                web_stockinfo.add(0,info1);
+                myexcel.writestockinfo(web_stockinfo);
+            }
+        }).start();
+    }
+
 
     @Override
     public void onDestroyView() {

@@ -116,7 +116,28 @@ public class Portfolio {
         return screen_info;
     }
 
-    public ArrayList<String> extract_buystock_name() {
+    public List<String> getOnlyBuyCode() {
+
+        ArrayList<String> oldLi = new ArrayList<String>();;
+        ArrayList<String> newLi = new ArrayList<String>();
+
+        int size = buystockList.size();
+        // buylist에서 주식명만 뽑아서 주식명 리스트를 만든다
+        for(int i=0;i<size;i++) {
+            oldLi.add(buystockList.get(i).stock_code);
+        }
+
+        // 주식명리스트에서 중복된 주식명을 제외한 주식명들은
+        // 새로운 ArrayList에 요소를 추가
+        for(String strValue : oldLi) {
+            // 중복 요소가 없는 경우 요소를 추가
+            if(!newLi.contains(strValue)) {
+                newLi.add(strValue);
+            }
+        }
+        return newLi;
+    }
+    public List<String> getOnlyBuyName() {
 
         ArrayList<String> oldLi = new ArrayList<String>();;
         ArrayList<String> newLi = new ArrayList<String>();
@@ -141,11 +162,11 @@ public class Portfolio {
     // buylist는 삼성+하이닉스+삼성+삼성+하이닉스 이런 순으로 저장되어 있다
     // 이것을 삼성+하이닉스로 재정렬하고 액수, 수량도 재조합한다
     public List<BuyStockDBData> make_buy_portfolio() {
-        ArrayList<String> stocknamelist = new ArrayList<String>();
+        List<String> stocknamelist = new ArrayList<String>();
         List<BuyStockDBData> buystockList_arranged = new ArrayList<>();
 
         // 일단 종목명만 뽑아서 중복값 제거한다.
-        stocknamelist = extract_buystock_name();
+        stocknamelist = getOnlyBuyName();
         // 중복된 종목 액수는 모두 합쳐서 하나의 종목으로 만든다
         // 중복되지 않은 종목명으로 총수량, 총매수액을 계산해서
         // 재정렬된 buystocklist에 넣고 리턴한다
@@ -180,7 +201,7 @@ public class Portfolio {
         return buystockList_arranged;
     }
 
-    public List<String> extract_sellstock_name() {
+    public List<String> getOnlySellCode() {
 
         ArrayList<String> oldLi = new ArrayList<String>();;
         ArrayList<String> newLi = new ArrayList<String>();
@@ -210,7 +231,7 @@ public class Portfolio {
         List<SellStockDBData> sellstockList_arranged = new ArrayList<>();
 
         // 일단 종목명만 뽑아서 중복값 제거한다.
-        stocknamelist = extract_sellstock_name();
+        stocknamelist = getOnlySellCode();
 
         // 중복되지 않은 종목명으로 총수량, 총매수액을 계산해서
         // 재정렬된 buystocklist에 넣고 리턴한다

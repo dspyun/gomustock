@@ -30,14 +30,23 @@ public class MySignal {
 
     public MySignal(Context inputcontext) {
         this.context = inputcontext;
-        ReadBuyList();
+        loadBuyList();
     }
 
-    public void ReadBuyList() {
+    public void loadBuyList() {
         BuyStockDB buystock_db;
         List<BuyStockDBData> buystockList = new ArrayList<>();
+        BuyStockDBData onebuy = new BuyStockDBData();
+
         buystock_db = BuyStockDB.getInstance(context);
         buystockList = buystock_db.buystockDao().getAll();
+
+        // 코덱스 200은 buylist에 무조건 넣어준다
+        // 다른 종목들의 평가 기준이 되는 종목이기 때문에
+        onebuy.stock_code = "069500";
+        onebuy.stock_name = "코덱스 200";
+        buystockList.add(onebuy);
+
         // buy stock list에서 중복된 종목을 제거한다
         Set<String> set = new HashSet<String>();
         int size = buystockList.size();
@@ -64,7 +73,7 @@ public class MySignal {
         }
     }
 
-    public String getSignal(String stock_code) {
+    public String getScore(String stock_code) {
         String result="";
         int size = scorebox.size();
         for(int i =0;i<size;i++) {
@@ -89,25 +98,25 @@ public class MySignal {
             scorebox.get(i).period_price = srcdata;
             srcdata.add(onemix.cur_price);
         }
+        int i = 0;
     }
 
     public int scoring(String stock_code) {
         List<String> itemdata = new ArrayList<>();
-        List<String> kospi200 = new ArrayList<>();
+        List<String> kodex200 = new ArrayList<>();
         int score=0;
 
         MyStat mystat = new MyStat();
-        MyExcel myexcel = new MyExcel();
 
         int index = find_index(stock_code);
         if(index == -1) { return score = 0; }
 
         itemdata = scorebox.get(index).period_price;
-        index = find_index("코스피 200");
-        kospi200 = scorebox.get(index).period_price;
+        index = find_index("069500");
+        kodex200 = scorebox.get(index).period_price;
 
         srcstddata = mystat.oa_standardization(itemdata);
-        basestddata = mystat.oa_standardization(kospi200);
+        basestddata = mystat.oa_standardization(kodex200);
 
         float diff=0;
         int i = srcstddata.size()-1;
@@ -168,8 +177,8 @@ public class MySignal {
                 FormatScore onemix1 = new FormatScore();
                 String temp  = myweb.getCurrentKosp200();
                 onemix1.cur_price = temp.replaceAll(",", "");
-                onemix1.stock_code = "코스피 200";
-                int index = find_index("코스피 200");
+                onemix1.stock_code = "069500";
+                int index = find_index("코덱스 200");
                 if(index == -1) scorebox.add(onemix1);
                 else scorebox.set(index,onemix1);
             }

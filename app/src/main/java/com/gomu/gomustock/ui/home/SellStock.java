@@ -20,7 +20,7 @@ public class SellStock {
         sellstock_db = SellStockDB.getInstance(context);
         sellstockList = sellstock_db.sellstockDao().getAll();
     }
-    public void add_stock2selldb(int position, String name, String stock_code, int quantity, int price, String date) {
+    public void add2db(int position, String name, String stock_code, int quantity, int price, String date) {
         //buystock_db = BuyStockDB.getInstance(context);
         SellStockDBData first_sellstock_data= new SellStockDBData();
 
@@ -35,7 +35,7 @@ public class SellStock {
 
     }
 
-    public void insert_stock2selldb(String name, String stock_code, int quantity, int price, String date) {
+    public void insert2db(String name, String stock_code, int quantity, int price, String date) {
 
         SellStockDBData first_sellstock_data= new SellStockDBData();
 
@@ -71,7 +71,7 @@ public class SellStock {
             else quan = Integer.parseInt(tdlist.get(i).sell_quantity);
             price = Integer.parseInt(tdlist.get(i).price);
             date = tdlist.get(i).date;
-            insert_stock2selldb(name, code, quan, price, date);
+            insert2db(name, code, quan, price, date);
 
             // 위에서 매도한 애도액이 통장 입금액 receipt
             receipt = quan*price;

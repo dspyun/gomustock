@@ -30,8 +30,12 @@ public class MyWeb {
             String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_Main.asp?pGB=1&gicode=A"+stock_code+"&cID=&MenuYn=Y&ReportGB=&NewMenuID=101&stkGb=701";
             Document doc;
             doc = Jsoup.connect(URL).get();
-            Elements classinfo = doc.select("#corp_group2");
-            Elements dd_list = classinfo.select("dd");
+            Elements classinfo0 = doc.select(".corp_group1");
+            Element giname = classinfo0.select("#giName").get(0);
+            result.stock_name = giname.text();
+
+            Elements classinfo1 = doc.select("#corp_group2");
+            Elements dd_list = classinfo1.select("dd");
 
             result.per = dd_list.get(1).text();
             result.per12 = dd_list.get(3).text();
@@ -39,8 +43,8 @@ public class MyWeb {
             result.pbr = dd_list.get(7).text();
             result.div_rate = dd_list.get(9).text();
 
-            Elements classinfo1 = doc.select("#svdMainGrid1");
-            Elements tbody_list = classinfo1.select("tbody");
+            Elements classinfo2 = doc.select("#svdMainGrid1");
+            Elements tbody_list = classinfo2.select("tbody");
             Elements tr_list = tbody_list.select("tr");;
             Elements td_list = tr_list.get(2).select("td");;
             Element th1 = td_list.get(1);;
@@ -50,8 +54,8 @@ public class MyWeb {
             Element th2 = td2_list.get(1);;
             result.beta = th2.text();
 
-            Elements classinfo2 = doc.select("#svdMainGrid2");
-            Elements tbody1_list = classinfo2.select("tbody");
+            Elements classinfo3 = doc.select("#svdMainGrid2");
+            Elements tbody1_list = classinfo3.select("tbody");
             Elements td1_list = tbody1_list.select("td");;
             result.op_profit = td1_list.get(3).text();;
 

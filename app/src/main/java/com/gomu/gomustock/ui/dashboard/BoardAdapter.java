@@ -15,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.FormatChart;
+import com.gomu.gomustock.FormatScore;
 import com.gomu.gomustock.FormatStockInfo;
 import com.gomu.gomustock.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.MyWeb;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.ui.home.BuyStock;
@@ -38,14 +38,14 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     public List<String> pricelist = new ArrayList<String>();
     List<String> buycodelist = new ArrayList<String>();
 
-    BoardAdapter bd_adapter;
-    TextView myinform;
+
     int finger_position=0;
     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
     List<FormatStockInfo> scoreinfo = new ArrayList<FormatStockInfo>();
     boolean stop_flag;
-    MyExcel myexcel;
+    MyExcel myexcel = new MyExcel();
     List<FormatChart> chartlist = new ArrayList<FormatChart>();
+    public List<FormatScore> scorebox = new ArrayList<>();
     public BoardAdapter(Activity context)
     {
         this.context = context;
@@ -59,29 +59,12 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     public void initInfoArray() {
         int size;
         web_stockinfo = myexcel.readStockinfo(false);
-        if(web_stockinfo.size()==0) {
-            // size가 0이면 파일이 없음. 초기화 해줘야 함
-            // 초기화는 일단 code만 넣어주는 것으로
-             size = buycodelist.size();
-            for(int i =0;i<size;i++) {
-                FormatStockInfo temp = new FormatStockInfo();
-                temp.stock_code = buycodelist.get(i);
-                web_stockinfo.add(temp);
-                scoreinfo.add(temp);
-            }
-            int i=0;
-        }
-        size = buycodelist.size();
-        for(int i =0;i<size;i++) {
-            FormatStockInfo temp = new FormatStockInfo();
-            temp.stock_code = buycodelist.get(i);
-            scoreinfo.add(temp);
-        }
     }
 
     public void refresh( ) {
         notifyDataSetChanged();
     }
+
     public void putScoreinfo(String stock_code, String score) {
         int size = scoreinfo.size();
         for(int i =0;i< size ;i++) {
@@ -97,6 +80,21 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         BuyStock mybuy = new BuyStock();
         buycodelist = mybuy.getBuyCodeList();
         int i = 0;
+    }
+
+    public void setScorebox(List<FormatScore> input_scorebox) {
+        scorebox = input_scorebox;
+    }
+
+    public String getScore(String stock_code) {
+        String result="";
+        int size = scorebox.size();
+        for(int i =0;i<size;i++) {
+            if(scorebox.get(i).stock_code.equals(stock_code)) {
+                return String.valueOf(scorebox.get(i).score);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -118,7 +116,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         String stock_name = myexcel.find_stockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
         holder.tvStockinfo.setText(web_stockinfo.get(position).toString());
-
+        holder.tvscoreboard.setText(stock_name + " score is " + getScore(stock_code));
         // 차트에 코스피와 종목 데이터를 넣어준다
 
         standard_chart = new MyChart();
@@ -138,71 +136,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
     }
 
-    public String getStockinfo(String stock_code, String stock_name, int position) {
-
-        String stock_info="";
-        stock_info = stock_code + " " + stock_name + "\n";
-        MyExcel myexcel = new MyExcel();
-        web_stockinfo.clear();
-        // 파일에설 주식정보를 읽고
-        web_stockinfo = myexcel.readStockinfo(false);
-        // 주식정보에 전달받은 스코어정보를 넣고
-        if(web_stockinfo.size() > 0) {
-            /*
-            for (int i = 0; i < scoreinfo.size(); i++) {
-                if (scoreinfo.get(i).stock_code.equals(web_stockinfo.get(i).stock_code)) {
-                    web_stockinfo.get(i).score = scoreinfo.get(i).score;
-                }
-            }
-            */
-            // 정보를 모두 string으로 변환
-            String temp;
-            int size = web_stockinfo.size();
-            for(int i=0;i<size;i++) {
-                if(stock_code.equals( web_stockinfo.get(i).stock_code )) {
-                    //temp = web_stockinfo.get(position).toString();
-                    temp = web_stockinfo.get(i).toString();
-                    if( temp != null) stock_info += temp;
-                    else  stock_info="";
-                } else {
-                    stock_info="";
-                }
-            }
-        }
-        return stock_info;
-    }
-
-    public void dl_getStockinfo() {
-        MyWeb myweb = new MyWeb();
-        // 리스트버퍼를 초기화해서 이전에 남아있던 내용을 모두 없애준다
-        web_stockinfo.clear();
-        int size = buycodelist.size();
-        for(int i =0;i< size;i++) {
-            FormatStockInfo temp = new FormatStockInfo();
-            temp.stock_code = buycodelist.get(i);
-            web_stockinfo.add(temp);
-        }
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                FormatStockInfo result1;
-                int size = buycodelist.size();
-                for(int i =0;i<size;i++) {
-                    FormatStockInfo info = new FormatStockInfo();
-                    info = myweb.getStockinfo(buycodelist.get(i));
-                    info.stock_code = buycodelist.get(i);
-                    info.stock_name = myexcel.find_stockname(buycodelist.get(i));
-                    web_stockinfo.set(i,info);
-                }
-                FormatStockInfo info1 = new FormatStockInfo();
-                info1.setHeader();
-                web_stockinfo.add(0,info1);
-                myexcel.writestockinfo(web_stockinfo);
-            }
-        }).start();
-    }
-
     @Override
     public int getItemCount()
     {
@@ -216,6 +149,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         TextView tvStockinfo;
         ImageView btEdit, btDelete;
         LinearLayout myboardlist;
+        TextView tvscoreboard;
         public ViewHolder(View view)
         {
             super(view);
@@ -226,6 +160,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             lineChart = (LineChart)view.findViewById(R.id.kospi_chart);
             //tvStockinfo = view.findViewById(R.id.textView2);
             tvStockinfo = view.findViewById(R.id.bd_stockinfo);
+            tvscoreboard = view.findViewById(R.id.scoreboard);
 
             tvStockinfo.setOnClickListener(new View.OnClickListener() {
                 @Override

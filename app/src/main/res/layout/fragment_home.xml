@@ -70,7 +70,7 @@ tools:context=".ui.home.HomeFragment">
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
                     android:layout_weight = "1"
-                    android:text="Data2DB"/>
+                    android:text="정보DL"/>
                 <Button
                     android:id="@+id/standard_chart"
                     android:layout_width="wrap_content"

@@ -58,7 +58,7 @@ public class DashboardFragment extends Fragment {
         mysignal = new MySignal(getActivity());
 
         stop_flag = true;
-        //scoring_thread.start();
+        scoring_thread.start();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         bd_adapter = new BoardAdapter(getActivity());
@@ -109,7 +109,7 @@ public class DashboardFragment extends Fragment {
             public void onClick(View v) {
                 // 개별 종목 정보는 실시간으로 update할 필요가 없다
                 // 그래서 크롤링 후 엑셀에 저장한다
-                bd_adapter.dl_getStockinfo();
+                //bd_adapter.dl_getStockinfo();
             }
         });
 
@@ -121,7 +121,7 @@ public class DashboardFragment extends Fragment {
                 int size = mysignal.scorebox.size();
                 for(int i =0; i< size;i++) {
                     String stock_code = mysignal.scorebox.get(i).stock_code;
-                    if(stock_code.equals("코스피 200")) continue;
+                    if(stock_code.equals("코덱스 200")) continue;
                     int score = mysignal.scorebox.get(i).score;
                     bd_adapter.putScoreinfo(stock_code, String.valueOf(score));
                 }
@@ -150,7 +150,7 @@ public class DashboardFragment extends Fragment {
                 try {
                     mysignal.addCurprice();
                     Thread.sleep(1000 * 2); // 1분에 한번씩 update
-                    updatePortfolioPrice();
+                    myscoring();
                     stop_flag = false;
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
@@ -159,7 +159,7 @@ public class DashboardFragment extends Fragment {
             //}
         }
     }
-    public void updatePortfolioPrice() {
+    public void myscoring() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
         getActivity().runOnUiThread(new Runnable() {
@@ -172,10 +172,11 @@ public class DashboardFragment extends Fragment {
                     int size = mysignal.scorebox.size();
                     for(int i =0; i< size;i++) {
                         String stock_code = mysignal.scorebox.get(i).stock_code;
-                        if(stock_code.equals("코스피 200")) continue;
+                        if(stock_code.equals("코덱스 200")) continue;
                         int score = mysignal.scorebox.get(i).score;
                         bd_adapter.putScoreinfo(stock_code, String.valueOf(score));
                     }
+                    bd_adapter.setScorebox(mysignal.scorebox);
                     bd_adapter.refresh();
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");

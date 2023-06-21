@@ -233,7 +233,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
                 BuyStock buystock = new BuyStock();
-                buystock.insert_stock2buydb(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+                buystock.insert2db(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
 
                 Cache mycache = new Cache();
                 int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price)*-1;
@@ -288,7 +288,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
                 SellStock sellstock = new SellStock();
-                sellstock.insert_stock2selldb(name,stock_no,Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+                sellstock.insert2db(name,stock_no,Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
 
                 Cache mycache = new Cache();
                 int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price);

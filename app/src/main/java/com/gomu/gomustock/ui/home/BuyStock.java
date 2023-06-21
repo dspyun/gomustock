@@ -21,7 +21,7 @@ public class BuyStock {
         buystockList = buystock_db.buystockDao().getAll();
     }
 
-    public void add_stock2buydb(int position, String name, String stock_code, int quantity, int price, String date) {
+    public void add2db(int position, String name, String stock_code, int quantity, int price, String date) {
         //buystock_db = BuyStockDB.getInstance(context);
         BuyStockDBData first_buystock_data= new BuyStockDBData();
 
@@ -35,7 +35,7 @@ public class BuyStock {
         buystock_db.buystockDao().insertAll(buystockList);
 
     }
-    public void insert_stock2buydb(String name, String stock_code, int quantity, int price, String date) {
+    public void insert2db(String name, String stock_code, int quantity, int price, String date) {
         //buystock_db = BuyStockDB.getInstance(context);
         BuyStockDBData first_buystock_data= new BuyStockDBData();
 
@@ -68,7 +68,7 @@ public class BuyStock {
             price = Integer.parseInt(tdlist.get(i).price);
             date = tdlist.get(i).date;
             // db에 저장한다
-            insert_stock2buydb(name, code, quan, price, date);
+            insert2db(name, code, quan, price, date);
 
             withdrawal = price * quan;
             // 통장 잔고를 불러온다
