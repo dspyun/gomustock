@@ -294,6 +294,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price);
                 mycache.update_cache(buymoney);
 
+                notifyDataSetChanged();
                 dialog_sell.dismiss(); // 다이얼로그 닫기
             }
         });

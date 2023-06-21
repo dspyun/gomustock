@@ -42,8 +42,8 @@ public class SPortfolio {
     public BuyStockDBData getPortfolio_dummy() {
         BuyStockDBData onebuystock = new BuyStockDBData();
         onebuystock.buy_date = "20230115";
-        onebuystock.stock_name = "삼성전자";
-        onebuystock.stock_code = "005930";
+        onebuystock.stock_name = "코덱스 200";
+        onebuystock.stock_code = "069500";
         onebuystock.buy_price = 0 ;
         onebuystock.buy_quantity = 0;
 

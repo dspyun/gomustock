@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyOpenApi;
 import com.gomu.gomustock.MyWeb;
 import com.gomu.gomustock.R;
@@ -35,7 +36,7 @@ import java.util.List;
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
     public List<PortfolioData> PortfolioList;
-    public static List<BuyStockDBData> buyList;
+    public List<BuyStockDBData> buyList;
     private static Activity context;
     public String open_api_data="empty";
 
@@ -49,6 +50,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     private Dialog dialog_sell; // 커스텀 다이얼로그
     public Button bt_tuja;
 
+    MyExcel myexcel = new MyExcel();
     Button buybt, sellbt;
     public SimulAdapter(Activity context, List<BuyStockDBData> dataList)
     {
@@ -72,6 +74,9 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     }
     public void reload_curprice( ) {
         stop_flag=true;
+    }
+    public  List<BuyStockDBData> getRecyclerList() {
+        return buyList;
     }
     public void getCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
@@ -103,6 +108,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             }
         }
     }
+
     public void updatePortfolioPrice() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
@@ -216,6 +222,17 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
                 String quantity = stock_quantity.getText().toString();
 
+                String stock_code = myexcel.find_stockno(name);
+                if(stock_code.equals("")) {
+                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                BuyStockDBData onebuy = new BuyStockDBData();
+                onebuy.stock_name = name;
+                onebuy.stock_code = stock_code;
+                buyList.add(onebuy);
+
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
@@ -223,6 +240,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 SBuyStock buystock = new SBuyStock();
                 String stock_no = Find_StockNo(name);
                 buystock.insert2db(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+
+                notifyDataSetChanged();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });

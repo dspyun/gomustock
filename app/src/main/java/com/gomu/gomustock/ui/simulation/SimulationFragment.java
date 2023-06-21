@@ -168,11 +168,17 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                if(sim_stock.size() ==0) {
-                    sim_stock.add("005930");
-                    sim_stock.add("000660");
-                    sim_stock.add("069500");
+                List<BuyStockDBData> recyclerBuyList = new ArrayList<BuyStockDBData>();
+                recyclerBuyList = simul_adapter.getRecyclerList();
+                sim_stock.clear();
+                int size = recyclerBuyList.size();
+                String stock_code="";
+                for(int i = 0;i<size;i++) {
+                    stock_code = recyclerBuyList.get(i).stock_code;
+                    if(stock_code.equals("")) continue;
+                    else sim_stock.add(recyclerBuyList.get(i).stock_code);
                 }
+
             }
         });
 
