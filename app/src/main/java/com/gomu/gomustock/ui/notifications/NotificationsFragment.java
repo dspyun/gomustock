@@ -36,7 +36,7 @@ public class NotificationsFragment extends Fragment {
         View root = binding.getRoot();
 
         myweb= new MyWeb();
-        kr_zumimage = binding.ivMyzum;
+        //kr_zumimage = binding.ivMyzum;
         textView= binding.textNotifications;
         TextView mytext = binding.text3;
         String str = "차트분석&평가, 예측알고리즘, 네이버 종목고르기\n";

@@ -7,21 +7,54 @@
     android:orientation="vertical"
     tools:context=".ui.notifications.NotificationsFragment">
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <WebView
+        android:id="@+id/web_temp"
         android:layout_width="match_parent"
-        android:layout_height="150dp">
+        android:layout_height="match_parent"
+        android:layout_weight = "1"/>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TableRow>
+            <Button
+                android:id="@+id/bt_dl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="정보DL"
+                android:layout_weight = "1"/>
+            <Button
+                android:id="@+id/bt_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update"
+                android:layout_weight = "1"/>
+            <Button
+                android:id="@+id/bt_signal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Signal"
+                android:layout_weight = "1"/>
+            <Button
+                android:id="@+id/bt_dummy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dummy"
+                android:layout_weight = "1"/>
+        </TableRow>
+    </TableLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:orientation="horizontal">
         <ImageView
-            android:id="@+id/iv_myzum"
-            android:layout_width="150dp"
+            android:id="@+id/zumchart_kr"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:scaleType = "fitXY"
             android:layout_weight = "1"/>
         <ImageView
-            android:id="@+id/image2"
-            android:layout_width="150dp"
+            android:id="@+id/zumchart_na"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:scaleType = "fitXY"
             android:layout_weight = "1"/>
     </LinearLayout>
     <LinearLayout

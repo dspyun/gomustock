@@ -50,19 +50,13 @@ public class DashboardFragment extends Fragment {
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        WebView tempview = binding.webTemp;
-        tempview.setVisibility(View.INVISIBLE);
 
         initResource(root);
 
         mysignal = new MySignal(getActivity());
 
         stop_flag = true;
-        scoring_thread.start();
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bd_adapter = new BoardAdapter(getActivity());
-        binding.recyclerView.setAdapter(bd_adapter);
+        //scoring_thread.start();
 
         ImageView na_zumimage =  binding.zumchartNa;
         ImageView kr_zumimage = binding.zumchartKr;
@@ -81,6 +75,11 @@ public class DashboardFragment extends Fragment {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(na_zumimage);
         na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
+
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        bd_adapter = new BoardAdapter(getActivity());
+        binding.recyclerView.setAdapter(bd_adapter);
 
         na_zumimage.setOnClickListener(new View.OnClickListener() {
             @Override

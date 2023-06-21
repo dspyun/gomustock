@@ -19,7 +19,6 @@ import com.gomu.gomustock.FormatScore;
 import com.gomu.gomustock.FormatStockInfo;
 import com.gomu.gomustock.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyWeb;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.ui.home.BuyStock;
 
@@ -135,7 +134,10 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         standard_chart.multi_chart(lineChart,chartlist,"표준화차트",false);
         //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
     }
-
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
     @Override
     public int getItemCount()
     {

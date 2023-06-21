@@ -177,12 +177,15 @@
 
         </GridLayout>
     </LinearLayout>
-
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="10">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sim_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         tools:listitem="@layout/portfolio_list_row"/>
-
+    </FrameLayout>
 </LinearLayout>
