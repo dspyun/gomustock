@@ -36,9 +36,10 @@ public class BoardSubActivity extends AppCompatActivity {
     private List<Float> chart1_data1 = new ArrayList<Float>();
     private List<Float> chart1_data2 = new ArrayList<Float>();
     private List<List<Float>> bb_chart = new ArrayList<List<Float>>();
+    private List<List<Float>> stoch_chart_list = new ArrayList<List<Float>>();
     TextView mytext;
     ImageView myimage;
-    LineChart bbnandChart, subChart;
+    LineChart bbnandChart, adxChart, stochChart;
     BarChart fognChart, agencyChart;
 
     TextView temp;
@@ -66,7 +67,8 @@ public class BoardSubActivity extends AppCompatActivity {
             fognChart = findViewById(R.id.fogn_chart);
             agencyChart = findViewById(R.id.agency_chart);
             bbnandChart = findViewById(R.id.bband_chart);
-            subChart = findViewById(R.id.sub_chart);
+            stochChart = findViewById(R.id.stoch1_chart);
+            adxChart = findViewById(R.id.sub_chart);
             mytext = findViewById(R.id.textView1);
 
             String stock_name = suboption.getStockname();
@@ -96,6 +98,21 @@ public class BoardSubActivity extends AppCompatActivity {
             //lineChart.invalidate();
 
             adx_chart(stock_code, 60);
+
+            MyChart stoch1_chart = new MyChart();
+
+            List<Float> outk = new ArrayList<>();
+            List<Float> outd = new ArrayList<>();
+            for(int i = 0;i<60;i++) {
+                outk.add(0f);
+                outd.add(0f);
+            }
+            List<FormatChart> chartlist1 = new ArrayList<FormatChart>();
+            stoch_chart_list = stoch_test(stock_code, 60,outk,outd);
+            stoch1_chart.buildChart_float(stoch_chart_list.get(0), "slow-K", Color.LTGRAY);
+            chartlist1 = stoch1_chart.buildChart_float(stoch_chart_list.get(1), "slow-D", Color.GRAY);
+            bband_chart.setYMinmax(0, 0);
+            stoch1_chart.multi_chart(stochChart, chartlist1, "스토케스틱", false);
 
             mytext.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -296,6 +313,88 @@ public class BoardSubActivity extends AppCompatActivity {
         return value;
     }
 
+
+    public List<List<Float>> stoch_test(String stock_code, int total_period, List<Float> outSlowK_list, List<Float> outSlowD_list ) {
+
+        // The total number of periods to generate data for.
+        int TOTAL_PERIODS = total_period;
+
+        double[] closePrice = new double[TOTAL_PERIODS];
+        double[] highPrice = new double[TOTAL_PERIODS];
+        double[] lowPrice = new double[TOTAL_PERIODS];
+        double[] outSlowK = new double[TOTAL_PERIODS];
+        double[] outSlowD = new double[TOTAL_PERIODS];
+        MInteger outBegIdx = new MInteger();;
+        MInteger outNBElement = new MInteger();
+        MInteger begin = new MInteger();;
+        MInteger length = new MInteger();
+        int optInTimePeriod = 14;
+        MAType optInMAType = Sma; // 단순이동평균
+        int optInFastK_Period = 5;
+        int optInSlowK_Period = 3;
+        int optInSlowD_Period = 3;
+        MAType optInSlowK_MAType = Sma;
+        MAType optInSlowD_MAType = Sma;
+
+        MyExcel myexcel = new MyExcel();
+        List<String> close_str = new ArrayList<>();
+        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.arrangeRev_string(close_str);
+        List<Double> closedata = myexcel.string2double(close_str,1);
+        for (int i =  0; i < closePrice.length; i++) {
+            closePrice[i] = (double) closedata.get(i);
+        }
+        List<String> high_str = new ArrayList<>();
+        high_str = myexcel.oa_readItem(stock_code+".xls","HIGH",false);
+        high_str = myexcel.arrangeRev_string(high_str);
+        List<Double> highdata = myexcel.string2double(high_str,1);
+        for (int i =  0; i < highPrice.length; i++) {
+            highPrice[i] = (double) highdata.get(i);
+        }
+        List<String> low_str = new ArrayList<>();
+        low_str = myexcel.oa_readItem(stock_code+".xls","LOW",false);
+        low_str = myexcel.arrangeRev_string(low_str);
+        List<Double> lowdata = myexcel.string2double(low_str,1);
+        for (int i =  0; i < lowPrice.length; i++) {
+            lowPrice[i] = (double) lowdata.get(i);
+        }
+
+        // outNBElement : 생성된 자료의 배술 수. = output 길이
+        // 결과가 배열로 반환되기 때문에 길이정보도 같이 반환되어야 함
+        Core c = new Core();
+        RetCode retCode  = c.stoch( 0, closePrice.length -1, highPrice, lowPrice, closePrice,
+        optInFastK_Period, optInSlowK_Period, optInSlowK_MAType, optInSlowD_Period, optInSlowD_MAType,
+        outBegIdx, outNBElement, outSlowK, outSlowD );
+
+        List<List<Float>> threechart = new ArrayList<List<Float>>();
+
+        outSlowK_list = new ArrayList<Float>();
+        int start = outBegIdx.value;
+        int end = (outBegIdx.value + outNBElement.value);
+
+        for(int i = 0;i<start;i++) {
+            outSlowK_list.add((float)outSlowK[0]);
+        }
+        for(int i = 0;i < end-start;i++ ) {
+            outSlowK_list.add((float)outSlowK[i]);
+        }
+        threechart.add(outSlowK_list);
+
+        outSlowD_list = new ArrayList<Float>();
+        start = outBegIdx.value;
+        end = (outBegIdx.value + outNBElement.value);
+
+        for(int i = 0;i<start;i++) {
+            outSlowD_list.add((float)outSlowD[0]);
+        }
+        for(int i = 0;i < end-start;i++ ) {
+            outSlowD_list.add((float)outSlowD[i]);
+        }
+        threechart.add(outSlowD_list);
+
+        return threechart;
+    }
+
     public void fogn_chart(String stock_code) {
         MyChart fogn_chart = new MyChart();
         List<Float> chart_data = new ArrayList<>();
@@ -323,6 +422,8 @@ public class BoardSubActivity extends AppCompatActivity {
         List<Float> chart_data = new ArrayList<>();
         chart_data = adx_test(stock_code, total_period);
 
-        fogn_chart.single_float(subChart,chart_data,"ADX",false );
+        fogn_chart.single_float(adxChart,chart_data,"ADX",false );
     }
+
+
 }
