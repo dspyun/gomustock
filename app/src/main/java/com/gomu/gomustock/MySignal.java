@@ -22,7 +22,7 @@ public class MySignal {
     List<String> srcdata = new ArrayList<>();
     List<String> basedata = new ArrayList<>();
     List<Float> basestddata = new ArrayList<>();
-    List<Float>srcstddata = new ArrayList<>();
+    List<Float> srcstddata = new ArrayList<>();
     public List<FormatScore> scorebox = new ArrayList<>();
     List<String> buylist = new ArrayList<String>();
     Context context;
@@ -31,6 +31,8 @@ public class MySignal {
     public MySignal(Context inputcontext) {
         this.context = inputcontext;
         loadBuyList();
+        makeScoreBodx();
+        loadHistory2Scorebox();
     }
 
     public void loadBuyList() {
@@ -62,12 +64,11 @@ public class MySignal {
     }
 
     public void calcScore() {
-        addPerioddata();
         int size = scorebox.size();
         for(int i =0;i< size;i++) {
             //if(mixlist.get(i).stock_name.equals("코스피 200")) continue;
-            String temp = scorebox.get(i).stock_code;
-            int score = scoring(temp);
+            String stock_code = scorebox.get(i).stock_code;
+            int score = scoring(stock_code);
             scorebox.get(i).score = score;
             System.out.println(scorebox.get(i).stock_code + " = " + Integer.toString(score));
         }
@@ -85,18 +86,18 @@ public class MySignal {
         return result;
     }
 
-    public int getSocrelistsize() {
+    public int getScorelistsize() {
         return scorebox.size();
     }
-    public void addPerioddata() {
+    public void loadHistory2Scorebox() {
         MyExcel myexcel = new MyExcel();
         int size = scorebox.size();
         for (int i = 0; i < size; i++) {
             FormatScore onemix = new FormatScore();
             onemix = scorebox.get(i);
             srcdata = myexcel.oa_readItem(onemix.stock_code+".xls", "CLOSE", false);
-            scorebox.get(i).period_price = srcdata;
             srcdata.add(onemix.cur_price);
+            scorebox.get(i).period_price = srcdata;
         }
         int i = 0;
     }
@@ -108,16 +109,25 @@ public class MySignal {
 
         MyStat mystat = new MyStat();
 
+        // 스코어링할 종목가격을 불러온다
         int index = find_index(stock_code);
         if(index == -1) { return score = 0; }
-
         itemdata = scorebox.get(index).period_price;
-        index = find_index("069500");
-        kodex200 = scorebox.get(index).period_price;
-
+        //itemdata.add(0,scorebox.get(index).cur_price);
+        int size = itemdata.size();
         srcstddata = mystat.oa_standardization(itemdata);
-        basestddata = mystat.oa_standardization(kodex200);
 
+        // 기준종목 가격을 불러온다.
+        if(basestddata.size() == 0 ){
+            index = find_index("069500");
+            kodex200 = scorebox.get(index).period_price;
+            //kodex200.add(0,scorebox.get(index).cur_price);
+            // kodex200은 한번만 읽어주면 된다
+            int size1 = kodex200.size();
+            basestddata = mystat.oa_standardization(kodex200);
+        }
+
+        // 기준종목과 스코어링종목을 비교하여 스코어링을 한다
         float diff=0;
         int i = srcstddata.size()-1;
         diff = srcstddata.get(i) - basestddata.get(i);
@@ -130,9 +140,21 @@ public class MySignal {
         if(diff <= -0.5 && diff > -1) score = 1;
         else if(diff <= -1) score = 3;
 
-        bbands_test(stock_code);
+        //bbands_test(stock_code);
 
         return score;
+    }
+
+    public void makeScoreBodx() {
+        scorebox.clear();
+        int size = buylist.size();
+        for(int i =0;i<size;i++) {
+            FormatScore temp = new FormatScore();
+            temp.stock_code = buylist.get(i);
+            temp.cur_price = "0";
+            temp.score = 0;
+            scorebox.add(temp);
+        }
     }
 
     public int find_index(String stock_code) {
@@ -145,44 +167,29 @@ public class MySignal {
         }
         return -1;
     }
-    // 여기에 두기는 좀 애매하지만...
-    public void addCurprice() {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                MyWeb myweb = new MyWeb();
-                scorebox.clear();
-                int size = buylist.size();
-                for(int i =0;i<size;i++) {
-                    FormatScore temp = new FormatScore();
-                    temp.stock_code = buylist.get(i);
-                    scorebox.add(temp);
-                }
-
-                for (int i = 0; i < size; i++) {
-                    try {
-                        FormatScore onemix = new FormatScore();
-                        String temp = myweb.getCurrentStockPrice(buylist.get(i));
-                        onemix.cur_price = temp.replaceAll(",", "");
-                        onemix.stock_code = buylist.get(i);
-                        int index = find_index(buylist.get(i));
-                        if(index == -1) scorebox.add(onemix);
-                        else scorebox.set(index,onemix);
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                FormatScore onemix1 = new FormatScore();
-                String temp  = myweb.getCurrentKosp200();
-                onemix1.cur_price = temp.replaceAll(",", "");
-                onemix1.stock_code = "069500";
-                int index = find_index("코덱스 200");
-                if(index == -1) scorebox.add(onemix1);
-                else scorebox.set(index,onemix1);
+    // 아래 메소드는 activity에서 thread로 감싸서 사용해야 한다.
+    public void addCurprice2Scorebox() {
+        // TODO Auto-generated method stub
+        MyWeb myweb = new MyWeb();
+        int size = scorebox.size();
+        for (int i = 0; i < size; i++) {
+            try {
+                String cur_price = myweb.getCurrentStockPrice(scorebox.get(i).stock_code);
+                scorebox.get(i).cur_price  = cur_price.replaceAll(",", "");
+            } catch(Exception e){
+                e.printStackTrace();
             }
-        }).start();
+        }
+        /*
+        FormatScore onemix1 = new FormatScore();
+        String temp  = myweb.getCurrentKosp200();
+        onemix1.cur_price = temp.replaceAll(",", "");
+        onemix1.stock_code = "069500";
+        int index = find_index("코덱스 200");
+        if(index == -1) scorebox.add(onemix1);
+        else scorebox.set(index,onemix1);
+        */
     }
 
     public int bbands_test(String stock_code) {

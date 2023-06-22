@@ -1,16 +1,11 @@
 package com.gomu.gomustock.ui.dashboard;
 
-import static android.view.View.INVISIBLE;
-
-import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -94,7 +89,9 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         int size = scorebox.size();
         for(int i =0;i<size;i++) {
             if(scorebox.get(i).stock_code.equals(stock_code)) {
-                return String.valueOf(scorebox.get(i).score);
+                result = String.valueOf(scorebox.get(i).score);
+                result += " : " + scorebox.get(i).cur_price;
+                return result;
             }
         }
         return result;
@@ -129,9 +126,11 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         chart_data1 = myexcel.oa_standardization(pricelist);
         standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
 
-        pricelist = myexcel.oa_readItem("069500"+".xls","CLOSE", false);
-        pricelist = myexcel.arrangeRev_string(pricelist);
-        chart_data2 = myexcel.oa_standardization(pricelist);
+        if(chart_data2.size() == 0) {
+            pricelist = myexcel.oa_readItem("069500" + ".xls", "CLOSE", false);
+            pricelist = myexcel.arrangeRev_string(pricelist);
+            chart_data2 = myexcel.oa_standardization(pricelist);
+        }
         chartlist = standard_chart.buildChart_float(chart_data2,"KODEX 200",context.getColor(R.color.White));
         standard_chart.setYMinmax(-3, 3);
 
@@ -162,8 +161,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             // 차트 두 개를 겹쳐보이게 할 수 있다
             // 일단 첫번째 차트는 감추고
             lineChart = (LineChart)view.findViewById(R.id.stock_chart);
-            lineChart.setVisibility(INVISIBLE);
-            lineChart = (LineChart)view.findViewById(R.id.kospi_chart);
             //tvStockinfo = view.findViewById(R.id.textView2);
             tvStockinfo = view.findViewById(R.id.bd_stockinfo);
             tvscoreboard = view.findViewById(R.id.scoreboard);

@@ -1,7 +1,6 @@
 package com.gomu.gomustock.ui.dashboard;
 
 
-import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 import static com.tictactec.ta.lib.MAType.Sma;
 
 import android.content.Intent;
@@ -16,8 +15,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.FormatChart;
@@ -43,8 +40,6 @@ public class BoardSubActivity extends AppCompatActivity {
     ImageView myimage;
     LineChart bbnandChart, subChart;
     BarChart fognChart, agencyChart;
-    ImageView fogn_move;
-    ImageView agency_move;
 
     TextView temp;
     private WebView webView;
@@ -73,8 +68,6 @@ public class BoardSubActivity extends AppCompatActivity {
             bbnandChart = findViewById(R.id.bband_chart);
             subChart = findViewById(R.id.sub_chart);
             mytext = findViewById(R.id.textView1);
-            fogn_move = findViewById(R.id.fogn_move);
-            agency_move = findViewById(R.id.agency_move);
 
             String stock_name = suboption.getStockname();
             String stock_code = suboption.getStockcode();
@@ -125,27 +118,9 @@ public class BoardSubActivity extends AppCompatActivity {
 
     public void show_information(String stockname, String stockcode, String stockinfo) {
 
-
         mytext.setTextSize(14);
         mytext.setText(getinformation(stockname, stockcode, stockinfo));
 
-
-        String fogn_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/F_" + stockcode + ".png";
-        //System.out.println(fogn_imageUrl);
-        Glide.with(context).load(fogn_imageUrl)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(fogn_move);
-        fogn_move.setScaleType(ImageView.ScaleType.FIT_XY);
-
-
-        String agency_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/trader/month1/I_" + stockcode + ".png";
-        //System.out.println(agency_imageUrl);
-        Glide.with(context).load(agency_imageUrl)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(agency_move);
-        agency_move.setScaleType(ImageView.ScaleType.FIT_XY);
     }
 
 

@@ -14,7 +14,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -35,7 +34,6 @@ public class DashboardFragment extends Fragment {
     private DashboardViewModel dashboardViewModel;
     private FragmentDashboardBinding binding;
 
-    EditText editText;
     Button btAdd, btReset, btDownload, btUpdate,btSignal,btDummy;
     RecyclerView recyclerView;
 
@@ -52,11 +50,8 @@ public class DashboardFragment extends Fragment {
         View root = binding.getRoot();
 
         initResource(root);
-
         mysignal = new MySignal(getActivity());
-
-        stop_flag = true;
-        //scoring_thread.start();
+        scoring_thread.start();
 
         ImageView na_zumimage =  binding.zumchartNa;
         ImageView kr_zumimage = binding.zumchartKr;
@@ -105,9 +100,8 @@ public class DashboardFragment extends Fragment {
         btDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 개별 종목 정보는 실시간으로 update할 필요가 없다
-                // 그래서 크롤링 후 엑셀에 저장한다
-                //bd_adapter.dl_getStockinfo();
+                myscoring2();
+                //scoring_thread.start();
             }
         });
 
@@ -142,18 +136,14 @@ public class DashboardFragment extends Fragment {
     private BackgroundThread scoring_thread = new BackgroundThread();
     class BackgroundThread extends Thread {
         public void run() {
-            //여기서는 Toast를 비롯한 UI작업을 실행못함
-            //while(stop_flag) {
-                try {
-                    mysignal.addCurprice();
-                    Thread.sleep(10L);
-                    myscoring();
-                    stop_flag = false;
-                } catch (InterruptedException e) {
-                    System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
-                }
-            //}
+            try {
+                mysignal.addCurprice2Scorebox();
+                Thread.sleep(1000L);
+                //myscoring2();
+            } catch (InterruptedException e) {
+                System.out.println("인터럽트로 인한 스레드 종료.");
+                return;
+            }
         }
     }
     public void myscoring() {
@@ -181,6 +171,15 @@ public class DashboardFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void myscoring2() {
+        // 60일치 데이터로 스코어링했는 결과를 리사이클러뷰에 던져준고 refresh한다.
+        // thread가 현재가격 불러왔으면 현재가격 주가해서 스코어링 데이터를 던져준다.
+        // 불러오지 않았으면 60일치 결과로 계속 던져준다
+        mysignal.calcScore();
+        bd_adapter.setScorebox(mysignal.scorebox);
+        bd_adapter.refresh();
     }
 
     public void mywebview(WebView webView, String myurl) {

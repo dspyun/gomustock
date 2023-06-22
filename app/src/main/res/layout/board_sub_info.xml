@@ -25,23 +25,7 @@
                 android:layout_height="150dp"
                 android:layout_weight = "1"/>
         </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="150dp">
-            <ImageView
-                android:id="@+id/fogn_move"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:scaleType = "fitXY"
-                android:layout_weight = "1"/>
-            <ImageView
-                android:id="@+id/agency_move"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:scaleType = "fitXY"
-                android:layout_weight = "1"/>
-        </LinearLayout>
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
