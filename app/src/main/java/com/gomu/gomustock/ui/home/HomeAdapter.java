@@ -2,8 +2,6 @@ package com.gomu.gomustock.ui.home;
 
 import static android.content.ContentValues.TAG;
 
-import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
-
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
@@ -26,11 +24,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyOpenApi;
-import com.gomu.gomustock.MyWeb;
+import com.gomu.gomustock.network.MyOpenApi;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.PortfolioData;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +36,6 @@ import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
-    public List<PortfolioData> PortfolioList;
     public static List<BuyStockDBData> buyList;
     private static Activity context;
     public String open_api_data="empty";
@@ -184,7 +181,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         holder.tv_ave_price.setText(Integer.toString(data.ave_price));
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
         // expandable list를 펼쳐준다
-        holder.onBind(data, position, selectedItems);
+        holder.onBind(position, selectedItems);
 
         // expandable list에서 call이 되는 click listener
         // 리사이클러뷰의 리스트를 클릭하면 call된다
@@ -437,7 +434,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             buyList.add(data);
         }
 
-        public void onBind(PortfolioData data, int position, SparseBooleanArray selectedItems) {
+        public void onBind(int position, SparseBooleanArray selectedItems) {
             finger_position = position;
             changeVisibility(selectedItems.get(position));
         }
@@ -483,7 +480,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             estim_price += buyList.get(i).cur_price*buyList.get(i).buy_quantity;
         }
         int total_cache =0;
-        total_cache = remain_cache + estim_price;
+        total_cache = first_cache + remain_cache + estim_price;
 
         String total  = Integer.toString(total_cache);
         String remain = Integer.toString(remain_cache);

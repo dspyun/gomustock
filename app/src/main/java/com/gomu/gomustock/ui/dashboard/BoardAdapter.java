@@ -13,10 +13,10 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.gomu.gomustock.FormatChart;
-import com.gomu.gomustock.FormatScore;
-import com.gomu.gomustock.FormatStockInfo;
-import com.gomu.gomustock.MyChart;
+import com.gomu.gomustock.ui.format.FormatChart;
+import com.gomu.gomustock.ui.format.FormatScore;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.ui.home.BuyStock;

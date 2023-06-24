@@ -1,4 +1,4 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.graph;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 import static java.lang.Boolean.TRUE;
@@ -22,6 +22,8 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.gomu.gomustock.R;
+import com.gomu.gomustock.ui.format.FormatChart;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -181,7 +183,7 @@ public class MyChart {
         BarDataSet barDataSet = new BarDataSet(entrychart, "bardataset");
 
         for(int i=0;i<size;i++) {
-            if(chartdata.get(i)<0) color.add(ContextCompat.getColor(context,R.color.CharBlue));
+            if(chartdata.get(i)<0) color.add(ContextCompat.getColor(context, R.color.CharBlue));
             else color.add(ContextCompat.getColor(context,R.color.Salmon));
         }
         barDataSet.setColors(color);

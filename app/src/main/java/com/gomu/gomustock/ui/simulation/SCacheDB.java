@@ -6,8 +6,8 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.gomu.gomustock.portfolio.CacheDBData;
-import com.gomu.gomustock.portfolio.CacheDao;
+import com.gomu.gomustock.stockdb.CacheDBData;
+import com.gomu.gomustock.stockdb.CacheDao;
 @Database(entities = {CacheDBData.class}, version = 1, exportSchema = false)
 public abstract class SCacheDB extends RoomDatabase{
 

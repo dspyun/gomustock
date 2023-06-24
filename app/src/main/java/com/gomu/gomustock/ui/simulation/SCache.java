@@ -2,7 +2,7 @@ package com.gomu.gomustock.ui.simulation;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
-import com.gomu.gomustock.portfolio.CacheDBData;
+import com.gomu.gomustock.stockdb.CacheDBData;
 
 import java.util.List;
 

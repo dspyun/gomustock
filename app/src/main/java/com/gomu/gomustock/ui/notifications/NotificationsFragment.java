@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.gomu.gomustock.MyWeb;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentNotificationsBinding;
 

@@ -2,17 +2,16 @@ package com.gomu.gomustock.ui.home;
 
 import android.app.Activity;
 
-import com.gomu.gomustock.portfolio.BuyStockDB;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.PortfolioData;
-import com.gomu.gomustock.portfolio.SellStockDB;
-import com.gomu.gomustock.portfolio.SellStockDBData;
+import com.gomu.gomustock.stockdb.BuyStockDB;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockdb.SellStockDB;
+import com.gomu.gomustock.stockdb.SellStockDBData;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Portfolio {
-/*
+public class HBSManager {
+    /*
 1. buy db, sell db을 입력받아
 2. buy db에서 지정한 종목의 60일치 매수량을 뽑아 리스트로 만들고 > List<BuyStockDBData> buystockList
    sell db에서 지정한 종목의 60일치 매도량을 뽑아 리스트로 만들고 > List<SellStockDBData> sellstockList
@@ -36,7 +35,7 @@ public class Portfolio {
     public List<SellStockDBData> sellstockList = new ArrayList<>();
     private Activity context;
     private List<BuyStockDBData> last_buylist = new ArrayList<BuyStockDBData>();
-    public Portfolio(Activity mycontext)
+    public HBSManager(Activity mycontext)
     {
         this.context = mycontext;
         buystock_db = BuyStockDB.getInstance(context);
@@ -44,7 +43,7 @@ public class Portfolio {
         sellstock_db = SellStockDB.getInstance(context);
         sellstockList = sellstock_db.sellstockDao().getAll();
     }
-    public Portfolio()
+    public HBSManager()
     {
         buystock_db = BuyStockDB.getInstance(context);
         buystockList = buystock_db.buystockDao().getAll();
@@ -93,33 +92,6 @@ public class Portfolio {
         //-----------------------------------------------------
         */
         //return portfolioList;
-    }
-    public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
-        String stock_name; // 종목명
-        int estim_profit, estim_price; // 평가손익
-        int hold_quantity,unit_price,ave_price;
-        double profit_rate;
-        PortfolioData screen_info = new PortfolioData();
-
-        unit_price = buystock.getPrice();
-        hold_quantity = buystock.getQuantity();
-
-        estim_profit = (cur_price - unit_price) * hold_quantity;
-        estim_price = cur_price * hold_quantity;
-        profit_rate = ((cur_price*1.0)/(unit_price*1.0)-1)*100;
-        ave_price = unit_price;
-
-        screen_info.transaction_type = "buy";
-        screen_info.stock_name = buystock.stock_name;
-        screen_info.estim_profit = estim_profit;
-        screen_info.estim_price = estim_price;
-        screen_info.cur_price = cur_price;
-        screen_info.hold_quantity = hold_quantity;
-        screen_info.profit_rate = profit_rate;
-        screen_info.buy_price = unit_price*hold_quantity;
-        screen_info.ave_price = ave_price;
-        //Toast.makeText(context, Double.toString(profit_rate), Toast.LENGTH_SHORT).show();
-        return screen_info;
     }
 
     public List<String> getOnlyBuyCode() {

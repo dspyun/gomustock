@@ -23,17 +23,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.gomu.gomustock.FormatChart;
-import com.gomu.gomustock.MyBalance;
-import com.gomu.gomustock.MyChart;
+import com.gomu.gomustock.ui.format.FormatChart;
+import com.gomu.gomustock.stockengin.MyBalance;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyMagic01;
-import com.gomu.gomustock.MyOpenApi;
+import com.gomu.gomustock.stockengin.MyMagic01;
+import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.MyStat;
-import com.gomu.gomustock.MyWeb;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.portfolio.BuyStockDB;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
+import com.gomu.gomustock.stockdb.BuyStockDB;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -81,7 +81,7 @@ public class SimulationFragment extends Fragment {
     private List<Integer> chart1_data1 = new ArrayList<Integer>();
     private List<Integer> chart1_data2 = new ArrayList<Integer>();
 
-    private BSManager sim_bsmanager;
+    private SBSManager sim_bsmanager;
 
     private String open_api_data="empty";
     private String yesterday_price="empty";
@@ -137,7 +137,7 @@ public class SimulationFragment extends Fragment {
         // 최종 보유주식과 매매 히스토리를 만든다.
         SCache mycache = new SCache();
         mycache.initialize();
-        sim_bsmanager = new BSManager(getActivity());
+        sim_bsmanager = new SBSManager(getActivity());
         //sim_bsmanager.makeLastBuyList();
         //lastbuy = sim_bsmanager.getLastBuy();
 
@@ -465,7 +465,7 @@ public class SimulationFragment extends Fragment {
         List<MyBalance> balancelist = new ArrayList<>();
 
         for(int i=0;i<sim_stock.size();i++) {
-            sim_bsmanager = new BSManager();
+            sim_bsmanager = new SBSManager();
             sim_bsmanager.buystock.reset(); // buydb를 비운다
             sim_bsmanager.sellstock.reset(); // selldb를 비운다
 

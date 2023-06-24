@@ -120,7 +120,7 @@
                 android:layout_rowSpan="2"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:src="@drawable/buy_white2"/>
+                android:src="@drawable/stock_add_48px"/>
         </GridLayout>
     </LinearLayout>
     <LinearLayout
@@ -175,7 +175,7 @@
                 android:layout_rowSpan="2"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:src="@drawable/baseline_autorenew_white_48dp"/>
+                android:src="@drawable/sync_48px"/>
 
             <TextView
                 android:id="@+id/sim_quantity_tag"

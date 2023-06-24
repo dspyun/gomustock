@@ -1,4 +1,4 @@
-package com.gomu.gomustock.portfolio;
+package com.gomu.gomustock.stockdb;
 
 import static androidx.room.OnConflictStrategy.REPLACE;
 

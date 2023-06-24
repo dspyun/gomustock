@@ -1,11 +1,15 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.stockengin;
 
 import static com.tictactec.ta.lib.MAType.Sma;
 
 import android.content.Context;
 
-import com.gomu.gomustock.portfolio.BuyStockDB;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
+import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.MyStat;
+import com.gomu.gomustock.stockdb.BuyStockDB;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.ui.format.FormatScore;
+import com.gomu.gomustock.network.MyWeb;
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;

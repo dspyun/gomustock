@@ -1,7 +1,7 @@
 package com.gomu.gomustock.ui.home;
 
-import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.SellStockDBData;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockdb.SellStockDBData;
 
 import java.io.Serializable;
 import java.util.List;

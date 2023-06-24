@@ -6,8 +6,8 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.gomu.gomustock.portfolio.SellStockDBData;
-import com.gomu.gomustock.portfolio.SellStockDao;
+import com.gomu.gomustock.stockdb.SellStockDBData;
+import com.gomu.gomustock.stockdb.SellStockDao;
 @Database(entities = {SellStockDBData.class}, version = 1, exportSchema = false)
 public abstract class SSellStockDB extends RoomDatabase{
 

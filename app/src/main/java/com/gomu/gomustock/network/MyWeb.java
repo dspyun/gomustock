@@ -1,4 +1,8 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.network;
+
+import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.ui.format.FormatOHLCV;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

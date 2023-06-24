@@ -23,25 +23,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyOpenApi;
-import com.gomu.gomustock.MyWeb;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.PortfolioData;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
-    public List<PortfolioData> PortfolioList;
     public List<BuyStockDBData> buyList;
     private static Activity context;
-    public String open_api_data="empty";
 
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
     // 직전에 클릭됐던 Item의 position
     private int prePosition = -1;
-    MyOpenApi myopenapi = new MyOpenApi();
     private BackgroundThread update_thread = new BackgroundThread();
     private boolean stop_flag = false;
     private Dialog dialog_buy; // 커스텀 다이얼로그
@@ -165,7 +161,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         holder.tv_ave_price.setText(Integer.toString(data.ave_price));
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
         // expandable list를 펼쳐준다
-        holder.onBind(data, position, selectedItems);
+        holder.onBind(position, selectedItems);
 
         // expandable list에서 call이 되는 click listener
         // 리사이클러뷰의 리스트를 클릭하면 call된다
@@ -245,13 +241,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
-    }
-
-    public String Find_StockNo(String stockname) {
-        String value="";
-        if(stockname.equals("삼성전자")) value = "005930";
-        else if (stockname.equals("SK하이닉스")) value = "000660";
-        return value;
     }
 
     // expandable view를 구현하기 위한 view holder
@@ -339,7 +328,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             buyList.add(data);
         }
 
-        public void onBind(PortfolioData data, int position, SparseBooleanArray selectedItems) {
+        public void onBind(int position, SparseBooleanArray selectedItems) {
             finger_position = position;
             changeVisibility(selectedItems.get(position));
         }

@@ -2,9 +2,9 @@ package com.gomu.gomustock.ui.simulation;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
-import com.gomu.gomustock.FormatTestData;
+import com.gomu.gomustock.ui.format.FormatTestData;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
 
 import java.util.ArrayList;
 import java.util.List;

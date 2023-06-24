@@ -26,20 +26,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.gomu.gomustock.FormatChart;
-import com.gomu.gomustock.FormatStockInfo;
-import com.gomu.gomustock.MyBalance;
-import com.gomu.gomustock.MyChart;
+import com.gomu.gomustock.ui.format.FormatChart;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
+import com.gomu.gomustock.stockengin.MyBalance;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyOpenApi;
+import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.MyStat;
-import com.gomu.gomustock.MyTreeMap;
-import com.gomu.gomustock.MyWeb;
+import com.gomu.gomustock.graph.MyTreeMap;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
-import com.gomu.gomustock.portfolio.BuyStockDB;
-import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.portfolio.SellStockDBData;
+import com.gomu.gomustock.stockdb.BuyStockDB;
+import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockdb.SellStockDBData;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class HomeFragment extends Fragment {
     private List<Integer> chart1_data1 = new ArrayList<Integer>();
     private List<Integer> chart1_data2 = new ArrayList<Integer>();
     private List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
-    private Portfolio buysellhistory;
+    private HBSManager buysellhistory;
 
     private String open_api_data="empty";
     private String yesterday_price="empty";
@@ -99,7 +99,7 @@ public class HomeFragment extends Fragment {
         Cache mycache = new Cache();
         mycache.initialize();
 
-        buysellhistory = new Portfolio(getActivity());
+        buysellhistory = new HBSManager(getActivity());
         buysellhistory.makeLastBuyList();
         lastbuylist = buysellhistory.getLastBuyList();
 
@@ -223,7 +223,7 @@ public class HomeFragment extends Fragment {
                 tuja_bt.setText(home_adapter.show_myaccount());
                 home_adapter.reload_curprice();
 
-                buysellhistory = new Portfolio(getActivity());
+                buysellhistory = new HBSManager(getActivity());
                 buysellhistory.makeLastBuyList();
                 lastbuylist = buysellhistory.getLastBuyList();
 
@@ -307,7 +307,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void calcBalance(Portfolio buysellhis) {
+    public void calcBalance(HBSManager buysellhis) {
         List<BuyStockDBData> lastbuyli = new ArrayList<BuyStockDBData>();
 
         lastbuyli = buysellhis.getLastBuyList();

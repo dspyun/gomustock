@@ -1,4 +1,4 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.ui.format;
 
 public class FormatStockInfo {
     public String stock_code;

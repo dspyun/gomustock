@@ -1,4 +1,4 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.ui.format;
 
 public class FormatOHLCV {
     // open api 주식정보 포맹

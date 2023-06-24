@@ -1,4 +1,4 @@
-package com.gomu.gomustock.portfolio;
+package com.gomu.gomustock.ui.format;
 
 import java.io.Serializable;
 

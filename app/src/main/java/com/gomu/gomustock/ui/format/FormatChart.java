@@ -1,4 +1,4 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.ui.format;
 
 import com.github.mikephil.charting.data.Entry;
 
@@ -11,7 +11,7 @@ public class FormatChart {
     public int color;
     public float min;
     public float max;
-    List<Entry> entries;
+    public List<Entry> entries;
     public FormatChart () {
 
     }

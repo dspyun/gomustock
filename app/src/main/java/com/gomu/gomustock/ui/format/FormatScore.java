@@ -1,4 +1,4 @@
-package com.gomu.gomustock;
+package com.gomu.gomustock.ui.format;
 
 import java.util.List;
 
