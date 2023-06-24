@@ -49,14 +49,14 @@ public class BSManager {
 
         return onebuystock;
     }
-    public BuyStockDBData getPortfolio() {
+    public BuyStockDBData getLastBuy() {
         return last_buylist.get(0);
     }
     public List<BuyStockDBData> getBuyList() { return buystockList; }
     public List<SellStockDBData> getSellList() { return sellstockList; }
 
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
-    public List<PortfolioData> loadDB2Portfolio() {
+    public List<BuyStockDBData>  makeLastBuyList() {
 
         // 과거>현재 순으로 저장된 최종 보유리스트를 불러온다.
         last_buylist = assemble_lastbuylist();
@@ -73,35 +73,7 @@ public class BSManager {
         }
         */
         //-----------------------------------------------------
-        return portfolioList;
-    }
-
-    public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
-        String stock_name; // 종목명
-        int estim_profit, estim_price; // 평가손익
-        int hold_quantity,unit_price,ave_price;
-        double profit_rate;
-        PortfolioData screen_info = new PortfolioData();
-
-        unit_price = buystock.getPrice();
-        hold_quantity = buystock.getQuantity();
-
-        estim_profit = (cur_price - unit_price) * hold_quantity;
-        estim_price = cur_price * hold_quantity;
-        profit_rate = ((cur_price*1.0)/(unit_price*1.0)-1)*100;
-        ave_price = unit_price;
-
-        screen_info.transaction_type = "buy";
-        screen_info.stock_name = buystock.stock_name;
-        screen_info.estim_profit = estim_profit;
-        screen_info.estim_price = estim_price;
-        screen_info.cur_price = cur_price;
-        screen_info.hold_quantity = hold_quantity;
-        screen_info.profit_rate = profit_rate;
-        screen_info.buy_price = unit_price*hold_quantity;
-        screen_info.ave_price = ave_price;
-        //Toast.makeText(context, Double.toString(profit_rate), Toast.LENGTH_SHORT).show();
-        return screen_info;
+        return last_buylist;
     }
 
     public ArrayList<String> extract_buystock_name() {
@@ -299,13 +271,7 @@ public class BSManager {
     public void loadExcel2DB(String stock_code) {
 
         // 엑셀파일에서 시험용 매수주식 이력을 읽어들인다.
-        // 시뮬레이션할 때는 필요없다. db reset하고 시작하니까
-        // 단지 초기화의 의미만...
-        buystockList = buystock_db.buystockDao().getAll();
-        // 엑셀파일에서 시험용 매도주식 이력을 읽어들인다
-        sellstockList = sellstock_db.sellstockDao().getAll();
 
-        if(buystockList.size() == 0) {
 
             int withdrawal=0, remain_cache=0;
 
@@ -318,7 +284,7 @@ public class BSManager {
             signallist.addAll(myexcel.readtestset(stock_code+"_testset.xls", false));
 
             code = stock_code;
-            name = myexcel.find_stockname(code); // 이부분은 시간이 럴리는 함수라서 db로 개선필요? array로 넣고 array find를 활용?
+            name = myexcel.find_stockname(code); // 이부분은 시간이 걸리는 함수라서 db로 개선필요? array로 넣고 array find를 활용?
             int size = signallist.size();
             for(int i=0;i<size;i++) {
                 // 시그널파일의 0번째가 가장 과거데이터이기 때문에 과거데이터부터 매수데이터를 DB에 넣는다
@@ -360,7 +326,7 @@ public class BSManager {
             SCache mycache = new SCache();
             mycache.update_cache(remain_cache);
             int test = 0;
-        }
+
         // 이렇게 하면 모든날짜의 매수/매도 히스토리 db(엑셀)가 만들어진다
         // 매수 매도 히스토리 db(엑셀)는 차트를 그리는데 사용된다.
         // buystockList는 매수시스널 테이블과 동일해야 한고

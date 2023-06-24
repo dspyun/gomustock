@@ -29,8 +29,6 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
 import com.gomu.gomustock.portfolio.PortfolioData;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
@@ -58,7 +56,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         this.buyList = dataList;
         stop_flag = true;
         update_thread.start();
-        // getCurrentPrice();
+        //getCurrentPrice();
         // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
         // openapi가 아니고 웹크롤링으로 구현필요
         // BackgroundThread thread = new BackgroundThread();
@@ -77,6 +75,9 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     }
     public  List<BuyStockDBData> getRecyclerList() {
         return buyList;
+    }
+    public void putBuyList(List<BuyStockDBData> input_buylist) {
+        buyList = input_buylist;
     }
     public void getCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
@@ -217,10 +218,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 // dialog 화면에서 입력된 정보를 읽어온다
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
-                EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
-                String price = stock_price.getText().toString();
-                EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
-                String quantity = stock_quantity.getText().toString();
 
                 String stock_code = myexcel.find_stockno(name);
                 if(stock_code.equals("")) {
@@ -233,13 +230,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 onebuy.stock_code = stock_code;
                 buyList.add(onebuy);
 
-                Date buydate = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                String mybuydate = format.format(buydate);
-
                 SBuyStock buystock = new SBuyStock();
-                String stock_no = Find_StockNo(name);
-                buystock.insert2db(name,stock_no, Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
+                buystock.insert2db(onebuy);
 
                 notifyDataSetChanged();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
@@ -261,41 +253,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         else if (stockname.equals("SK하이닉스")) value = "000660";
         return value;
     }
-
-    public void showDialog_sell(){
-        dialog_sell.show(); // 다이얼로그 띄우기
-        dialog_sell.findViewById(R.id.sellBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 원하는 기능 구현
-
-                EditText stock_name = dialog_sell.findViewById(R.id.stock_name);
-                String name = stock_name.getText().toString();
-                EditText stock_price = dialog_sell.findViewById(R.id.sell_price);
-                String price = stock_price.getText().toString();
-                EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
-                String quantity = stock_quantity.getText().toString();
-
-                Date buydate = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                String mybuydate = format.format(buydate);
-
-                SSellStock sellstock = new SSellStock();
-                String stock_no = Find_StockNo(name);
-                sellstock.insert2db(name,stock_no,Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
-                dialog_sell.dismiss(); // 다이얼로그 닫기
-            }
-        });
-        //  버튼
-        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 원하는 기능 구현
-                dialog_sell.dismiss(); // 다이얼로그 닫기
-            }
-        });
-    }
-
 
     // expandable view를 구현하기 위한 view holder
     public class ViewHolder extends RecyclerView.ViewHolder
@@ -323,7 +280,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             tv_ave_price = view.findViewById(R.id.sim_ave_price);
 
             // simulation의 top board 초기화
-            bt_tuja = view.findViewById(R.id.sim_account_info);
+            bt_tuja = view.findViewById(R.id.sim_asset_info);
             //portfolio_item = view.findViewById(R.id.portfolio_item);
 
             btexpand = view.findViewById(R.id.sim_button_expanable);
@@ -364,7 +321,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             buybt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "go to buy", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "add item to simul list", Toast.LENGTH_SHORT).show();
                     showDialog_buy();
                     //onViewHolderItemClickListener.onViewHolderItemClick();
                 }
@@ -372,8 +329,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             sellbt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "go to buy", Toast.LENGTH_SHORT).show();
-                    showDialog_sell();
+                    Toast.makeText(context, "not support selldialog", Toast.LENGTH_SHORT).show();
                     //onViewHolderItemClickListener.onViewHolderItemClick();
                 }
             });
@@ -432,7 +388,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             estim_price += buyList.get(i).cur_price*buyList.get(i).buy_quantity;
         }
         int total_cache =0;
-        total_cache = remain_cache + estim_price;
+        total_cache = first_cache + remain_cache + estim_price;
 
         String total  = Integer.toString(total_cache);
         String remain = Integer.toString(remain_cache);

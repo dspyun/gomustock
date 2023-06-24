@@ -75,7 +75,7 @@ public class Portfolio {
     public List<SellStockDBData> getSellList() { return sellstockList; }
 
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
-    public void makLastBuyList() {
+    public void makeLastBuyList() {
 
         last_buylist = assemble_lastbuylist();
         int now_price=0;

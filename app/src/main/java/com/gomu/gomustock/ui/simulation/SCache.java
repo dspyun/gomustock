@@ -14,6 +14,12 @@ public class SCache {
         cacheList = cache_db.cacheDao().getAll();
     }
 
+    public void clear_cache() {
+        cache_db = SCacheDB.getInstance(context);
+        cacheList = cache_db.cacheDao().getAll();
+        cache_db.cacheDao().clear(cacheList);
+    }
+
     public void update_cache(int input_cache) {
         CacheDBData cachebox = cacheList.get(0);
         cachebox.setRemain(cachebox.remain_cache + input_cache);
@@ -32,13 +38,14 @@ public class SCache {
 
     public void initialize() {
         // 통장에 1억을 넣는다
-        if(cacheList.size() == 0) {
+        //if(cacheList.size() == 0) {
+            clear_cache();
             CacheDBData first_cache = new CacheDBData();
-            first_cache.setRemain(15000000); // 매수, 매도에 따라 변하는 액수
+            first_cache.setRemain(0); // 매수, 매도에 따라 변하는 액수
             first_cache.setFirstcache(15000000); // 초기투자금이며 update되지 않는다
             cache_db.cacheDao().insert(first_cache);
             cacheList = cache_db.cacheDao().getAll();
             int i=0;
-        }
+        //}
     }
 }

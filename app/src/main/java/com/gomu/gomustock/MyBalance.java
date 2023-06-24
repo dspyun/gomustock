@@ -28,21 +28,21 @@ public class MyBalance {
     List<BuyStockDBData> buystockList = new ArrayList<BuyStockDBData>();
     List<SellStockDBData> sellstockList = new ArrayList<SellStockDBData>();
     int balanace_valid;
-
+    Cache mycache = new Cache();
     public MyBalance(String name) {
         this.stock_code = name;
         // 순서바꾸면 안됨. 차례로 데이터 들어가고 계산되어야 함
-        cache = getCache();
+        //cache = getCache();
     }
 
     public int getCache() {
-        Cache mycache = new Cache();
+        mycache = new Cache();
         return mycache.getRemainCache();
     }
 
-    public void prepareDataset(List<BuyStockDBData> buystockList, List<SellStockDBData> sellstockList) {
-        this.buystockList=buystockList;
-        this.sellstockList=sellstockList;
+    public void prepareDataset(List<BuyStockDBData> buystockList1, List<SellStockDBData> sellstockList1) {
+        this.buystockList=buystockList1;
+        this.sellstockList=sellstockList1;
         int listsize;
         MyDate mydate = new MyDate();
         List<String>  price = new ArrayList<String>();
@@ -100,7 +100,7 @@ public class MyBalance {
             //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(buystockList.get(i).buy_date);
             if(index == -1) continue;
-            inputBuyQuantity.set(index,value);
+            inputBuyQuantity.set(index,buystockList.get(i).buy_quantity);
         }
         index = 0; // 디버깅용
     }
@@ -180,6 +180,7 @@ public class MyBalance {
         }
         // 현금변화량을 계산한다
         int j = cache;
+        int first_cache = mycache.getFirstCache();
         int cachehis = 0;
         for(int i=0;i<listsize;i++) {
             cachehis = cachehis - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
@@ -197,7 +198,7 @@ public class MyBalance {
         for(int i=0;i<listsize;i++) {
             outputTotal.set(i, outputEstim.get(i) + outputCache.get(i));
         }
-
+        /*
         List<String> temp1 = new ArrayList<>();
         List<String> temp2 = new ArrayList<>();
         List<String> temp3 = new ArrayList<>();
@@ -206,7 +207,9 @@ public class MyBalance {
             temp2.add(Integer.toString(outputEstim.get(i)));
             temp3.add(Integer.toString(outputTotal.get(i)));
         }
-        //myexcel.writebalance_test(inputDate,temp1,temp2,temp3);
+        myexcel.writebalance_test(inputDate,temp1,temp2,temp3);
+        */
+
         int index = 1;
     }
 

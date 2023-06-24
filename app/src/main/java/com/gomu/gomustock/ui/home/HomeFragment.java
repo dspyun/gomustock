@@ -100,7 +100,7 @@ public class HomeFragment extends Fragment {
         mycache.initialize();
 
         buysellhistory = new Portfolio(getActivity());
-        buysellhistory.makLastBuyList();
+        buysellhistory.makeLastBuyList();
         lastbuylist = buysellhistory.getLastBuyList();
 
         if((lastbuylist.size() != 0 ) && (-1 != myexcel.checkExcelfile(lastbuylist))) {
@@ -224,7 +224,7 @@ public class HomeFragment extends Fragment {
                 home_adapter.reload_curprice();
 
                 buysellhistory = new Portfolio(getActivity());
-                buysellhistory.makLastBuyList();
+                buysellhistory.makeLastBuyList();
                 lastbuylist = buysellhistory.getLastBuyList();
 
                 calcBalance(buysellhistory);

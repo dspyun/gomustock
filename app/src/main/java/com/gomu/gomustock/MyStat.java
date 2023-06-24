@@ -16,16 +16,18 @@ public class MyStat {
 
     public List<Integer> sumlist(List<List<Integer>> listdata) {
 
-        List<Integer> onelist = new ArrayList<>();
-        onelist = listdata.get(0);
-        for(int i = 1;i<listdata.size();i++) {
+        List<Integer> result = new ArrayList<>();
+        result = listdata.get(0);
+        int size = listdata.size();
+        for(int i = 1;i<size;i++) {
             List<Integer> templist = new ArrayList<>();
-            for(int j=0;j<listdata.get(i).size();j++) {
-                templist.add(onelist.get(j)+listdata.get(i).get(i));
+            int size2 = listdata.get(i).size();
+            for(int j=0;j<size2;j++) {
+                templist.add(result.get(j)+listdata.get(i).get(j));
             }
-            onelist = templist;
+            result = templist;
         }
-        return onelist;
+        return result;
     }
 
     public List<Float> yf_real_price(List<String> rawdata) {

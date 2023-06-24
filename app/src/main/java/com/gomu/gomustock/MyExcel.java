@@ -536,12 +536,6 @@ public class MyExcel extends MyStat{
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
                     }
-
-                    size = sheet.getColumn(1).length;
-                    for(int i =0 ; i<size ;i++) {
-                        ETF_NO.add(sheet.getCell(1, i).getContents());
-                        ETF_NAME.add(sheet.getCell(3, i).getContents());
-                    }
                 }
             }
             wb.close();
@@ -557,9 +551,6 @@ public class MyExcel extends MyStat{
         if(STOCK_NAME.isEmpty()) readStockDic();
 
         int index = STOCK_NAME.indexOf(name);
-        if(index == -1 ) {
-            index = ETF_NAME.indexOf(name);
-        }
         if(index == -1) return "";
         return STOCK_NO.get(index);
     }
@@ -568,9 +559,6 @@ public class MyExcel extends MyStat{
         if(STOCK_NAME.isEmpty()) readStockDic();
 
         int index = STOCK_NO.indexOf(number);
-        if(index == -1 ) {
-            index = ETF_NO.indexOf(number);
-        }
         if(index == -1) return "";
         return STOCK_NAME.get(index);
     }
