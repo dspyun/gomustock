@@ -34,12 +34,17 @@ public class Cache {
     public void initialize() {
         // 통장에 1억을 넣는다
         if(cacheList.size() == 0) {
+            cacheList = cache_db.cacheDao().getAll();
+            cache_db.cacheDao().clear(cacheList);
+
             CacheDBData first_cache = new CacheDBData();
-            first_cache.setRemain(15000000); // 매수, 매도에 따라 변하는 액수
+            first_cache.setRemain(0); // 매수, 매도에 따라 변하는 액수
             first_cache.setFirstcache(15000000); // 초기투자금이며 update되지 않는다
             cache_db.cacheDao().insert(first_cache);
             cacheList = cache_db.cacheDao().getAll();
             int i=0;
+        } else {
+            cacheList = cache_db.cacheDao().getAll();
         }
     }
 }

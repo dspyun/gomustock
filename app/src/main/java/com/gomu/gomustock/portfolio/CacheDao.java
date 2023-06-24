@@ -18,6 +18,8 @@ public interface CacheDao {
 
     @Delete
     void delete(CacheDBData cachedbData);
+    @Delete
+    void clear(List<CacheDBData> cachedbDatalist);
 
     @Update
     void update(CacheDBData cachedbData);

@@ -64,7 +64,7 @@ public class DashboardFragment extends Fragment {
                 .into(kr_zumimage);
         kr_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
-        String na_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/world/continent/NAS@IXIC.png?1686905626226";
+        String na_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/world/continent/SPI@SPX.png?1687441130060";
         Glide.with(context).load(na_imageUrl)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)

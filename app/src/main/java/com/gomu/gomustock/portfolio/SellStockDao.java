@@ -24,14 +24,8 @@ public interface SellStockDao {
     @Delete
     void reset(List<SellStockDBData> sellstockdbData);
 
-    @Query("UPDATE sellstock_table SET 종목명 = :stock_name WHERE ID = :sID")
-    void update_name(int sID, String stock_name);
-
-    @Query("UPDATE sellstock_table SET 매도단가 = :sell_price WHERE ID = :sID")
-    void update_price(int sID, int sell_price);
-
-    @Query("UPDATE sellstock_table SET 매도량 = :sell_quantity WHERE ID = :sID")
-    void update_quantity(int sID, int sell_quantity);
+    @Query("SELECT * FROM sellstock_table WHERE" + " 매도일 IN (:selldate) AND 종목코드 IN (:stockcode)")
+    SellStockDBData getDataByDate(String selldate, String stockcode);
 
     // 추가해야 할 것 : 매수일, 한꺼번에 update하는 메소드
 

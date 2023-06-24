@@ -1,8 +1,5 @@
 package com.gomu.gomustock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class FormatStockInfo {
     public String stock_code;
     public String stock_name;
@@ -40,12 +37,11 @@ public class FormatStockInfo {
 
     public String toString() {
         String stock_info="";
-        stock_info += "PER/PER12 = " + per +"/"+per12 + "\n";
-        stock_info += "업종PER/PBR = "+ area_per +"/"+pbr + "\n";
+        stock_info += "PER/PBR = " + per +"/"+pbr + "\n";
+        stock_info += "PER12/업종PER = "+ per12 +"/"+area_per + "\n";
         stock_info += "배당률/베타 = "+div_rate +"/"+beta + "\n";
         stock_info += "외국인비중 = " + fogn_rate+"\n";
         stock_info += "영업이익률 = "+ op_profit+"\n";
-        stock_info += "시그널 = "+ score+"\n";
         return stock_info;
     }
 

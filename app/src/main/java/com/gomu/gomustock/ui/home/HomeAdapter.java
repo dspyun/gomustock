@@ -2,6 +2,8 @@ package com.gomu.gomustock.ui.home;
 
 import static android.content.ContentValues.TAG;
 
+import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
+
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
@@ -51,11 +53,26 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     private Dialog dialog_sell; // 커스텀 다이얼로그
     public Button bt_tuja;
     MyExcel myexcel = new MyExcel();
-
+    private int recycler_size=0;
+    String latestOpenday="";
     public HomeAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
         this.buyList = dataList;
+        recycler_size = buyList.size();
+        stop_flag = true;
+        myexcel.find_stockname("069500");
+        update_thread.start();
+
+        // getCurrentPrice();
+        // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
+        // openapi가 아니고 웹크롤링으로 구현필요
+        // BackgroundThread thread = new BackgroundThread();
+    }
+    public HomeAdapter(Activity context)
+    {
+        this.context = context;
+        recycler_size = recycler_size;
         stop_flag = true;
         myexcel.find_stockname("069500");
         update_thread.start();
@@ -76,6 +93,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     }
     public void reload_curprice( ) {
         stop_flag=true;
+    }
+    public void setOpenday(String openday) {
+        latestOpenday = openday;
     }
     public void getCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
@@ -144,11 +164,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
         return new HomeAdapter.ViewHolder(view);
     }
-
+    int finger_position;
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
-        int finger_position = position;//holder.getAdapterPosition();
+        finger_position = position;//holder.getAdapterPosition();
         BuyStockDBData buydata = buyList.get(position);
 
         int now_price = buyList.get(position).cur_price;
@@ -198,14 +218,21 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         return screen_info;
     }
 
-
     @Override
     public int getItemCount()
     {
+        //return recycler_size;
         return buyList.size();
     }
 
     public void showDialog_buy(){
+        EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
+        stock_name.setText(buyList.get(finger_position).stock_name);
+        EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
+        stock_price.setText(Integer.toString(buyList.get(finger_position).cur_price));
+        EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
+        stock_quantity.setText("1");
+
         dialog_buy.show(); // 다이얼로그 띄우기
 
         dialog_buy.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
@@ -233,6 +260,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
+                if(!latestOpenday.equals(mybuydate)) {
+                    Toast.makeText(context, "오늘은 거래날짜가 아닙니다",Toast.LENGTH_SHORT).show();
+                    return; // 오늘이 오픈일이 아니면 매도매수 안됨
+                }
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
                 BuyStockDBData onebuy = new BuyStockDBData();
@@ -264,8 +295,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         });
     }
 
-
     public void showDialog_sell(){
+        EditText stock_name = dialog_sell.findViewById(R.id.stock_name);
+        stock_name.setText(buyList.get(finger_position).stock_name);
+        EditText stock_price = dialog_sell.findViewById(R.id.sell_price);
+        stock_price.setText(Integer.toString(buyList.get(finger_position).cur_price));
+        EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
+        stock_quantity.setText("1");
+
         dialog_sell.show(); // 다이얼로그 띄우기
         dialog_sell.findViewById(R.id.sellBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -288,6 +325,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
+                if(!latestOpenday.equals(mybuydate)) {
+                    Toast.makeText(context, "오늘은 거래날짜가 아닙니다",Toast.LENGTH_SHORT).show();
+                    return; // 오늘이 오픈일이 아니면 매도매수 안됨
+                }
+
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
                 SellStock sellstock = new SellStock();
@@ -384,7 +426,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             sellbt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context, "go to buy", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "go to sell", Toast.LENGTH_SHORT).show();
                     showDialog_sell();
                     //onViewHolderItemClickListener.onViewHolderItemClick();
                 }

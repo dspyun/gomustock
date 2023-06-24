@@ -1,17 +1,19 @@
 package com.gomu.gomustock;
 
+import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
+
+import com.gomu.gomustock.portfolio.BuyStockDB;
 import com.gomu.gomustock.portfolio.BuyStockDBData;
-import com.gomu.gomustock.ui.home.Cache;
-import com.gomu.gomustock.ui.home.Portfolio;
+import com.gomu.gomustock.portfolio.SellStockDB;
 import com.gomu.gomustock.portfolio.SellStockDBData;
+import com.gomu.gomustock.ui.home.Cache;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyBalance {
 
-    // 일단 1500만원 넣어준다
-    int cache = 20000000;
+    int cache = 0;
     public String stock_code ="";
     public List<String> inputDate = new ArrayList<>();
     public List<Integer> inputStockprice = new ArrayList<Integer>();
@@ -23,8 +25,6 @@ public class MyBalance {
     public List<Integer>  outputTotal = new ArrayList<Integer>();
 
     MyExcel myexcel = new MyExcel();
-//    int listsize;
-    Portfolio myportfolio; //= new Portfolio();
     List<BuyStockDBData> buystockList = new ArrayList<BuyStockDBData>();
     List<SellStockDBData> sellstockList = new ArrayList<SellStockDBData>();
     int balanace_valid;
@@ -88,14 +88,19 @@ public class MyBalance {
         // buystockList = myportfolio.getBuyList();
 
         int index=0;
+        int value=0;
         // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
         int size = buystockList.size();
         for(int i=0; i < size ;i++) {
-            // inputBuyQuantity는 inputdate의 index 순으로
-            // buystockList의 데이터를 읽어 저짱하기 때문에
-            // 현재>과거 순으로 저장된다.
+            // 1. inputBuyQuantity는 inputdate의 index 순으로
+            //    buystockList의 데이터를 읽어 저짱하기 때문에
+            //    현재>과거 순으로 저장된다.
+            // 2. 오늘아침에 inputDate파일이 update되지않고
+            //    주식을 하나 사면 inputDate에는 오늘날짜가 없어서
+            //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(buystockList.get(i).buy_date);
-            inputBuyQuantity.set(index,buystockList.get(i).buy_quantity);
+            if(index == -1) continue;
+            inputBuyQuantity.set(index,value);
         }
         index = 0; // 디버깅용
     }
@@ -112,10 +117,14 @@ public class MyBalance {
         // date를 비교해보고 date가 있으면 해당날짜의 매도량을 copy한다
         int size =sellstockList.size();
         for(int i=0; i < size;i++) {
-            // inputSellQuantity inputdate의 index 순으로
-            // buystockList의 데이터를 읽어 저짱하기 때문에
-            // 현재>과거 순으로 저장된다.
+            // 1. inputSellQuantity inputdate의 index 순으로
+            //    buystockList의 데이터를 읽어 저짱하기 때문에
+            //    현재>과거 순으로 저장된다.
+            // 2. 오늘아침에 inputDate파일이 update되지않고
+            //    주식을 하나 팔면 inputDate에는 오늘날짜가 없어서
+            //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(sellstockList.get(i).sell_date);
+            if(index == -1) continue;
             inputSellQuantity.set(index,sellstockList.get(i).sell_quantity);
         }
         index = 0;
@@ -126,6 +135,28 @@ public class MyBalance {
         // 1년치 일일 잔액, 보유수량, 평가액 변화를 계산해서 엑셀에 저장한다
         // 보유수량 변화량을 계산한다.
 
+        // 여기에서 오늘 매매 데이터를 붙여 줘야 한다.
+        // 날짜 inputDate의 index0은 오늘날짜가 들어가 있다(왜냐면 파일로 다운받았으니)
+        // 하지만 매매데이터는 폰에서 생성된 정보이고 파일에 포함되어 있지 않다
+        // 그래서 오늘 buy sell 수량을 index 0에 각각 넣어 주어야 한다.
+        MyDate mydate = new MyDate();
+        BuyStockDB buystock_db = BuyStockDB.getInstance(context);
+        BuyStockDBData today_buydb = buystock_db.buystockDao().getDataByDate(inputDate.get(0),stock_code);
+        if(today_buydb !=null) {
+            int today_buyquan = today_buydb.buy_quantity;
+            if(inputDate.get(0).equals(mydate.getToday())) {
+                inputBuyQuantity.set(0, today_buyquan);
+            }
+        }
+
+        SellStockDB sellstock_db = SellStockDB.getInstance(context);
+        SellStockDBData today_selldb = sellstock_db.sellstockDao().getDataByDate(inputDate.get(0),stock_code);
+        if(today_selldb !=null) {
+            int today_sellquan = today_selldb.sell_quantity;
+            if (inputDate.get(0).equals(mydate.getToday())) {
+                inputSellQuantity.set(0, today_sellquan);
+            }
+        }
 
         // input 어레이는 최신날짜 > 과거날짜 순으로 정렬되어 있다
         // 하지만 누적계산은 과거날짜 > 최신 순으로 해야 하고
@@ -148,10 +179,12 @@ public class MyBalance {
             //quantity = 0;
         }
         // 현금변화량을 계산한다
+        int j = cache;
+        int cachehis = 0;
         for(int i=0;i<listsize;i++) {
-            cache = cache - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
-            cache = cache + inputSellQuantity_rev.get(i)*inputStockprice_rev.get(i);
-            outputCache.set(i, cache);
+            cachehis = cachehis - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
+            cachehis = cachehis + inputSellQuantity_rev.get(i)*inputStockprice_rev.get(i);
+            outputCache.set(i, cachehis);
             //cache = 0;
         }
         // 평가액 변화량을 계산한다
@@ -164,8 +197,6 @@ public class MyBalance {
         for(int i=0;i<listsize;i++) {
             outputTotal.set(i, outputEstim.get(i) + outputCache.get(i));
         }
-
-        MyExcel myexcel = new MyExcel();
 
         List<String> temp1 = new ArrayList<>();
         List<String> temp2 = new ArrayList<>();

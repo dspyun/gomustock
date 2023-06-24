@@ -15,7 +15,7 @@ public class BuyStockDBData implements Serializable
     // 종목명, 평가손익, 평가금액, 현재가
     // 보유수량, 수익률, 매입금액, 평균단가
 
-    @ColumnInfo(name = "종목번호")
+    @ColumnInfo(name = "종목코드")
     public String stock_code;
 
     @ColumnInfo(name = "종목명")

@@ -30,14 +30,8 @@ public interface BuyStockDao {
     @Update
     void update(BuyStockDBData buystockdbData);
 
-    @Query("UPDATE buystock_table SET 종목명 = :sText WHERE ID = :sID")
-    void update(int sID, String sText);
-
-    @Query("UPDATE buystock_table SET 매수단가 = :buy_price WHERE ID = :sID")
-    void update_price(int sID, int buy_price);
-
-    @Query("UPDATE buystock_table SET 매수량 = :buy_quantity WHERE ID = :sID")
-    void update_quantity(int sID, int buy_quantity);
+    @Query("SELECT * FROM buystock_table WHERE" + " 매수일 IN (:buydate) AND 종목코드 IN (:stockcode)")
+    BuyStockDBData getDataByDate(String buydate, String stockcode);
 
     @Query("SELECT * FROM buystock_table")
     List<BuyStockDBData> getAll();

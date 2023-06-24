@@ -199,6 +199,30 @@ public class MyWeb {
         return stockprice;
     }
 
+    public String checkOpenday() {
+
+        //https://jul-liet.tistory.com/209
+        String stockprice="";
+        String URL = "https://finance.naver.com/";
+        Document doc;
+
+        try {
+            doc = Jsoup.connect(URL).get();
+
+            Elements timeinfo =doc.select(".ly_realtime");
+            Element marketday = timeinfo.select("#time").get(0);
+            String day = marketday.text().replaceAll("\\.", "").substring(0,8);
+            return day;
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("반환값 "+stockprice);
+
+        return stockprice;
+    }
+
     public void dl_fogninfo(List<String> buylist) {
 
         for(int i =0;i<buylist.size();i++) {

@@ -1,6 +1,5 @@
 package com.gomu.gomustock;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Calendar;
@@ -66,7 +65,13 @@ public class MyDate {
         }
         return result;
     }
-
+    public String  getToday() {
+        Date date = new Date();
+        String result;
+        SimpleDateFormat mFormat = new SimpleDateFormat("yyyyMMdd");
+        result = sdf.format(date);
+        return result;
+    }
 
     //어제 날짜를 가져온다 : 리턴형식 yyyyMMdd
     public String  getYesterday() {

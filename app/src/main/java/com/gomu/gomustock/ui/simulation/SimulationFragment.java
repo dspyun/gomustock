@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -209,7 +210,7 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-        Button buysell_history = (Button)view.findViewById(R.id.buysell_history);
+        TextView buysell_history = view.findViewById(R.id.buysellhistory);
         simsim_bt.setOnClickListener(new View.OnClickListener()
         {
             @Override

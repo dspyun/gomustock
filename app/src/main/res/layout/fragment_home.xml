@@ -53,40 +53,75 @@ tools:context=".ui.home.HomeFragment">
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
-        <TableLayout
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TableRow>
-                <Button
-                    android:id="@+id/yf_download"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_weight = "1"
-                    android:text="가격DL"/>
-                <Button
-                    android:id="@+id/real_chart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_weight = "1"
-                    android:text="정보DL"/>
-                <Button
-                    android:id="@+id/standard_chart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_weight = "1"
-                    android:text="Data생성"/>
-                <Button
-                    android:id="@+id/buysell_history"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:layout_weight = "1"
-                    android:text="매매이력"/>
-            </TableRow>
-        </TableLayout>
+            android:layout_height="wrap_content"
+            android:columnCount="5"
+            android:orientation="horizontal"
+            android:rowCount="2">
+            <TextView
+                android:id="@+id/filedownload"
+                android:layout_width="@dimen/grid_width"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:textColor="@color/LightGray"
+                android:text="파일\n다운로드"
+                android:textSize="14sp"
+                android:background="@xml/bg_custom_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"/>
+            <TextView
+                android:id="@+id/infodownload"
+                android:layout_width="@dimen/grid_width"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:text="정보\n다운로드"
+                android:textColor="@color/LightGray"
+                android:textSize="14sp"
+                android:background="@xml/bg_custom_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"/>
+            <TextView
+                android:id="@+id/dummy"
+                android:layout_width="@dimen/grid_width"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:text="더미\n"
+                android:textColor="@color/LightGray"
+                android:textSize="14sp"
+                android:background="@xml/bg_custom_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"/>
+            <TextView
+                android:id="@+id/buysellhistory"
+                android:layout_width="@dimen/grid_width"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="매매\n이력"
+                android:gravity="center_vertical|right"
+                android:textColor="@color/LightGray"
+                android:textSize="14sp"
+                android:background="@xml/bg_custom_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"/>
+
+            <ImageView
+                android:id="@+id/buynew"
+                android:layout_width="@dimen/grid_imagewidth"
+                android:layout_height="38dp"
+                android:layout_column="4"
+                android:layout_rowSpan="2"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:src="@drawable/buy_white2"/>
+        </GridLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -130,6 +165,7 @@ tools:context=".ui.home.HomeFragment">
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
+
                     android:textSize="14sp" />
 
                 <ImageView
