@@ -34,8 +34,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     private List<Float> chart_data2 =new ArrayList<Float>();;
     MyChart standard_chart = new MyChart();
     public List<String> pricelist = new ArrayList<String>();
-    List<String> buycodelist = new ArrayList<String>();
-
 
     int finger_position=0;
     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
@@ -44,19 +42,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     MyExcel myexcel = new MyExcel();
     List<FormatChart> chartlist = new ArrayList<FormatChart>();
     public List<FormatScore> scorebox = new ArrayList<>();
+    List<String> recycler_list = new ArrayList<>();
     public BoardAdapter(Activity context)
     {
         this.context = context;
         //this.dataList = dataList;
-        myexcel = new MyExcel();
-        ReadBuyList();
-        initInfoArray();
-    }
+        loadRecyclerList();
 
-
-    public void initInfoArray() {
-        int size;
-        web_stockinfo = myexcel.readStockinfo(false);
     }
 
     public void refresh( ) {
@@ -73,11 +65,53 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         int i =0;
     }
 
-    public void ReadBuyList() {
+    public void loadBuylist2RecyclerList() {
         // buy code list를 읽어온다
         BuyStock mybuy = new BuyStock();
-        buycodelist = mybuy.getBuyCodeList();
-        int i = 0;
+        List<String> buycodelist = mybuy.getBuyCodeList();
+        recycler_list.addAll(buycodelist);
+    }
+
+    public void loadRecyclerList() {
+        web_stockinfo = myexcel.readStockinfo(false);
+        if(web_stockinfo !=null) {
+            for (int i = 0; i < web_stockinfo.size(); i++) {
+                recycler_list.add(web_stockinfo.get(i).stock_code);
+            }
+        } else {
+            loadBuylist2RecyclerList();
+        }
+    }
+
+    public String getStockInfo(String stock_code) {
+        String result="";
+        int size = web_stockinfo.size();
+        for(int i =0;i<size;i++)
+        {
+            if(stock_code.equals(web_stockinfo.get(i).stock_code)) {
+                result = web_stockinfo.get(i).toString();
+                return result;
+            }
+        }
+        return result;
+    }
+    public String getStockname(String stock_code) {
+        String result="";
+        int size = web_stockinfo.size();
+        for(int i =0;i<size;i++)
+        {
+            if(stock_code.equals(web_stockinfo.get(i).stock_code)) {
+                result = web_stockinfo.get(i).stock_name;
+                return result;
+            }
+        }
+        return result;
+    }
+    public List<String> getRecyclerList() {
+        return recycler_list;
+    }
+    public void putRecyclerList(List<String> input_list) {
+        recycler_list =input_list;
     }
 
     public void setScorebox(List<FormatScore> input_scorebox) {
@@ -109,13 +143,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     {
         finger_position = position;
         //final BoardData data = dataList.get(position);
-        String stock_code = buycodelist.get(position);
+        String stock_code = recycler_list.get(position);
 
         // information text view에 종목번호를 넣는다
 
-        String stock_name = myexcel.find_stockname(stock_code);
+        String stock_name = getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
-        holder.tvStockinfo.setText(web_stockinfo.get(position).toString());
+        holder.tvStockinfo.setText(getStockInfo(stock_code));
         holder.tvscoreboard.setText(stock_name + " score is " + getScore(stock_code));
         // 차트에 코스피와 종목 데이터를 넣어준다
 
@@ -146,7 +180,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     {
         // buyList size를 adaper에 알려주면
         // size만큼 list갯수를 보여준다
-        return buycodelist.size();
+        return recycler_list.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder
@@ -171,7 +205,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     MyExcel myexcel = new MyExcel();
-                    String stock_code = buycodelist.get(position);
+                    String stock_code = recycler_list.get(position);
                     String stock_name = myexcel.find_stockname(stock_code);
                     System.out.println("boardview " + stock_code + " " + stock_name + "finger " + String.valueOf(finger_position));
 

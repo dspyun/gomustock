@@ -19,6 +19,9 @@ public class FormatStockInfo {
     public String score;     // 이것은 파일로 저장하지 안는다. 웹에서 긁어오는 것이 이님.
 
     public String desc;
+    public FormatStockInfo() {
+        init();
+    }
     public void init() {
         stock_code="";
         stock_name="";
@@ -59,5 +62,9 @@ public class FormatStockInfo {
         cur_price="현재가";
         score="시그널";
         desc="정보";
+    }
+
+    public void addStockcode(String stockcode) {
+        stock_code = stockcode;
     }
 }

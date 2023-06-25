@@ -325,198 +325,6 @@ public class MyExcel extends MyStat{
         return pricebuffer;
     }
 
-    public List<String> oa_readPrice60(String filename, boolean header) {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
-        String PathFile = STOCKDIR+filename;;
-        List<String> mArrayBuffer = new ArrayList<String>();
-        List<String> mArrayBuffer_rev = new ArrayList<String>();
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    int size = sheet.getColumn(6).length;
-                    for(int i=start;i<size;i++) {
-                        // formatOA class의 구조로 저장된다
-                        // 종가는 6번째 컬럼의 값
-                        mArrayBuffer.add(sheet.getCell(6, i).getContents());
-                    }
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
-        /*
-        for(int i =mArrayBuffer.size()-1;i>=0;i--) {
-            mArrayBuffer_rev.add(mArrayBuffer.get(i));
-        }
-        return mArrayBuffer_rev;
-        */
-        return mArrayBuffer;
-    }
-
-    public List<String> oa_readIndex60(String filename, boolean header) {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
-        String PathFile = STOCKDIR+filename;;
-        List<String> mArrayBuffer = new ArrayList<String>();
-        List<String> mArrayBuffer_rev = new ArrayList<String>();
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    int size = sheet.getColumn(6).length;
-                    for(int i=start;i<size;i++) {
-                        // formatOA class의 구조로 저장된다
-                        // 종가는 6번째 컬럼의 값
-                        mArrayBuffer.add(sheet.getCell(6, i).getContents());
-                    }
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
-        /*
-        for(int i =mArrayBuffer.size()-1;i>=0;i--) {
-            mArrayBuffer_rev.add(mArrayBuffer.get(i));
-        }
-        return mArrayBuffer_rev;
-         */
-        return mArrayBuffer;
-    }
-
-    private List<String> getDir(String dirPath) {
-
-        List<String> dirname = new ArrayList<String>();
-        List<String>  filename = new ArrayList<String>();
-        List<String>   path = new ArrayList<String>();
-
-        java.io.File dir = new java.io.File(dirPath);
-        java.io.File[] fileslist = dir.listFiles();
-
-        if (dirPath != STOCKDIR) {
-            filename.add(dirPath);
-            path.add(dirPath);
-            filename.add("../");
-            path.add(dir.getParent());
-        }
-
-        int size = fileslist.length;
-        for (int i=0; i<size-1;i++) {
-            java.io.File file = fileslist[i];
-            path.add(file.getParentFile().getName());
-
-            if (file.isDirectory()) {
-                dirname.add(file.getName() + "/");
-            } else {
-                filename.add(file.getName());
-            }
-        }
-
-        // dirname 뒤에 파일이름을 넣어준다
-        for(int i=0;i<filename.size()-1;i++) {
-            dirname.add(filename.get(i));
-        }
-        // path도 리턴 시키는 방법을 찾아볼 것
-        //Toast.makeText(getContext(), Integer.toString(j), Toast.LENGTH_SHORT).show()
-        return dirname;
-    }
-
-    public List<Float> yf_readkospi30() {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
-        String PathFile = STOCKDIR+"^KS11.cvs";;
-        List<Float> kospiarray = new ArrayList<Float>();
-
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    for(int i=1;i<30;i++) {
-                        contents1= sheet.getCell(4, i).getContents();
-                        kospiarray.add(Float.valueOf(contents1));
-                    }
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
-        return kospiarray;
-    }
-
-    public List<Float> yf_readsam30() {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
-        String PathFile = STOCKDIR+"005930"+".KS.csv";
-        List<Float> kospiarray = new ArrayList<Float>();
-
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    for(int i=1;i<30;i++) {
-                        contents1= sheet.getCell(4, i).getContents();
-                        kospiarray.add(Float.valueOf(contents1));
-                    }
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
-        return kospiarray;
-    }
 
 
     public void readStockDic() {
@@ -804,16 +612,23 @@ public class MyExcel extends MyStat{
     public void writestockinfo(List<FormatStockInfo> information) {
 
         WritableSheet writablesheet;
+        WritableWorkbook workbook;
         String PathFile = STOCKDIR+"stockinfo"+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
+
+        // 헤더를 붙여준다
+        FormatStockInfo info1 = new FormatStockInfo();
+        info1.setHeader();
+        information.add(0,info1);
+
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
-            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            workbook = Workbook.createWorkbook(file1);
             //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
 
             if(workbook != null) {
                 //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
-                workbook.createSheet("sheet1", 0);
+                workbook.createSheet("sheet0", 0);
                 writablesheet = workbook.getSheet(0);
                 //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
                 int size = information.size();

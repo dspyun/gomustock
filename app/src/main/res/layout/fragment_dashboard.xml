@@ -43,36 +43,82 @@
                     android:layout_weight = "1"/>
         </GridLayout>
 
-        <TableLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-                <TableRow>
-                        <Button
-                            android:id="@+id/bt_dl"
-                            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="5"
+                    android:orientation="horizontal"
+                    android:rowCount="2">
+                        <TextView
+                            android:id="@+id/tv_dl"
+                            android:layout_width="@dimen/grid_width"
                             android:layout_height="wrap_content"
-                            android:text="정보DL"
-                            android:layout_weight = "1"/>
-                        <Button
-                            android:id="@+id/bt_update"
-                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical|right"
+                            android:textColor="@color/LightGray"
+                            android:text="정보\n다운로드"
+                            android:textSize="14sp"
+                            android:background="@xml/bg_custom_button"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?android:attr/selectableItemBackground"/>
+                        <TextView
+                            android:id="@+id/tv_update"
+                            android:layout_width="@dimen/grid_width"
                             android:layout_height="wrap_content"
-                            android:text="Update"
-                            android:layout_weight = "1"/>
-                        <Button
-                            android:id="@+id/bt_signal"
-                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical|right"
+                            android:text="Update\n"
+                            android:textColor="@color/LightGray"
+                            android:textSize="14sp"
+                            android:background="@xml/bg_custom_button"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?android:attr/selectableItemBackground"/>
+                        <TextView
+                            android:id="@+id/tv_signal"
+                            android:layout_width="@dimen/grid_width"
                             android:layout_height="wrap_content"
-                            android:text="Signal"
-                            android:layout_weight = "1"/>
-                        <Button
-                            android:id="@+id/bt_dummy"
-                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical|right"
+                            android:text="signal\n"
+                            android:textColor="@color/LightGray"
+                            android:textSize="14sp"
+                            android:background="@xml/bg_custom_button"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?android:attr/selectableItemBackground"/>
+                        <TextView
+                            android:id="@+id/tv_dummy"
+                            android:layout_width="@dimen/grid_width"
                             android:layout_height="wrap_content"
-                            android:text="dummy"
-                            android:layout_weight = "1"/>
-                </TableRow>
-        </TableLayout>
+                            android:layout_weight="1"
+                            android:text="dummy\n"
+                            android:gravity="center_vertical|right"
+                            android:textColor="@color/LightGray"
+                            android:textSize="14sp"
+                            android:background="@xml/bg_custom_button"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?android:attr/selectableItemBackground"/>
+
+                        <ImageView
+                            android:id="@+id/dash_addnew"
+                            android:layout_width="@dimen/grid_imagewidth"
+                            android:layout_height="38dp"
+                            android:layout_column="4"
+                            android:layout_rowSpan="2"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:src="@drawable/stock_add_48px"/>
+                </GridLayout>
+        </LinearLayout>
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

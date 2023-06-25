@@ -2,24 +2,17 @@ package com.gomu.gomustock.stockengin;
 
 import static com.tictactec.ta.lib.MAType.Sma;
 
-import android.content.Context;
-
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
-import com.gomu.gomustock.stockdb.BuyStockDB;
-import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.ui.format.FormatScore;
 import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.ui.format.FormatScore;
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class MySignal {
 
@@ -28,43 +21,32 @@ public class MySignal {
     List<Float> basestddata = new ArrayList<>();
     List<Float> srcstddata = new ArrayList<>();
     public List<FormatScore> scorebox = new ArrayList<>();
-    List<String> buylist = new ArrayList<String>();
-    Context context;
+    List<String> stockcodelist = new ArrayList<String>();
+    //Context context;
+    List<String> kodex200data = new ArrayList<>();
 
-
-    public MySignal(Context inputcontext) {
-        this.context = inputcontext;
-        loadBuyList();
-        makeScoreBodx();
+    public MySignal(List<String> codelist) {
+        //loadBuyList();
+        codelist.add("069500"); // kodex200이 기준이라서 항상 들어가야 한다
+        putStockcodelist(codelist);
+        makeScoreBox(stockcodelist);
         loadHistory2Scorebox();
+        //loadKodex2002Scorebox();
     }
 
-    public void loadBuyList() {
-        BuyStockDB buystock_db;
-        List<BuyStockDBData> buystockList = new ArrayList<>();
-        BuyStockDBData onebuy = new BuyStockDBData();
+    public List<FormatScore> getScorebox() {
+        List<FormatScore> trim_scoreobx = scorebox;
 
-        buystock_db = BuyStockDB.getInstance(context);
-        buystockList = buystock_db.buystockDao().getAll();
-
-        // 코덱스 200은 buylist에 무조건 넣어준다
-        // 다른 종목들의 평가 기준이 되는 종목이기 때문에
-        onebuy.stock_code = "069500";
-        onebuy.stock_name = "코덱스 200";
-        buystockList.add(onebuy);
-
-        // buy stock list에서 중복된 종목을 제거한다
-        Set<String> set = new HashSet<String>();
-        int size = buystockList.size();
-        for(int i =0;i < size ;i++ ) {
-            set.add(buystockList.get(i).stock_code);
+        int size = trim_scoreobx.size();
+        for(int i =0;i<size;i++) {
+            if(trim_scoreobx.get(i).stock_code.equals("069500")) {
+                trim_scoreobx.remove(i);
+            }
         }
-        Iterator<String> iter = set.iterator();
-
-        // 중복 종목명이 제거된 결과를 buylist에 저장한다
-        while(iter.hasNext()) { //iter에 다음 읽을 데이터가 있다면
-            buylist.add(iter.next());
-        }
+        return trim_scoreobx;
+    }
+    public void putStockcodelist(List<String> codelist) {
+        stockcodelist = codelist;
     }
 
     public void calcScore() {
@@ -105,12 +87,18 @@ public class MySignal {
         }
         int i = 0;
     }
+    public void loadKodex2002Scorebox() {
+        MyExcel myexcel = new MyExcel();
+        kodex200data = myexcel.oa_readItem("069500.xls", "CLOSE", false);
+    }
 
     public int scoring(String stock_code) {
         List<String> itemdata = new ArrayList<>();
         List<String> kodex200 = new ArrayList<>();
         int score=0;
 
+        // kodex200은 스코어링을 하지 않는다
+        if(stock_code.equals("069500")) return 0;
         MyStat mystat = new MyStat();
 
         // 스코어링할 종목가격을 불러온다
@@ -144,17 +132,15 @@ public class MySignal {
         if(diff <= -0.5 && diff > -1) score = 1;
         else if(diff <= -1) score = 3;
 
-        //bbands_test(stock_code);
-
         return score;
     }
 
-    public void makeScoreBodx() {
+    public void makeScoreBox(List<String> codelist) {
         scorebox.clear();
-        int size = buylist.size();
+        int size = stockcodelist.size();
         for(int i =0;i<size;i++) {
             FormatScore temp = new FormatScore();
-            temp.stock_code = buylist.get(i);
+            temp.stock_code = codelist.get(i);
             temp.cur_price = "0";
             temp.score = 0;
             scorebox.add(temp);
@@ -177,23 +163,33 @@ public class MySignal {
         // TODO Auto-generated method stub
         MyWeb myweb = new MyWeb();
         int size = scorebox.size();
-        for (int i = 0; i < size; i++) {
-            try {
-                String cur_price = myweb.getCurrentStockPrice(scorebox.get(i).stock_code);
-                scorebox.get(i).cur_price  = cur_price.replaceAll(",", "");
-            } catch(Exception e){
-                e.printStackTrace();
+        try {
+            for (int i = 0; i < size; i++) {
+                String stock_code = scorebox.get(i).stock_code;
+                String cur_price = myweb.getCurrentStockPrice(stock_code);
+                scorebox.get(i).cur_price = cur_price.replaceAll(",", "");
             }
         }
-        /*
-        FormatScore onemix1 = new FormatScore();
-        String temp  = myweb.getCurrentKosp200();
-        onemix1.cur_price = temp.replaceAll(",", "");
-        onemix1.stock_code = "069500";
-        int index = find_index("코덱스 200");
-        if(index == -1) scorebox.add(onemix1);
-        else scorebox.set(index,onemix1);
-        */
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void getPriceThreadStart() {
+        scoring_thread.start();
+    }
+    public BackgroundThread scoring_thread = new BackgroundThread();
+    class BackgroundThread extends Thread {
+        public void run() {
+            try {
+                addCurprice2Scorebox();
+                Thread.sleep(1000L);
+                //myscoring2();
+            } catch (InterruptedException e) {
+                System.out.println("인터럽트로 인한 스레드 종료.");
+                return;
+            }
+        }
     }
 
     public int bbands_test(String stock_code) {

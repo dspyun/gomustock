@@ -26,20 +26,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.gomu.gomustock.ui.format.FormatChart;
-import com.gomu.gomustock.ui.format.FormatStockInfo;
-import com.gomu.gomustock.stockengin.MyBalance;
-import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.MyStat;
-import com.gomu.gomustock.graph.MyTreeMap;
-import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
+import com.gomu.gomustock.graph.MyChart;
+import com.gomu.gomustock.graph.MyTreeMap;
+import com.gomu.gomustock.network.MyOpenApi;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.SellStockDBData;
+import com.gomu.gomustock.stockengin.MyBalance;
+import com.gomu.gomustock.ui.format.FormatChart;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -152,8 +151,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                List<String> buylist = buysellhistory.getOnlyBuyCode();
-                dl_getStockinfo(buylist);
+
             }
         });
 
@@ -540,27 +538,6 @@ public class HomeFragment extends Fragment {
         return buylist;
     }
 
-    public void dl_getStockinfo(List<String> buycodelist) {
-        MyWeb myweb = new MyWeb();
-        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                FormatStockInfo result1;
-                int size = buycodelist.size();
-                for(int i =0;i<size;i++) {
-                    FormatStockInfo info = new FormatStockInfo();
-                    info = myweb.getStockinfo(buycodelist.get(i));
-                    info.stock_code = buycodelist.get(i);
-                    web_stockinfo.add(i,info);
-                }
-                FormatStockInfo info1 = new FormatStockInfo();
-                info1.setHeader();
-                web_stockinfo.add(0,info1);
-                myexcel.writestockinfo(web_stockinfo);
-            }
-        }).start();
-    }
 
     public void initialize_color() {
         chartcolor.add( context.getColor(R.color.Red));

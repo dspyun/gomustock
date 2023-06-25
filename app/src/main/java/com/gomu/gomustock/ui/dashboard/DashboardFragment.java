@@ -1,20 +1,21 @@
 package com.gomu.gomustock.ui.dashboard;
 
-import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,9 +25,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.gomu.gomustock.stockengin.MySignal;
+import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
+import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.stockengin.MySignal;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class DashboardFragment extends Fragment {
@@ -34,12 +41,15 @@ public class DashboardFragment extends Fragment {
     private DashboardViewModel dashboardViewModel;
     private FragmentDashboardBinding binding;
 
-    Button btAdd, btReset, btDownload, btUpdate,btSignal,btDummy;
+    ImageView imgAddlist;
+    TextView tvDownload, tvUpdate,tvSignal,tvDummy;
     RecyclerView recyclerView;
 
     BoardAdapter bd_adapter;
 
     MySignal mysignal;
+    Dialog dialog_buy; // 커스텀 다이얼로그
+    MyExcel myexcel = new MyExcel();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -49,9 +59,11 @@ public class DashboardFragment extends Fragment {
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        dialog_buy = new Dialog(getActivity());       // Dialog 초기화
+        dialog_buy.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+        dialog_buy.setContentView(R.layout.dialog_buy);
+
         initResource(root);
-        mysignal = new MySignal(getActivity());
-        scoring_thread.start();
 
         ImageView na_zumimage =  binding.zumchartNa;
         ImageView kr_zumimage = binding.zumchartKr;
@@ -75,6 +87,13 @@ public class DashboardFragment extends Fragment {
         bd_adapter = new BoardAdapter(getActivity());
         binding.recyclerView.setAdapter(bd_adapter);
 
+        // adapter초기화 후 생성된 recyclerlist를
+        // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
+        // scoring을 할 준비를 한다
+        // 나중에 사용자가 update버튼으로 score를 수동 update한다.
+        mysignal = new MySignal(bd_adapter.getRecyclerList());
+        mysignal.getPriceThreadStart();
+
         na_zumimage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,17 +116,21 @@ public class DashboardFragment extends Fragment {
             }
         });
 
-        btDownload.setOnClickListener(new View.OnClickListener() {
+        tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myscoring2();
+                List<String> recyclerlist = bd_adapter.getRecyclerList();
+                dl_getStockinfo(recyclerlist);
+
+                //myscoring2();
                 //scoring_thread.start();
             }
         });
 
-        btUpdate.setOnClickListener(new View.OnClickListener() {
+        tvUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
                 //bd_adapter.adapter_refresh();
                 mysignal.calcScore();
                 int size = mysignal.scorebox.size();
@@ -118,23 +141,89 @@ public class DashboardFragment extends Fragment {
                     bd_adapter.putScoreinfo(stock_code, String.valueOf(score));
                 }
                 bd_adapter.refresh();
+
+                 */
+                List<String> recyclerlist = bd_adapter.getRecyclerList();
+                scoringstock(recyclerlist);
             }
         });
+        tvDummy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //bd_adapter.adapter_refresh();
+
+            }
+        });
+        binding.dashAddnew.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                showDialog_buy();
+                //app_restart();
+            }
+        });
+
         return root;
     }
 
+    public void showDialog_buy(){
+
+        dialog_buy.show(); // 다이얼로그 띄우기
+        dialog_buy.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                // 원하는 기능 구현
+
+
+                // dialog 화면에서 입력된 정보를 읽어온다
+                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
+                String name = stock_name.getText().toString();
+
+                String stock_code = myexcel.find_stockno(name);
+                if(stock_code.equals("")) {
+                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // adapter list update사켜주고
+                List<String> adapterList = bd_adapter.getRecyclerList();
+                adapterList.add(stock_code);
+                bd_adapter.putRecyclerList(adapterList);
+
+                // 파일에도 추가해주고..info는 추가로 불러와야 함
+                addInfoFile(stock_code);
+
+                bd_adapter.refresh();
+                dialog_buy.dismiss(); // 다이얼로그 닫기
+            }
+        });
+
+        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 원하는 기능 구현
+                dialog_buy.dismiss(); // 다이얼로그 닫기
+            }
+        });
+    }
+
+
+
     public void initResource(View v) {
-        btDownload= v.findViewById(R.id.bt_dl);
-        btUpdate = v.findViewById(R.id.bt_update);
-        btSignal = v.findViewById(R.id.bt_signal);
-        btDummy = v.findViewById(R.id.bt_dummy);
+        tvDownload= v.findViewById(R.id.tv_dl);
+        tvUpdate = v.findViewById(R.id.tv_update);
+        tvSignal = v.findViewById(R.id.tv_signal);
+        tvDummy = v.findViewById(R.id.tv_dummy);
+        imgAddlist = v.findViewById(R.id.dash_addnew);
         recyclerView = v.findViewById(R.id.recycler_view);
     }
 
 
     boolean stop_flag;
     private BackgroundThread scoring_thread = new BackgroundThread();
-    class BackgroundThread extends Thread {
+    public class BackgroundThread extends Thread {
         public void run() {
             try {
                 mysignal.addCurprice2Scorebox();
@@ -143,42 +232,20 @@ public class DashboardFragment extends Fragment {
             } catch (InterruptedException e) {
                 System.out.println("인터럽트로 인한 스레드 종료.");
                 return;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }
-    public void myscoring() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(10L);
-                    //Toast.makeText(context, "test thread", Toast.LENGTH_SHORT).show();
-                    mysignal.calcScore();
-                    int size = mysignal.scorebox.size();
-                    for(int i =0; i< size;i++) {
-                        String stock_code = mysignal.scorebox.get(i).stock_code;
-                        if(stock_code.equals("코덱스 200")) continue;
-                        int score = mysignal.scorebox.get(i).score;
-                        bd_adapter.putScoreinfo(stock_code, String.valueOf(score));
-                    }
-                    bd_adapter.setScorebox(mysignal.scorebox);
-                    bd_adapter.refresh();
-                } catch (InterruptedException e) {
-                    System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
-                }
-            }
-        });
-    }
-
-    public void myscoring2() {
+    public void scoringstock(List<String> recyclerlist) {
         // 60일치 데이터로 스코어링했는 결과를 리사이클러뷰에 던져준고 refresh한다.
-        // thread가 현재가격 불러왔으면 현재가격 주가해서 스코어링 데이터를 던져준다.
+        // 초기에 실행된 sigmal.thread가 현재가격 불러왔으면 현재가격 주가해서 스코어링 데이터를 던져준다.
         // 불러오지 않았으면 60일치 결과로 계속 던져준다
+        //mysignal = new MySignal(recyclerlist);
+        //mysignal.getPriceThreadStart();
         mysignal.calcScore();
-        bd_adapter.setScorebox(mysignal.scorebox);
+        bd_adapter.setScorebox( mysignal.getScorebox());
         bd_adapter.refresh();
     }
 
@@ -205,6 +272,45 @@ public class DashboardFragment extends Fragment {
 //        webView.loadUrl("http://www.naver.com");
         webView.loadUrl(myurl);;
     }
+
+    public void addInfoFile(String stockcode) {
+        List<String> codelist = new ArrayList<>();
+        List<FormatStockInfo> infolist = myexcel.readStockinfo(false);
+        // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
+        // 없으면 추가, 있으면 건너뛰기
+        int size = infolist.size();
+        for(int i =0;i<size;i++) {
+            codelist.add(infolist.get(i).stock_code);
+        }
+        // 코드리스트에 stockcode가 없으면 추가한다
+        if(!codelist.contains(stockcode)) {
+            FormatStockInfo newcode = new FormatStockInfo();
+            newcode.addStockcode(stockcode);
+            infolist.add(newcode);
+        }
+
+        myexcel.writestockinfo(infolist);
+    }
+
+    public void dl_getStockinfo(List<String> recyclerList) {
+        MyWeb myweb = new MyWeb();
+        MyExcel myexcel = new MyExcel();
+        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int size = recyclerList.size();
+                for(int i =0;i<size;i++) {
+                    FormatStockInfo info = new FormatStockInfo();
+                    info = myweb.getStockinfo(recyclerList.get(i));
+                    info.stock_code = recyclerList.get(i);
+                    web_stockinfo.add(i,info);
+                }
+                myexcel.writestockinfo(web_stockinfo);
+            }
+        }).start();
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
