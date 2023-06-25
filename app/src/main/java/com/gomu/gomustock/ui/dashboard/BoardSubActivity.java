@@ -17,17 +17,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
-import com.gomu.gomustock.ui.format.FormatChart;
-import com.gomu.gomustock.ui.format.FormatStockInfo;
-import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
+import com.gomu.gomustock.graph.MyChart;
+import com.gomu.gomustock.ui.format.FormatChart;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BoardSubActivity extends AppCompatActivity {
@@ -92,7 +93,8 @@ public class BoardSubActivity extends AppCompatActivity {
             bb_chart = bbands_test(stock_code, 60);
             bband_chart.buildChart_float(bb_chart.get(0), "upper", Color.GRAY);
             bband_chart.buildChart_float(bb_chart.get(1), "middle", Color.LTGRAY);
-            chartlist = bband_chart.buildChart_float(bb_chart.get(2), "lower", Color.GRAY);
+            bband_chart.buildChart_float(bb_chart.get(2), "lower", Color.GRAY);
+            chartlist = bband_chart.buildChart_float(bb_chart.get(3), "test", Color.BLUE);
             bband_chart.setYMinmax(0, 0);
             bband_chart.multi_chart(bbnandChart, chartlist, "볼린저밴드", false);
             //lineChart.invalidate();
@@ -240,6 +242,23 @@ public class BoardSubActivity extends AppCompatActivity {
             }
             threechart.add(value2);
 
+            double pricemax = Collections.max(closedata);
+            List<Float> value3 = new ArrayList<Float>();
+            for(int i = 0;i<start;i++) {
+                value3.add((float)pricemax);
+            }
+            for(int i = 0; i <end-start;i++ ) {
+                double temp1 = closePrice[start+i]-outRealMiddleBand[i];
+                double temp2 = closePrice[start+i]-outRealLowerBand[i];
+                double temp3 = 0.2*(outRealMiddleBand[i]-outRealLowerBand[i]);
+                if((temp1 <= 0) && (temp2 <= temp3)) {
+                    value3.add((float)(pricemax+pricemax*0.02));
+                }
+                else {
+                    value3.add((float)pricemax);
+                }
+            }
+            threechart.add(value3);
         }
         else {
             System.out.println("Error");
