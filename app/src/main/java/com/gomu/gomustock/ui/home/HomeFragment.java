@@ -78,6 +78,7 @@ public class HomeFragment extends Fragment {
     Dialog dialog_buy; // 커스텀 다이얼로그
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -119,7 +120,6 @@ public class HomeFragment extends Fragment {
             //portfolio = myportfolio.getPortfolio_dummy();
             home_adapter = new HomeAdapter(getActivity(), lastbuylist);
             binding.homeRecyclerView.setAdapter(home_adapter);
-
             // home_adapter에도 전달해야 하는 정보라서
             // home_adapter 정의된 후, 실행한다.
             dl_checkMarketOpen();
@@ -345,7 +345,7 @@ public class HomeFragment extends Fragment {
                 EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
                 String quantity = stock_quantity.getText().toString();
 
-                String stock_no = myexcel.find_stockno(name);
+                String stock_no = home_adapter.homefind_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
@@ -547,6 +547,8 @@ public class HomeFragment extends Fragment {
         chartcolor.add( context.getColor(R.color.SeaGreen));
         chartcolor.add( context.getColor(R.color.LawnGreen));
     }
+
+
 
     @Override
     public void onDestroyView() {

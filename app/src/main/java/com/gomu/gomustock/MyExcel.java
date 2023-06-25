@@ -327,7 +327,8 @@ public class MyExcel extends MyStat{
 
 
 
-    public void readStockDic() {
+    public List<List<String>> readStockDic() {
+        List<List<String>> diclist = new ArrayList<List<String>>();
         InputStream is=null;
         Workbook wb=null;
         String stock_name=null;
@@ -356,6 +357,9 @@ public class MyExcel extends MyStat{
         } catch (BiffException e) {
             e.printStackTrace();
         }
+        diclist.add(STOCK_NO);
+        diclist.add(STOCK_NAME);
+        return diclist;
     }
 
     public String find_stockno(String name) {

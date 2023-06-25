@@ -124,6 +124,7 @@ public class MyChart {
 
         linedata.addDataSet(lineDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
         */
+        setdescription(linechart,true,description,  Color.YELLOW);
 
         linechart.setData(linedata); // 차트에 위의 DataSet 을 넣는다.
         setyRAxis(linechart,false,false);
@@ -132,7 +133,6 @@ public class MyChart {
         YAxis yLAxis = linechart.getAxisLeft();
         setlegend(linechart,false);
         yLAxis.setTextColor(Color.YELLOW);
-        setdescription(linechart,false,description,Color.YELLOW);
         linechart.invalidate(); // 차트 업데이트
 
     }

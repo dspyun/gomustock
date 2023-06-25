@@ -43,10 +43,14 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     List<FormatChart> chartlist = new ArrayList<FormatChart>();
     public List<FormatScore> scorebox = new ArrayList<>();
     List<String> recycler_list = new ArrayList<>();
+
+    private List<String> stock_name_list = new ArrayList<>();
+    private List<String> stock_code_list = new ArrayList<>();
     public BoardAdapter(Activity context)
     {
         this.context = context;
         //this.dataList = dataList;
+        loadDictionary.start();
         loadRecyclerList();
 
     }
@@ -148,7 +152,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         if(stock_code.equals("069500")) return;
         // information text view에 종목번호를 넣는다
 
-        String stock_name = getStockname(stock_code);
+        String stock_name = dashfind_stockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
         holder.tvStockinfo.setText(getStockInfo(stock_code));
         holder.tvscoreboard.setText(stock_name + " score is " + getScore(stock_code));
@@ -224,5 +228,36 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         }
     }
 
+    public bgDicThread loadDictionary = new bgDicThread();
+    class bgDicThread extends Thread {
+        public void run() {
+            try {
+                Thread.sleep(10L);
+                List<List<String>> diclist = new ArrayList<List<String>>();
+                MyExcel myexcel = new MyExcel();
+                diclist = myexcel.readStockDic();
+                stock_name_list = diclist.get(1);
+                stock_code_list = diclist.get(0);
+                //myscoring2();
+            } catch (InterruptedException e) {
+                System.out.println("인터럽트로 인한 스레드 종료.");
+                return;
+            }
+        }
+    }
+
+    public String dashfind_stockno(String name) {
+
+        int index = stock_name_list.indexOf(name);
+        if(index == -1) return "";
+        return stock_code_list.get(index);
+    }
+
+    public String dashfind_stockname(String number) {
+
+        int index = stock_code_list.indexOf(number);
+        if(index == -1) return "";
+        return stock_name_list.get(index);
+    }
 
 }

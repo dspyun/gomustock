@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.home;
 
 import android.app.Activity;
 
+import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.SellStockDB;
@@ -35,6 +36,8 @@ public class HBSManager {
     public List<SellStockDBData> sellstockList = new ArrayList<>();
     private Activity context;
     private List<BuyStockDBData> last_buylist = new ArrayList<BuyStockDBData>();
+    private List<String> stock_name_list = new ArrayList<>();
+    private List<String> stock_code_list = new ArrayList<>();
     public HBSManager(Activity mycontext)
     {
         this.context = mycontext;
@@ -336,4 +339,5 @@ public class HBSManager {
         sellstockList = sellstock_db.sellstockDao().getAll();
         //sellstockList = sellstock_db.sellstockDao().getAll();
     }
+
 }

@@ -124,8 +124,6 @@ public class DashboardFragment extends Fragment {
                 dl_getStockinfo(recyclerlist);
                 myweb.dl_NaverPriceByday(recyclerlist,60);
 
-                //myscoring2();
-                //scoring_thread.start();
             }
         });
 
@@ -183,7 +181,7 @@ public class DashboardFragment extends Fragment {
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
 
-                String stock_code = myexcel.find_stockno(name);
+                String stock_code = bd_adapter.dashfind_stockno(name);
                 if(stock_code.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
@@ -313,6 +311,8 @@ public class DashboardFragment extends Fragment {
             }
         }).start();
     }
+
+
 
     @Override
     public void onDestroyView() {

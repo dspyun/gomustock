@@ -1,6 +1,7 @@
 package com.gomu.gomustock.network;
 
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
@@ -338,15 +339,19 @@ public class MyWeb {
     }
 
     public void dl_NaverPriceByday(List<String> stock_code, int day) {
-        MyWeb myweb = new MyWeb();
+        MyStat mystat = new MyStat();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
-                for(int i=0;i<stock_code.size();i++) {
-                    myweb.getNaverpriceByday(stock_code.get(i), day);
+                // 신규로 추가된 종목이 리스트의 가장 끝에 있다
+                // 신규 종목을 가장 먼저 다운로드 하기 위해
+                // 리스트를 역순으로 해준다.
+                List<String> stock_code_rev = mystat.arrangeRev_string(stock_code);
+                for(int i=0;i<stock_code_rev.size();i++) {
+                    getNaverpriceByday(stock_code_rev.get(i), day);
                 }
-                myweb.getNaverpriceByday("069500", day); // kodex 200 상품
+                getNaverpriceByday("069500", day); // kodex 200 상품
                 //updatePortfolioPrice();
             }
         }).start();

@@ -31,6 +31,7 @@ import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,14 +53,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     MyExcel myexcel = new MyExcel();
     private int recycler_size=0;
     String latestOpenday="";
+    private List<String> stock_name_list = new ArrayList<>();
+    private List<String> stock_code_list = new ArrayList<>();
     public HomeAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
         this.buyList = dataList;
         recycler_size = buyList.size();
         stop_flag = true;
-        myexcel.find_stockname("069500");
+        //homefind_stockno("069500");
         update_thread.start();
+        loadDictionary.start();
 
         // getCurrentPrice();
         // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
@@ -246,7 +250,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
                 String quantity = stock_quantity.getText().toString();
 
-                String stock_no = myexcel.find_stockno(name);
+                String stock_no = homefind_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
@@ -313,7 +317,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
                 String quantity = stock_quantity.getText().toString();
 
-                String stock_no = myexcel.find_stockno(name);
+                String stock_no = homefind_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
@@ -521,5 +525,38 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
     public  List<BuyStockDBData> getBuylist() {
         return buyList;
+    }
+
+
+    public bgDicThread loadDictionary = new bgDicThread();
+    class bgDicThread extends Thread {
+        public void run() {
+            try {
+                Thread.sleep(10L);
+                List<List<String>> diclist = new ArrayList<List<String>>();
+                MyExcel myexcel = new MyExcel();
+                diclist = myexcel.readStockDic();
+                stock_name_list = diclist.get(1);
+                stock_code_list = diclist.get(0);
+                //myscoring2();
+            } catch (InterruptedException e) {
+                System.out.println("인터럽트로 인한 스레드 종료.");
+                return;
+            }
+        }
+    }
+
+    public String homefind_stockno(String name) {
+
+        int index = stock_name_list.indexOf(name);
+        if(index == -1) return "";
+        return stock_code_list.get(index);
+    }
+
+    public String homefind_stockname(String number) {
+
+        int index = stock_code_list.indexOf(number);
+        if(index == -1) return "";
+        return stock_name_list.get(index);
     }
 }

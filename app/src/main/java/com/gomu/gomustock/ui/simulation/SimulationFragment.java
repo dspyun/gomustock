@@ -23,17 +23,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.gomu.gomustock.ui.format.FormatChart;
-import com.gomu.gomustock.stockengin.MyBalance;
-import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.stockengin.MyMagic01;
-import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.MyStat;
-import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
+import com.gomu.gomustock.graph.MyChart;
+import com.gomu.gomustock.network.MyOpenApi;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockengin.MyBalance;
+import com.gomu.gomustock.stockengin.MyMagic01;
+import com.gomu.gomustock.ui.format.FormatChart;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -95,7 +95,6 @@ public class SimulationFragment extends Fragment {
     private List<String> sim_stock = new ArrayList<>();
     public MyOpenApi myopenapi = new MyOpenApi();
     Dialog dialog_buy; // 커스텀 다이얼로그
-
     private List<Integer> chartcolor = new ArrayList<>();
     public static SimulationFragment newInstance(String param1, String param2) {
         SimulationFragment fragment = new SimulationFragment();
@@ -131,6 +130,8 @@ public class SimulationFragment extends Fragment {
     public void SimulationView(View view) {
         BuyStockDBData lastbuy = new BuyStockDBData();
         List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+
+
         initialize_color();
 
         // 매수, 매도 DB를 합쳐서
@@ -165,6 +166,7 @@ public class SimulationFragment extends Fragment {
             simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
             recyclerView.setAdapter(simul_adapter);
         }
+
         if(stop_flag!= true) {
             stop_flag=true;
             DelaySecond =1;
@@ -223,6 +225,7 @@ public class SimulationFragment extends Fragment {
                 simulation();
             }
         });
+
         ImageView addnew_img = view.findViewById(R.id.sim_addnew);
         addnew_img.setOnClickListener(new View.OnClickListener()
         {
@@ -285,7 +288,7 @@ public class SimulationFragment extends Fragment {
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
 
-                String stock_no = myexcel.find_stockno(name);
+                String stock_no = simul_adapter.simfind_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
@@ -486,6 +489,9 @@ public class SimulationFragment extends Fragment {
         // 계좌 정보 보여주기
         top_board(view);
 
+        simul_adapter.putbuyList(lastbuylist);
+        simul_adapter.refresh();
+        /*
         // recycler view 준비
         recyclerView = view.findViewById(R.id.sim_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -498,6 +504,7 @@ public class SimulationFragment extends Fragment {
             DelaySecond =1;
             //update_thread.start();
         }
+         */
     }
 
     public void cacheChart(List<MyBalance> balancelist) {
@@ -567,4 +574,5 @@ public class SimulationFragment extends Fragment {
         chartcolor.add( context.getColor(R.color.SeaGreen));
         chartcolor.add( context.getColor(R.color.LawnGreen));
     }
+
 }

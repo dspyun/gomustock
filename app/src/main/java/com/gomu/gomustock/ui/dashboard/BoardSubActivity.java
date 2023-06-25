@@ -97,7 +97,12 @@ public class BoardSubActivity extends AppCompatActivity {
             bband_chart.multi_chart(bbnandChart, chartlist, "볼린저밴드", false);
             //lineChart.invalidate();
 
-            adx_chart(stock_code, 60);
+            //adx_chart(stock_code, 60);
+            MyChart fogn_chart = new MyChart();
+            List<Float> chart_data = new ArrayList<>();
+            chart_data = adx_test(stock_code, 60);
+
+            fogn_chart.single_float(adxChart,chart_data,"ADX",false );
 
             MyChart stoch1_chart = new MyChart();
 
