@@ -31,7 +31,7 @@ public class MyWeb {
         FormatStockInfo result = new FormatStockInfo();
         try {
 
-            String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_Main.asp?pGB=1&gicode=A"+stock_code+"&cID=&MenuYn=Y&ReportGB=&NewMenuID=101&stkGb=701";
+            String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_main.asp?gicode=A"+stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements classinfo0 = doc.select(".corp_group1");
@@ -337,5 +337,18 @@ public class MyWeb {
         return naverpricelist;
     }
 
-
+    public void dl_NaverPriceByday(List<String> stock_code, int day) {
+        MyWeb myweb = new MyWeb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                for(int i=0;i<stock_code.size();i++) {
+                    myweb.getNaverpriceByday(stock_code.get(i), day);
+                }
+                myweb.getNaverpriceByday("069500", day); // kodex 200 상품
+                //updatePortfolioPrice();
+            }
+        }).start();
+    }
 }

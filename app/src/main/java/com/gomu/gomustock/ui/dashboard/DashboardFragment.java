@@ -119,8 +119,10 @@ public class DashboardFragment extends Fragment {
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MyWeb myweb = new MyWeb();
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 dl_getStockinfo(recyclerlist);
+                myweb.dl_NaverPriceByday(recyclerlist,60);
 
                 //myscoring2();
                 //scoring_thread.start();
@@ -302,6 +304,7 @@ public class DashboardFragment extends Fragment {
                 int size = recyclerList.size();
                 for(int i =0;i<size;i++) {
                     FormatStockInfo info = new FormatStockInfo();
+                    if(recyclerList.get(i).equals("069500")) continue;
                     info = myweb.getStockinfo(recyclerList.get(i));
                     info.stock_code = recyclerList.get(i);
                     web_stockinfo.add(i,info);

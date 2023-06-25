@@ -145,6 +145,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         //final BoardData data = dataList.get(position);
         String stock_code = recycler_list.get(position);
 
+        if(stock_code.equals("069500")) return;
         // information text view에 종목번호를 넣는다
 
         String stock_name = getStockname(stock_code);

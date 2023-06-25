@@ -410,7 +410,7 @@ public class HomeFragment extends Fragment {
                     myweb.getNaverpriceByday(stock_code.get(i), day);
                 }
                 myweb.getNaverpriceByday("069500", day); // kodex 200 상품
-                updatePortfolioPrice();
+                //updatePortfolioPrice();
             }
         }).start();
     }
