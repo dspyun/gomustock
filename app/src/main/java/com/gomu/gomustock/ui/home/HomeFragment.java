@@ -1,6 +1,7 @@
 package com.gomu.gomustock.ui.home;
 
 import static android.content.ContentValues.TAG;
+import static com.gomu.gomustock.ui.home.HomeAdapter.buyList;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
@@ -37,6 +38,7 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.SellStockDBData;
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MyBalance;
 import com.gomu.gomustock.ui.format.FormatChart;
 
@@ -79,6 +81,7 @@ public class HomeFragment extends Fragment {
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
 
+    StockDic stockdic = new StockDic();
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -116,15 +119,14 @@ public class HomeFragment extends Fragment {
         // recycler view 준비
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        if(lastbuylist.size() !=0) {
-            //portfolio = myportfolio.getPortfolio_dummy();
-            home_adapter = new HomeAdapter(getActivity(), lastbuylist);
-            binding.homeRecyclerView.setAdapter(home_adapter);
-            // home_adapter에도 전달해야 하는 정보라서
-            // home_adapter 정의된 후, 실행한다.
-            dl_checkMarketOpen();
-        }
-
+        //if(lastbuylist.size() !=0) {
+        //portfolio = myportfolio.getPortfolio_dummy();
+        home_adapter = new HomeAdapter(getActivity(), lastbuylist);
+        binding.homeRecyclerView.setAdapter(home_adapter);
+        // home_adapter에도 전달해야 하는 정보라서
+        // home_adapter 정의된 후, 실행한다.
+        dl_checkMarketOpen();
+        //}
 
         if(stop_flag!= true) {
             stop_flag=true;
@@ -345,13 +347,13 @@ public class HomeFragment extends Fragment {
                 EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
                 String quantity = stock_quantity.getText().toString();
 
-                String stock_no = home_adapter.homefind_stockno(name);
+                String stock_no = stockdic.getStockcode(name);
+                //String stock_no = myexcel.find_stockno(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
                 }
                 //dl_NaverPriceByday(stock_no,60);
-
 
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
@@ -368,7 +370,7 @@ public class HomeFragment extends Fragment {
                 onebuy.buy_date = mybuydate;
                 onebuy.buy_quantity = Integer.parseInt(quantity);
                 onebuy.buy_price = Integer.parseInt(price);
-                //buyList.add(onebuy);
+                buyList.add(onebuy);
 
                 BuyStock buystock = new BuyStock();
                 buystock.insert2db(onebuy);
@@ -376,7 +378,8 @@ public class HomeFragment extends Fragment {
                 Cache mycache = new Cache();
                 int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price)*-1;
                 mycache.update_cache(buymoney);
-                app_restart();
+                //app_restart();
+                home_adapter.refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
@@ -547,8 +550,6 @@ public class HomeFragment extends Fragment {
         chartcolor.add( context.getColor(R.color.SeaGreen));
         chartcolor.add( context.getColor(R.color.LawnGreen));
     }
-
-
 
     @Override
     public void onDestroyView() {

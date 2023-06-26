@@ -31,6 +31,7 @@ import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MyBalance;
 import com.gomu.gomustock.stockengin.MyMagic01;
 import com.gomu.gomustock.ui.format.FormatChart;
@@ -96,6 +97,9 @@ public class SimulationFragment extends Fragment {
     public MyOpenApi myopenapi = new MyOpenApi();
     Dialog dialog_buy; // 커스텀 다이얼로그
     private List<Integer> chartcolor = new ArrayList<>();
+
+    StockDic stockdic = new StockDic();
+
     public static SimulationFragment newInstance(String param1, String param2) {
         SimulationFragment fragment = new SimulationFragment();
         Bundle args = new Bundle();
@@ -288,7 +292,7 @@ public class SimulationFragment extends Fragment {
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
 
-                String stock_no = simul_adapter.simfind_stockno(name);
+                String stock_no = stockdic.getStockcode(name);
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;

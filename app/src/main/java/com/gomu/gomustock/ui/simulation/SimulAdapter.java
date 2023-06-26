@@ -23,12 +23,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.R;
+import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
@@ -45,17 +45,16 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     private Dialog dialog_sell; // 커스텀 다이얼로그
     public Button bt_tuja;
 
-    private List<String> stock_name_list = new ArrayList<>();
-    private List<String> stock_code_list = new ArrayList<>();
     MyExcel myexcel = new MyExcel();
     Button buybt, sellbt;
+
+    StockDic stockdic = new StockDic();
     public SimulAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
         this.buyList = dataList;
         stop_flag = true;
         update_thread.start();
-        loadDictionary.start();
         //getCurrentPrice();
         // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
         // openapi가 아니고 웹크롤링으로 구현필요
@@ -219,7 +218,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
 
-                String stock_code = myexcel.find_stockno(name);
+                String stock_code = stockdic.getStockcode(name);
                 if(stock_code.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
@@ -404,34 +403,4 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         buyList = input_buylist;
     }
 
-    public bgDicThread loadDictionary = new bgDicThread();
-    class bgDicThread extends Thread {
-        public void run() {
-            try {
-                Thread.sleep(10L);
-                List<List<String>> diclist = new ArrayList<List<String>>();
-                MyExcel myexcel = new MyExcel();
-                diclist = myexcel.readStockDic();
-                stock_name_list = diclist.get(1);
-                stock_code_list = diclist.get(0);
-                //myscoring2();
-            } catch (InterruptedException e) {
-                System.out.println("인터럽트로 인한 스레드 종료.");
-                return;
-            }
-        }
-    }
-    public String simfind_stockno(String name) {
-
-        int index = stock_name_list.indexOf(name);
-        if(index == -1) return "";
-        return stock_code_list.get(index);
-    }
-
-    public String simfind_stockname(String number) {
-
-        int index = stock_code_list.indexOf(number);
-        if(index == -1) return "";
-        return stock_name_list.get(index);
-    }
 }

@@ -54,8 +54,7 @@ public class MyExcel extends MyStat{
     private String STOCKDIR = Environment.getExternalStorageDirectory().getPath() + "/gomustock/";;
     private String DOWNLOAD = Environment.getExternalStorageDirectory().getPath() + "/download/";
     private ArrayList<String> initInfo;
-    List<String> STOCK_NO = new ArrayList<String>();
-    List<String> STOCK_NAME = new ArrayList<String>();
+
     List<String> ETF_NO = new ArrayList<String>();
     List<String> ETF_NAME = new ArrayList<String>();
 
@@ -326,14 +325,13 @@ public class MyExcel extends MyStat{
     }
 
 
-
     public List<List<String>> readStockDic() {
+        List<String> STOCK_NO = new ArrayList<String>();
+        List<String> STOCK_NAME = new ArrayList<String>();
         List<List<String>> diclist = new ArrayList<List<String>>();
         InputStream is=null;
         Workbook wb=null;
-        String stock_name=null;
-        String stock_no=null;
-        int line, col;
+
         String PathFile = STOCKDIR+"stocktable.xls";;
 
         try {
@@ -344,7 +342,7 @@ public class MyExcel extends MyStat{
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
                     int size = sheet.getColumn(0).length;
-                    for(int i =0 ; i<size ;i++) {
+                    for (int i = 1; i < size-1; i++) {
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
                     }
@@ -361,6 +359,9 @@ public class MyExcel extends MyStat{
         diclist.add(STOCK_NAME);
         return diclist;
     }
+
+    private List<String> STOCK_NAME = new ArrayList<>();
+    private List<String> STOCK_NO = new ArrayList<>();
 
     public String find_stockno(String name) {
         if(STOCK_NAME.isEmpty()) readStockDic();
