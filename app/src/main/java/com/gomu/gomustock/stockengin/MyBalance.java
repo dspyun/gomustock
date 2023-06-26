@@ -1,12 +1,8 @@
 package com.gomu.gomustock.stockengin;
 
-import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
-
 import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockdb.SellStockDB;
 import com.gomu.gomustock.stockdb.SellStockDBData;
 import com.gomu.gomustock.ui.home.Cache;
 
@@ -33,8 +29,6 @@ public class MyBalance {
     Cache mycache = new Cache();
     public MyBalance(String name) {
         this.stock_code = name;
-        // 순서바꾸면 안됨. 차례로 데이터 들어가고 계산되어야 함
-        //cache = getCache();
     }
 
     public int getCache() {
@@ -56,17 +50,10 @@ public class MyBalance {
         // 매수 매도 데이터가 들어가는 것은 아니다
         // 매도하는 날도 있고 매수하는 날도 있고 아무것도 안하는 날도 있다
         // 그래서 일단 초기화는 0으로 시켜둔다 null로 둘 수는 없으니까
-
         listsize = inputDate.size();
-        for(int i=0;i<listsize;i++) {
-            inputBuyQuantity.add(0);
-            inputSellQuantity.add(0);
-            outputQuantity.add(0);
-            outputCache.add(0);
-            outputEstim.add(0);
-            outputTotal.add(0);
-            inputStockprice.add(0);
-        }
+        init_buffer(listsize);
+
+
         // 엑셀에서 읽은 값은 모두 string이다. integer로 바꾼 다음 list에 저장한다
         price.addAll(myexcel.oa_readItem(stock_code+".xls", "CLOSE", false));
         if(price.size() <= 0) balanace_valid = -1;
@@ -79,6 +66,28 @@ public class MyBalance {
         loadBuyList(buystockList);
         // selllist db에서 매도량을 읽어서 해당날짜의 위치에 집어넣는다.
         loadSellList(sellstockList);
+
+
+    }
+
+    public void init_buffer(int listsize) {
+        inputBuyQuantity.clear();
+        inputSellQuantity.clear();
+        outputQuantity.clear();
+        outputCache.clear();
+        outputEstim.clear();
+        inputStockprice.clear();
+
+        listsize = inputDate.size();
+        for(int i=0;i<listsize;i++) {
+            inputBuyQuantity.add(0);
+            inputSellQuantity.add(0);
+            outputQuantity.add(0);
+            outputCache.add(0);
+            outputEstim.add(0);
+            outputTotal.add(0);
+            inputStockprice.add(0);
+        }
     }
 
     public void loadBuyList(List<BuyStockDBData> buystockList) {
@@ -102,7 +111,7 @@ public class MyBalance {
             //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(buystockList.get(i).buy_date);
             if(index == -1) continue;
-            inputBuyQuantity.set(index,buystockList.get(i).buy_quantity);
+            inputBuyQuantity.set(index, buystockList.get(i).buy_quantity);
         }
         index = 0; // 디버깅용
     }
@@ -132,33 +141,37 @@ public class MyBalance {
         index = 0;
     }
 
+    public void putTodayBuySellData(String today, int buyquan,int sellquan) {
+
+        // 오늘 매매 데이터를 buylist와 selllist에 붙인다.(simulation에서는 안 붙여도 됨)
+        // 날짜 inputDate의 index0은 오늘날짜가 들어가 있다(왜냐면 파일로 다운받았으니)
+        // 하지만 매매데이터는 폰에서 생성된 정보이고 파일에 포함되어 있지 않다
+        // 그래서 오늘 buy sell 수량을 index 0에 각각 넣어 주어야 한다.
+
+        if(inputDate.get(0).equals(today)) {
+            int size = inputBuyQuantity.size();
+            inputBuyQuantity.set(0, buyquan);
+        }
+
+        if(inputDate.get(0).equals(today)) {
+            int size2 = inputSellQuantity.size();
+            inputSellQuantity.set(0, sellquan);
+        }
+    }
+
+    public void putTodayPrice(String today, int price) {
+        // price는 현재>과거순으로 저장되어 있으니
+        // 오늘 price는 0번째에 넣어준다
+        if(inputDate.get(0).equals(today)) {
+            inputStockprice.set(0, price);
+        }
+    }
+
     public void makeBalancedata() {
         // 원금, 매수량/매수액, 매도량/매도액 테이블의 값을 가지고
         // 1년치 일일 잔액, 보유수량, 평가액 변화를 계산해서 엑셀에 저장한다
         // 보유수량 변화량을 계산한다.
 
-        // 여기에서 오늘 매매 데이터를 붙여 줘야 한다.
-        // 날짜 inputDate의 index0은 오늘날짜가 들어가 있다(왜냐면 파일로 다운받았으니)
-        // 하지만 매매데이터는 폰에서 생성된 정보이고 파일에 포함되어 있지 않다
-        // 그래서 오늘 buy sell 수량을 index 0에 각각 넣어 주어야 한다.
-        MyDate mydate = new MyDate();
-        BuyStockDB buystock_db = BuyStockDB.getInstance(context);
-        BuyStockDBData today_buydb = buystock_db.buystockDao().getDataByDate(inputDate.get(0),stock_code);
-        if(today_buydb !=null) {
-            int today_buyquan = today_buydb.buy_quantity;
-            if(inputDate.get(0).equals(mydate.getToday())) {
-                inputBuyQuantity.set(0, today_buyquan);
-            }
-        }
-
-        SellStockDB sellstock_db = SellStockDB.getInstance(context);
-        SellStockDBData today_selldb = sellstock_db.sellstockDao().getDataByDate(inputDate.get(0),stock_code);
-        if(today_selldb !=null) {
-            int today_sellquan = today_selldb.sell_quantity;
-            if (inputDate.get(0).equals(mydate.getToday())) {
-                inputSellQuantity.set(0, today_sellquan);
-            }
-        }
 
         // input 어레이는 최신날짜 > 과거날짜 순으로 정렬되어 있다
         // 하지만 누적계산은 과거날짜 > 최신 순으로 해야 하고
@@ -183,11 +196,11 @@ public class MyBalance {
         // 현금변화량을 계산한다
         int j = cache;
         int first_cache = mycache.getFirstCache();
-        int cachehis = 0;
+        int cachehistory = 0;
         for(int i=0;i<listsize;i++) {
-            cachehis = cachehis - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
-            cachehis = cachehis + inputSellQuantity_rev.get(i)*inputStockprice_rev.get(i);
-            outputCache.set(i, cachehis);
+            cachehistory = cachehistory - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
+            cachehistory = cachehistory + inputSellQuantity_rev.get(i)*inputStockprice_rev.get(i);
+            outputCache.set(i, cachehistory);
             //cache = 0;
         }
         // 평가액 변화량을 계산한다

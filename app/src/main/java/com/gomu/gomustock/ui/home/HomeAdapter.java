@@ -96,7 +96,19 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public void setOpenday(String openday) {
         latestOpenday = openday;
     }
-    public void getCurrentPrice() {
+    public int getCurrentPrice(String stock_code) {
+        int size = buyList.size();
+        int price = 0;
+        for(int i =0;i<size;i++) {
+            if(buyList.get(i).stock_code.equals(stock_code)) {
+                price = buyList.get(i).cur_price;
+                if(price != -1) return price;
+                else price = 0;
+            }
+        }
+        return 0;
+    }
+    public void loadCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
         // buy list에 넣는다
         // 이 후 adapter view를 update하면서
@@ -118,7 +130,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             while(stop_flag) {
                 try {
                     Thread.sleep(1000 * 2); // 1분에 한번씩 update
-                    getCurrentPrice();
+                    loadCurrentPrice();
                     updatePortfolioPrice();
                     stop_flag = false;
                 } catch (InterruptedException e) {

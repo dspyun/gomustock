@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
@@ -102,13 +103,14 @@ public class HomeFragment extends Fragment {
         Cache mycache = new Cache();
         mycache.initialize();
 
+        balancelist.clear();
         buysellhistory = new HBSManager(getActivity());
         buysellhistory.makeLastBuyList();
         lastbuylist = buysellhistory.getLastBuyList();
 
         if((lastbuylist.size() != 0 ) && (-1 != myexcel.checkExcelfile(lastbuylist))) {
             // 포트폴리오를 가지고 밸런스를 계산한다.
-            calcBalance(buysellhistory);
+            calcTodayBalance(buysellhistory);
             // 별런스 결과로 차트를 보여준다
             cashChart();
             stockChart();
@@ -118,13 +120,9 @@ public class HomeFragment extends Fragment {
 
         // recycler view 준비
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        //if(lastbuylist.size() !=0) {
-        //portfolio = myportfolio.getPortfolio_dummy();
         home_adapter = new HomeAdapter(getActivity(), lastbuylist);
         binding.homeRecyclerView.setAdapter(home_adapter);
-        // home_adapter에도 전달해야 하는 정보라서
-        // home_adapter 정의된 후, 실행한다.
+
         dl_checkMarketOpen();
         //}
 
@@ -227,7 +225,7 @@ public class HomeFragment extends Fragment {
                 buysellhistory.makeLastBuyList();
                 lastbuylist = buysellhistory.getLastBuyList();
 
-                calcBalance(buysellhistory);
+                calcTodayBalance(buysellhistory);
                 cashChart();
                 stockChart();
                 home_adapter.refresh();
@@ -245,17 +243,18 @@ public class HomeFragment extends Fragment {
 
     public void cashChart() {
 
-        int size = balancelist.size();
         lineChart = (LineChart) root.findViewById(R.id.tuja_chart);
         MyChart money_chart = new MyChart();
         MyStat mystat = new MyStat();
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
 
         // 각 종목의 balance의 평가액과 현금을 총합한다.
+        int size = balancelist.size();
         if (size != 0) {
             List<List<Integer>> remainmoney = new ArrayList<List<Integer>>();
             for (int i = 0; i < balancelist.size(); i++) {
-                remainmoney.add(balancelist.get(0).getRemaincache());
+                //remainmoney.add(balancelist.get(0).getRemaincache());
+                remainmoney.add(balancelist.get(0).getTotalAsset());
             }
             List<Integer> last_remainmoney = mystat.sumlist(remainmoney);
 
@@ -271,14 +270,14 @@ public class HomeFragment extends Fragment {
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
         MyStat mystat = new MyStat();
 
-        List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
-        for (int i = 0; i < balancelist.size(); i++) {
-            estimmoney.add(balancelist.get(i).getEstimStock());
-        }
-        List<Integer> last_estimmoney = mystat.sumlist(estimmoney);
-
         int size = balancelist.size();
-        if (size != 0) {
+        if(size > 0) {
+            List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
+            for (int i = 0; i < balancelist.size(); i++) {
+                estimmoney.add(balancelist.get(i).getEstimStock());
+            }
+            List<Integer> last_estimmoney = mystat.sumlist(estimmoney);
+
             // 총평가액을 차트에 보여준다
             chartlist = stock_chart.buildChart_int(last_estimmoney, "잔액", chartcolor.get(1));
             //stock_chart.setYMinmax(0, 0);
@@ -307,14 +306,33 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void calcBalance(HBSManager buysellhis) {
+    public void calcTodayBalance(HBSManager buysellhis) {
         List<BuyStockDBData> lastbuyli = new ArrayList<BuyStockDBData>();
-
+        MyDate mydate = new MyDate();
+        BuyStock buystock = new BuyStock();
+        SellStock sellstock = new SellStock();
         lastbuyli = buysellhis.getLastBuyList();
+
+        balancelist.clear();
+        String today = mydate.getToday();
+
         int size = lastbuyli.size();
         for (int i = 0; i < size; i++) {
+            String stock_code = lastbuyli.get(i).stock_code;
             MyBalance onebalance = new MyBalance(lastbuyli.get(i).stock_code);
             onebalance.prepareDataset(buysellhis.getBuyList(), buysellhis.getSellList());
+            //------------------------------------------------------
+            // 시뮬데이션 대비 추가되는 내용 > 오늘 정보를 넣어주고 balance를 계산한다
+            // 준비한 balance dataset에 데이터를 넣어준다.
+            int todaybuy = buystock.getTodayBuyQuan(stock_code);
+            int todaysell = sellstock.getTodaySellQuan(stock_code);
+            onebalance.putTodayBuySellData(today,todaybuy,todaysell);
+            // 오늘 현재가를 price table에 update해줘야 완벽하다.
+            if(home_adapter != null ) {
+                int cur_price = home_adapter.getCurrentPrice(stock_code);
+                onebalance.putTodayPrice(today, cur_price);
+            }
+            //------------------------------------------------------
             onebalance.makeBalancedata();
             balancelist.add(onebalance);
         }

@@ -2,10 +2,11 @@ package com.gomu.gomustock.ui.home;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
-import com.gomu.gomustock.ui.format.FormatTestData;
+import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.SellStockDB;
 import com.gomu.gomustock.stockdb.SellStockDBData;
+import com.gomu.gomustock.ui.format.FormatTestData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +107,17 @@ public class SellStock {
             }
         }
         return newLi;
+    }
+
+    public int getTodaySellQuan(String stock_code) {
+        MyDate mydate = new MyDate();
+        SellStockDB sellstock_db = SellStockDB.getInstance(context);
+        SellStockDBData today_selldb = sellstock_db.sellstockDao().getDataByDate(mydate.getToday(),stock_code);
+        if(today_selldb !=null) {
+            return today_selldb.sell_quantity;
+        }
+        return 0;
+
     }
     public void reset() {
         sellstock_db = SellStockDB.getInstance(context);
