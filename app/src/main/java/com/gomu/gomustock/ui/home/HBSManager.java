@@ -40,9 +40,7 @@ public class HBSManager {
     {
         this.context = mycontext;
         buystock_db = BuyStockDB.getInstance(context);
-        if(buystock_db != null) {
-            buystockList = buystock_db.buystockDao().getAll();
-        }
+        buystockList = buystock_db.buystockDao().getAll();
         sellstock_db = SellStockDB.getInstance(context);
         sellstockList = sellstock_db.sellstockDao().getAll();
     }
@@ -73,8 +71,28 @@ public class HBSManager {
     public List<BuyStockDBData> getLastBuyList() {
         return last_buylist;
     }
-    public List<BuyStockDBData> getBuyList() { return buystockList; }
-    public List<SellStockDBData> getSellList() { return sellstockList; }
+    public List<BuyStockDBData> getBuyList(String stock_code) {
+        List<BuyStockDBData> result = new ArrayList<>();
+
+        int size = buystockList.size();
+        for(int i=0;i<size;i++) {
+            if(buystockList.get(i).stock_code.equals(stock_code)) {
+                result.add(buystockList.get(i));
+            }
+        }
+        return result;
+    }
+    public List<SellStockDBData> getSellList(String stock_code) {
+        List<SellStockDBData> result = new ArrayList<>();
+
+        int size = sellstockList.size();
+        for(int i=0;i<size;i++) {
+            if(sellstockList.get(i).stock_code.equals(stock_code)) {
+                result.add(sellstockList.get(i));
+            }
+        }
+        return result;
+    }
 
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
     public void makeLastBuyList() {

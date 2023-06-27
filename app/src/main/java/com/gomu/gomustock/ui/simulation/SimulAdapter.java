@@ -39,7 +39,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
     // 직전에 클릭됐던 Item의 position
     private int prePosition = -1;
-    private BackgroundThread update_thread = new BackgroundThread();
+    private BackgroundThread priceupdate_thread = new BackgroundThread();
     private boolean stop_flag = false;
     private Dialog dialog_buy; // 커스텀 다이얼로그
     private Dialog dialog_sell; // 커스텀 다이얼로그
@@ -54,8 +54,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         this.context = context;
         this.buyList = dataList;
         stop_flag = true;
-        update_thread.start();
-        //getCurrentPrice();
+        priceupdate_thread.start();
         // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
         // openapi가 아니고 웹크롤링으로 구현필요
         // BackgroundThread thread = new BackgroundThread();
@@ -63,13 +62,14 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
     @Override
     protected void finalize() throws Throwable {
-        update_thread.interrupt();//스레드 종료
+        priceupdate_thread.interrupt();//스레드 종료
         super.finalize();
     }
     public void refresh( ) {
         notifyDataSetChanged();
     }
     public void reload_curprice( ) {
+        //priceupdate_thread.start();
         stop_flag=true;
     }
     public  List<BuyStockDBData> getRecyclerList() {
@@ -78,7 +78,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     public void putBuyList(List<BuyStockDBData> input_buylist) {
         buyList = input_buylist;
     }
-    public void getCurrentPrice() {
+    public void loadCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
         // buy list에 넣는다
         // 이 후 adapter view를 update하면서
@@ -88,6 +88,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         // TODO Auto-generated method stub
         for (int i = 0; i < buyList.size(); i++) {
             //System.out.println(Integer.toString(i) + "번째 종목번호 " + buyList.get(i).stock_no);
+            //if(buyList.get(i).stock_code.equals("069500")) continue;
             price = myweb.getCurrentStockPrice(buyList.get(i).stock_code);
             String stokprice = price.replaceAll(",", "");
             int int_price = Integer.parseInt(stokprice);
@@ -97,14 +98,16 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     class BackgroundThread extends Thread {
         public void run() {
             //여기서는 Toast를 비롯한 UI작업을 실행못함
-            try {
-                Thread.sleep(1000 * 2); // 1분에 한번씩 update
-                getCurrentPrice();
-                updatePortfolioPrice();
-                stop_flag = false;
-            } catch (InterruptedException e) {
-                System.out.println("인터럽트로 인한 스레드 종료.");
-                return;
+            while(stop_flag) {
+                try {
+                    Thread.sleep(1000); // 1분에 한번씩 update
+                    loadCurrentPrice();
+                    updatePortfolioPrice();
+                    stop_flag = false;
+                } catch (InterruptedException e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
             }
         }
     }

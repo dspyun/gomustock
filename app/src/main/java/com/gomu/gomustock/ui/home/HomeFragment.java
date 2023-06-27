@@ -38,7 +38,6 @@ import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockdb.SellStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MyBalance;
 import com.gomu.gomustock.ui.format.FormatChart;
@@ -64,7 +63,7 @@ public class HomeFragment extends Fragment {
     private List<Integer> chart1_data1 = new ArrayList<Integer>();
     private List<Integer> chart1_data2 = new ArrayList<Integer>();
     private List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
-    private HBSManager buysellhistory;
+    private HBSManager hbsmanager;
 
     private String open_api_data="empty";
     private String yesterday_price="empty";
@@ -104,13 +103,13 @@ public class HomeFragment extends Fragment {
         mycache.initialize();
 
         balancelist.clear();
-        buysellhistory = new HBSManager(getActivity());
-        buysellhistory.makeLastBuyList();
-        lastbuylist = buysellhistory.getLastBuyList();
+        hbsmanager = new HBSManager(getActivity());
+        hbsmanager.makeLastBuyList();
+        lastbuylist = hbsmanager.getLastBuyList();
 
         if((lastbuylist.size() != 0 ) && (-1 != myexcel.checkExcelfile(lastbuylist))) {
             // 포트폴리오를 가지고 밸런스를 계산한다.
-            calcTodayBalance(buysellhistory);
+            calcTodayBalance(hbsmanager);
             // 별런스 결과로 차트를 보여준다
             cashChart();
             stockChart();
@@ -137,7 +136,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                List<String> buylist = buysellhistory.getOnlyBuyCode();
+                List<String> buylist = hbsmanager.getOnlyBuyCode();
                 buylist.add("069500"); // 코덱스 200은 무조건 다운로드 해줌
                 dl_AgencyForeigne(buylist);
                 dl_NaverPriceByday(buylist, 60);
@@ -175,12 +174,13 @@ public class HomeFragment extends Fragment {
             {
                 Intent intent = new Intent(context, SubActivity.class);
 
-                List<BuyStockDBData> mybuylist = buysellhistory.getBuyList();
-                List<SellStockDBData> myselllist = buysellhistory.getSellList();
-                SubOption mysuboption = new SubOption(mybuylist,myselllist);
 
-                intent.putExtra("class",mysuboption);
-                startActivity(intent);
+                //List<BuyStockDBData> mybuylist = hbsmanager.getBuyList();
+                //List<SellStockDBData> myselllist = hbsmanager.getSellList();
+                //SubOption mysuboption = new SubOption(mybuylist,myselllist);
+
+                //intent.putExtra("class",mysuboption);
+                //startActivity(intent);
             }
         });
         binding.dummy.setOnClickListener(new View.OnClickListener()
@@ -221,11 +221,11 @@ public class HomeFragment extends Fragment {
                 tuja_bt.setText(home_adapter.show_myaccount());
                 home_adapter.reload_curprice();
 
-                buysellhistory = new HBSManager(getActivity());
-                buysellhistory.makeLastBuyList();
-                lastbuylist = buysellhistory.getLastBuyList();
+                hbsmanager = new HBSManager(getActivity());
+                hbsmanager.makeLastBuyList();
+                lastbuylist = hbsmanager.getLastBuyList();
 
-                calcTodayBalance(buysellhistory);
+                calcTodayBalance(hbsmanager);
                 cashChart();
                 stockChart();
                 home_adapter.refresh();
@@ -251,10 +251,10 @@ public class HomeFragment extends Fragment {
         // 각 종목의 balance의 평가액과 현금을 총합한다.
         int size = balancelist.size();
         if (size != 0) {
-            List<List<Integer>> remainmoney = new ArrayList<List<Integer>>();
+            List<List<Integer>> remainmoney = new ArrayList<List<Integer>>();;
             for (int i = 0; i < balancelist.size(); i++) {
-                //remainmoney.add(balancelist.get(0).getRemaincache());
-                remainmoney.add(balancelist.get(0).getTotalAsset());
+                //remainmoney.add(balancelist.get(i).getRemaincache());
+                remainmoney.add(balancelist.get(i).getTotalAsset());
             }
             List<Integer> last_remainmoney = mystat.sumlist(remainmoney);
 
@@ -272,7 +272,7 @@ public class HomeFragment extends Fragment {
 
         int size = balancelist.size();
         if(size > 0) {
-            List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
+            List<List<Integer>> estimmoney= new ArrayList<List<Integer>>();
             for (int i = 0; i < balancelist.size(); i++) {
                 estimmoney.add(balancelist.get(i).getEstimStock());
             }
@@ -306,12 +306,12 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void calcTodayBalance(HBSManager buysellhis) {
+    public void calcTodayBalance(HBSManager mybsmanager) {
         List<BuyStockDBData> lastbuyli = new ArrayList<BuyStockDBData>();
         MyDate mydate = new MyDate();
         BuyStock buystock = new BuyStock();
         SellStock sellstock = new SellStock();
-        lastbuyli = buysellhis.getLastBuyList();
+        lastbuyli = mybsmanager.getLastBuyList();
 
         balancelist.clear();
         String today = mydate.getToday();
@@ -319,8 +319,8 @@ public class HomeFragment extends Fragment {
         int size = lastbuyli.size();
         for (int i = 0; i < size; i++) {
             String stock_code = lastbuyli.get(i).stock_code;
-            MyBalance onebalance = new MyBalance(lastbuyli.get(i).stock_code);
-            onebalance.prepareDataset(buysellhis.getBuyList(), buysellhis.getSellList());
+            MyBalance onebalance = new MyBalance(stock_code);
+            onebalance.prepareDataset(mybsmanager.getBuyList(stock_code), mybsmanager.getSellList(stock_code));
             //------------------------------------------------------
             // 시뮬데이션 대비 추가되는 내용 > 오늘 정보를 넣어주고 balance를 계산한다
             // 준비한 balance dataset에 데이터를 넣어준다.

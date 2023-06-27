@@ -63,5 +63,13 @@ public class SellStockDBData implements Serializable
         stock_name="";
     }
 
+    public void init() {
+        stock_code="";
+        stock_name="";
+        sell_date="";
+        sell_price = 0;
+        sell_quantity=0;
+    }
+
 }
 

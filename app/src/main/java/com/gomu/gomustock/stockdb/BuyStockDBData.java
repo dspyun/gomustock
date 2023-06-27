@@ -94,4 +94,12 @@ public class BuyStockDBData implements Serializable
     }
     //public void setName(String text) { this.stock_name = text; }
 
+    public void init() {
+        stock_code="";
+        stock_name="";
+        buy_date="";
+        buy_price = 0;
+        buy_quantity=0;
+    }
+
 }

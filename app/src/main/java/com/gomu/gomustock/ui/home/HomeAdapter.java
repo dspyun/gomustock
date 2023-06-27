@@ -129,7 +129,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             //여기서는 Toast를 비롯한 UI작업을 실행못함
             while(stop_flag) {
                 try {
-                    Thread.sleep(1000 * 2); // 1분에 한번씩 update
+                    Thread.sleep(1000); // 1분에 한번씩 update
                     loadCurrentPrice();
                     updatePortfolioPrice();
                     stop_flag = false;

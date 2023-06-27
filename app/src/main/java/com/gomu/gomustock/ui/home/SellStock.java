@@ -6,6 +6,7 @@ import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.SellStockDB;
 import com.gomu.gomustock.stockdb.SellStockDBData;
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 public class SellStock {
 
     private SellStockDB sellstock_db;
-
+    StockDic stockdic = new StockDic();
     public List<SellStockDBData> sellstockList;
 
     public SellStock () {
@@ -64,7 +65,7 @@ public class SellStock {
 
         tdlist.addAll(myexcel.readtestsell(stock_code+"_testset.xls", false));
         code = stock_code;
-        name = myexcel.find_stockname(code);
+        name = stockdic.getStockname(code);
         int size = tdlist.size();
         for(int i=0;i<size;i++) {
 

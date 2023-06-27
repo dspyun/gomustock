@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.simulation;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
@@ -14,6 +15,7 @@ public class SBuyStock {
 
     List<BuyStockDBData> buystockList;
     MyExcel myexcel = new MyExcel();
+    StockDic stockdic = new StockDic();
     public SBuyStock() {
         buystock_db = SBuyStockDB.getInstance(context);
         buystockList = buystock_db.buystockDao().getAll();
@@ -47,7 +49,7 @@ public class SBuyStock {
 
         simBuylist.addAll(myexcel.readtestbuy(stock_code+"_testset.xls", false));
         code = stock_code;
-        name = myexcel.find_stockname(code);
+        name = stockdic.getStockname(code);
         int size = simBuylist.size();
         for(int i=0;i<size;i++) {
 

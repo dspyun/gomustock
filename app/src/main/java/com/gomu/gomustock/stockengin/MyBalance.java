@@ -11,10 +11,20 @@ import java.util.List;
 
 public class MyBalance {
 
+    // 1. 밸런스는
+    // 다운로드받은 종가 table과 매수, 매도 리스트를 가지고
+    // 매수한 주식의 평가액과 지출한 돈이 얼마인지를 계산해서 리턴해준다.
+    // 다운로드 받은 종가 table과 매수, 매도 리스트에 오늘 데이터는 포함되지 않기 때문에
+    // 결과치에 오늘 매수 매도한 종목의 평가액과 지출액이 포함되지 않는다
+    // 2. 오늘 매수매도한 종목의 평가액과 지출액을 반영하기 위해
+    // putTodayBuySellData를 사용하여 종가 table에 현재가격을 추가하는 기능을 사용할 수 있다
+    // 3.
     int cache = 0;
     public String stock_code ="";
     public List<String> inputDate = new ArrayList<>();
-    public List<Integer> inputStockprice = new ArrayList<Integer>();
+    public List<Integer> inputCloseprice = new ArrayList<Integer>();
+    public List<Integer> inputBuyPricelist = new ArrayList<Integer>();
+    public List<Integer> inputSellPricelist = new ArrayList<Integer>();
     public List<Integer> inputBuyQuantity = new ArrayList<Integer>();
     public List<Integer> inputSellQuantity = new ArrayList<Integer>();
     public List<Integer>  outputQuantity = new ArrayList<Integer>();
@@ -60,14 +70,16 @@ public class MyBalance {
         listsize = price.size();
         for(int i = 0; i< listsize; i++) {
             // price는 현재>과거 순으로 저정된다
-            inputStockprice.set(i,Integer.parseInt(price.get(i)));
+            inputCloseprice.set(i,Integer.parseInt(price.get(i)));
         }
         // buylist db에서 매수량을 읽어서 해당날짜의 위치에 집어넣는다.
         loadBuyList(buystockList);
         // selllist db에서 매도량을 읽어서 해당날짜의 위치에 집어넣는다.
         loadSellList(sellstockList);
-
-
+        // 매수량이 있는 날짜는 그날의 매수액을 closelist에 update해서
+        // buypricelist를 만든다. 이것은 지출한 현금액을 계산하는데 사용된다.
+        makeBuyPricelist(buystockList);
+        makeSellPricelist(sellstockList);
     }
 
     public void init_buffer(int listsize) {
@@ -76,7 +88,9 @@ public class MyBalance {
         outputQuantity.clear();
         outputCache.clear();
         outputEstim.clear();
-        inputStockprice.clear();
+        inputCloseprice.clear();
+        inputBuyPricelist.clear();
+        inputSellPricelist.clear();
 
         listsize = inputDate.size();
         for(int i=0;i<listsize;i++) {
@@ -86,7 +100,9 @@ public class MyBalance {
             outputCache.add(0);
             outputEstim.add(0);
             outputTotal.add(0);
-            inputStockprice.add(0);
+            inputCloseprice.add(0);
+            inputBuyPricelist.add(0);
+            inputSellPricelist.add(0);
         }
     }
 
@@ -112,6 +128,43 @@ public class MyBalance {
             index = inputDate.indexOf(buystockList.get(i).buy_date);
             if(index == -1) continue;
             inputBuyQuantity.set(index, buystockList.get(i).buy_quantity);
+        }
+        index = 0; // 디버깅용
+    }
+
+
+    public void makeBuyPricelist(List<BuyStockDBData> buystockList) {
+
+
+        inputBuyPricelist = inputCloseprice;
+        int index=0;
+        int value=0;
+        // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
+        int size = buystockList.size();
+        for(int i=0; i < size ;i++) {
+            // 1.
+            index = inputDate.indexOf(buystockList.get(i).buy_date);
+            if(index == -1) continue;
+            if(buystockList.get(i).buy_quantity != 0) {
+                inputBuyPricelist.set(index, buystockList.get(i).buy_price);
+            }
+        }
+        index = 0; // 디버깅용
+    }
+
+    public void makeSellPricelist(List<SellStockDBData> sellstockList) {
+
+        inputSellPricelist = inputCloseprice;
+        int index=0;
+        int value=0;
+        // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
+        int size = sellstockList.size();
+        for(int i=0; i < size ;i++) {
+            index = inputDate.indexOf(sellstockList.get(i).sell_date);
+            if(index == -1) continue;
+            if(sellstockList.get(i).sell_quantity != 0) {
+                inputSellPricelist.set(index, sellstockList.get(i).sell_price);
+            }
         }
         index = 0; // 디버깅용
     }
@@ -163,7 +216,7 @@ public class MyBalance {
         // price는 현재>과거순으로 저장되어 있으니
         // 오늘 price는 0번째에 넣어준다
         if(inputDate.get(0).equals(today)) {
-            inputStockprice.set(0, price);
+            inputCloseprice.set(0, price);
         }
     }
 
@@ -181,9 +234,13 @@ public class MyBalance {
         List<Integer> inputStockprice_rev = new ArrayList<Integer>();
         List<Integer> inputBuyQuantity_rev = new ArrayList<Integer>();
         List<Integer> inputSellQuantity_rev = new ArrayList<Integer>();
-        inputStockprice_rev = myexcel.arrangeRev_int(inputStockprice);
+        List<Integer> inputBuyPricelistv_rev = new ArrayList<Integer>();
+        List<Integer> inputSellPricelistv_rev = new ArrayList<Integer>();
+        inputStockprice_rev = myexcel.arrangeRev_int(inputCloseprice);
         inputBuyQuantity_rev = myexcel.arrangeRev_int(inputBuyQuantity);
         inputSellQuantity_rev = myexcel.arrangeRev_int(inputSellQuantity);
+        inputBuyPricelistv_rev =  myexcel.arrangeRev_int(inputBuyPricelist);
+        inputSellPricelistv_rev = myexcel.arrangeRev_int(inputSellPricelist);
 
         int quantity=0;
         int listsize = inputDate.size();
@@ -198,8 +255,8 @@ public class MyBalance {
         int first_cache = mycache.getFirstCache();
         int cachehistory = 0;
         for(int i=0;i<listsize;i++) {
-            cachehistory = cachehistory - inputBuyQuantity_rev.get(i)*inputStockprice_rev.get(i);
-            cachehistory = cachehistory + inputSellQuantity_rev.get(i)*inputStockprice_rev.get(i);
+            cachehistory = cachehistory - inputBuyQuantity_rev.get(i)*inputBuyPricelistv_rev.get(i);
+            cachehistory = cachehistory + inputSellQuantity_rev.get(i)*inputSellPricelistv_rev.get(i);
             outputCache.set(i, cachehistory);
             //cache = 0;
         }
@@ -213,17 +270,6 @@ public class MyBalance {
         for(int i=0;i<listsize;i++) {
             outputTotal.set(i, outputEstim.get(i) + outputCache.get(i));
         }
-        /*
-        List<String> temp1 = new ArrayList<>();
-        List<String> temp2 = new ArrayList<>();
-        List<String> temp3 = new ArrayList<>();
-        for(int i=0;i<outputCache.size();i++) {
-            temp1.add(Integer.toString(outputCache.get(i)));
-            temp2.add(Integer.toString(outputEstim.get(i)));
-            temp3.add(Integer.toString(outputTotal.get(i)));
-        }
-        myexcel.writebalance_test(inputDate,temp1,temp2,temp3);
-        */
 
         int index = 1;
     }

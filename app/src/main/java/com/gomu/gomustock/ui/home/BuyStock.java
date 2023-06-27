@@ -3,6 +3,7 @@ package com.gomu.gomustock.ui.home;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import com.gomu.gomustock.MyDate;
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.BuyStockDB;
@@ -16,6 +17,7 @@ public class BuyStock {
     private BuyStockDB buystock_db;
 
     public List<BuyStockDBData> buystockList = new ArrayList<>();
+    StockDic stockdic = new StockDic();
 
     public BuyStock() {
         buystock_db = BuyStockDB.getInstance(context);
@@ -65,7 +67,7 @@ public class BuyStock {
         MyExcel myexcel = new MyExcel();
         tdlist.addAll(myexcel.readtestbuy(stock_code+"_testset.xls", false));
         code = stock_code;
-        name = myexcel.find_stockname(code);
+        name = stockdic.getStockname(code);
         int size = tdlist.size();
         for(int i=0;i<size;i++) {
 

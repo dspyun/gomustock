@@ -342,9 +342,18 @@ public class MyExcel extends MyStat{
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
                     int size = sheet.getColumn(0).length;
-                    for (int i = 1; i < size-1; i++) {
+                    for (int i = 1; i <= size-1; i++) {
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
+                    }
+                }
+                Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
+                if(sheet1 != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size1 = sheet1.getColumn(0).length;
+                    for (int i = 1; i <= size1-1; i++) {
+                        STOCK_NO.add(sheet1.getCell(1, i).getContents());
+                        STOCK_NAME.add(sheet1.getCell(3, i).getContents());
                     }
                 }
             }
@@ -363,6 +372,7 @@ public class MyExcel extends MyStat{
     private List<String> STOCK_NAME = new ArrayList<>();
     private List<String> STOCK_NO = new ArrayList<>();
 
+    /*
     public String find_stockno(String name) {
         if(STOCK_NAME.isEmpty()) readStockDic();
 
@@ -378,7 +388,7 @@ public class MyExcel extends MyStat{
         if(index == -1) return "";
         return STOCK_NAME.get(index);
     }
-
+    */
 
     public Boolean file_check(String filename) {
 

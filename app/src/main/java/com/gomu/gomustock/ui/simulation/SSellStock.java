@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.simulation;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.SellStockDBData;
@@ -12,7 +13,7 @@ import java.util.List;
 public class SSellStock {
 
     private SSellStockDB sellstock_db;
-
+    StockDic stockdic = new StockDic();
     List<SellStockDBData> sellstockList;
 
     public SSellStock () {
@@ -46,7 +47,7 @@ public class SSellStock {
         MyExcel myexcel = new MyExcel();
         simSellist.addAll(myexcel.readtestsell(stock_code+"_testset.xls", false));
         code = stock_code;
-        name = myexcel.find_stockname(code);
+        name = stockdic.getStockname(code);
         int size = simSellist.size();
         for(int i=0;i<size;i++) {
 

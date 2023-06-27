@@ -471,7 +471,13 @@ public class SimulationFragment extends Fragment {
         List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
         List<MyBalance> balancelist = new ArrayList<>();
 
+        simul_adapter.reload_curprice();
+
+        // manager가 data를 생성해내고
+        // balance가 data를 계산한다
+        // 계산된 data는 차트가 보여준다
         for(int i=0;i<sim_stock.size();i++) {
+
             sim_bsmanager = new SBSManager();
             sim_bsmanager.buystock.reset(); // buydb를 비운다
             sim_bsmanager.sellstock.reset(); // selldb를 비운다
@@ -482,8 +488,10 @@ public class SimulationFragment extends Fragment {
             lastbuylist.add(lastbuy);
             // 포트폴리오 정보와 가격 히스토리를 가지고
             // 수익변화차트 데이터를 만든다
-            MyBalance onebalance = new MyBalance(lastbuy.stock_code);
-            onebalance.prepareDataset(sim_bsmanager.getBuyList(), sim_bsmanager.getSellList());
+
+            String stock_code = lastbuy.stock_code;
+            MyBalance onebalance = new MyBalance(stock_code);
+            onebalance.prepareDataset(sim_bsmanager.getBuyList(stock_code), sim_bsmanager.getSellList(stock_code));
             onebalance.makeBalancedata();
             balancelist.add(onebalance);
         }
@@ -493,9 +501,6 @@ public class SimulationFragment extends Fragment {
         // 계좌 정보 보여주기
         top_board(view);
 
-        simul_adapter.putbuyList(lastbuylist);
-        simul_adapter.refresh();
-        /*
         // recycler view 준비
         recyclerView = view.findViewById(R.id.sim_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -508,8 +513,8 @@ public class SimulationFragment extends Fragment {
             DelaySecond =1;
             //update_thread.start();
         }
-         */
     }
+
 
     public void cacheChart(List<MyBalance> balancelist) {
 

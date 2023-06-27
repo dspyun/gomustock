@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.simulation;
 
 import android.app.Activity;
 
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
@@ -21,7 +22,7 @@ public class SBSManager {
     List<BuyStockDBData> last_buylist = new ArrayList<BuyStockDBData>();
     SBuyStock buystock = new SBuyStock();
     SSellStock sellstock = new SSellStock();
-
+    StockDic stockdic = new StockDic();
     MyExcel myexcel = new MyExcel();
     public SBSManager(Activity mycontext) {
         this.context = mycontext;
@@ -51,8 +52,26 @@ public class SBSManager {
     public BuyStockDBData getLastBuy() {
         return last_buylist.get(0);
     }
-    public List<BuyStockDBData> getBuyList() { return buystockList; }
-    public List<SellStockDBData> getSellList() { return sellstockList; }
+    public List<BuyStockDBData> getBuyList(String stock_code) {
+        List<BuyStockDBData> result = new ArrayList<>();
+
+        int size = buystockList.size();
+        for(int i=0;i<size;i++) {
+            if(buystockList.get(i).stock_code.equals(stock_code)) {
+                result.add(buystockList.get(i));
+            }
+        }
+        return result;}
+    public List<SellStockDBData> getSellList(String stock_code) {
+        List<SellStockDBData> result = new ArrayList<>();
+
+        int size = sellstockList.size();
+        for(int i=0;i<size;i++) {
+            if(sellstockList.get(i).stock_code.equals(stock_code)) {
+                result.add(sellstockList.get(i));
+            }
+        }
+        return result; }
 
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
     public List<BuyStockDBData>  makeLastBuyList() {
@@ -211,7 +230,7 @@ public class SBSManager {
     // 보유 buy list로 화면에 뿌려줄 포트폴리오 리스트를 만들면 된
     public List<BuyStockDBData> assemble_lastbuylist() {
 
-        List<BuyStockDBData> last_buylist = new ArrayList<BuyStockDBData>();
+        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
 
         // 누적매수량, 누정매수액이 저장된 리스트를 읽어온다.
         // 과거>핸재 순으로 저장되어 있다.
@@ -257,13 +276,13 @@ public class SBSManager {
                     arraybuff.setPrice(buyprice);
                     arraybuff.setQuantity(buyquantity);
                     //buylist.set(i, arraybuff);
-                    last_buylist.add(arraybuff);
+                    lastbuylist.add(arraybuff);
                 }
             }
         }
         // 최종 남은 매수종목 및 가격, 수량이 현재 포트폴리오 임
         // 과거>현재 순으로 저장되어 있다
-        return last_buylist;
+        return lastbuylist;
     }
 
 
@@ -271,10 +290,9 @@ public class SBSManager {
 
         // 엑셀파일에서 시험용 매수주식 이력을 읽어들인다.
 
-
         int withdrawal=0, remain_cache=0;
 
-        String name="", code="", date="";
+        String name="",code="", date="";
         int buyquan=0, sellquan=0, price=0,receipt=0;
         int buy_total_quan=0, sell_total_quan=0;
         List<FormatTestData> signallist = new ArrayList<FormatTestData>();
@@ -283,7 +301,7 @@ public class SBSManager {
         signallist.addAll(myexcel.readtestset(stock_code+"_testset.xls", false));
 
         code = stock_code;
-        name = myexcel.find_stockname(code); // 이부분은 시간이 걸리는 함수라서 db로 개선필요? array로 넣고 array find를 활용?
+        name = stockdic.getStockname(code); // 이부분은 시간이 걸리는 함수라서 db로 개선필요? array로 넣고 array find를 활용?
         int size = signallist.size();
         for(int i=0;i<size;i++) {
             // 시그널파일의 0번째가 가장 과거데이터이기 때문에 과거데이터부터 매수데이터를 DB에 넣는다

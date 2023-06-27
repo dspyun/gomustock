@@ -29,6 +29,7 @@ import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
 import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MySignal;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
@@ -50,6 +51,7 @@ public class DashboardFragment extends Fragment {
     MySignal mysignal;
     Dialog dialog_buy; // 커스텀 다이얼로그
     MyExcel myexcel = new MyExcel();
+    StockDic stockdic = new StockDic();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -181,7 +183,7 @@ public class DashboardFragment extends Fragment {
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
 
-                String stock_code = bd_adapter.dashfind_stockno(name);
+                String stock_code = stockdic.getStockcode(name);
                 if(stock_code.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
