@@ -48,7 +48,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     public BoardAdapter(Activity context)
     {
         this.context = context;
-        //this.dataList = dataList;
         loadRecyclerList();
 
     }
@@ -67,21 +66,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         int i =0;
     }
 
-    public void loadBuylist2RecyclerList() {
-        // buy code list를 읽어온다
-        BuyStock mybuy = new BuyStock();
-        List<String> buycodelist = mybuy.getBuyCodeList();
-        recycler_list.addAll(buycodelist);
-    }
-
     public void loadRecyclerList() {
         web_stockinfo = myexcel.readStockinfo(false);
         if(web_stockinfo !=null) {
+            recycler_list.clear();
             for (int i = 0; i < web_stockinfo.size(); i++) {
                 recycler_list.add(web_stockinfo.get(i).stock_code);
             }
-        } else {
-            loadBuylist2RecyclerList();
         }
     }
 
@@ -147,7 +138,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         //final BoardData data = dataList.get(position);
         String stock_code = recycler_list.get(position);
 
-        if(stock_code.equals("069500")) return;
+        //if(stock_code.equals("069500")) return;
         // information text view에 종목번호를 넣는다
 
         String stock_name = stockdic.getStockname(stock_code);
@@ -183,7 +174,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     {
         // buyList size를 adaper에 알려주면
         // size만큼 list갯수를 보여준다
-        return recycler_list.size();
+        return recycler_list.size()-1;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder

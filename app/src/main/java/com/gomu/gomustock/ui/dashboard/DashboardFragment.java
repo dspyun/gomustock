@@ -33,7 +33,9 @@ import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MySignal;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -71,14 +73,16 @@ public class DashboardFragment extends Fragment {
         ImageView kr_zumimage = binding.zumchartKr;
         // zoom image link는 스마트폰 > 줌투자 > 새탭에서 이미지열기 > 링크 복사를 해서 사용한다
 
-        String kr_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/sise/siseMainKOSPI.png?sid=1686905920750";
+        Date todaydate = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        String today = format.format(todaydate);
+        String kr_imageUrl ="https://t1.daumcdn.net/finance/chart/kr/stock/m3/KGG01P.png?timestamp="+today;
         Glide.with(context).load(kr_imageUrl)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(kr_zumimage);
         kr_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        String na_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/world/continent/SPI@SPX.png?1687441130060";
+        String na_imageUrl = "https://t1.daumcdn.net/finance/chart/us/stock/m3/SP500.png?timestamp="+today;
         Glide.with(context).load(na_imageUrl)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -125,7 +129,7 @@ public class DashboardFragment extends Fragment {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 dl_getStockinfo(recyclerlist);
                 myweb.dl_NaverPriceByday(recyclerlist,60);
-
+                dl_AgencyForeigne(recyclerlist);
             }
         });
 
@@ -304,16 +308,32 @@ public class DashboardFragment extends Fragment {
                 int size = recyclerList.size();
                 for(int i =0;i<size;i++) {
                     FormatStockInfo info = new FormatStockInfo();
-                    if(recyclerList.get(i).equals("069500")) continue;
-                    info = myweb.getStockinfo(recyclerList.get(i));
-                    info.stock_code = recyclerList.get(i);
+                    if(recyclerList.get(i).equals("069500")) {
+                        // ETF이기 때문에 수익률 같은 것은 불러올 수 없다
+                        info.init();
+                        info.stock_code = "069500";
+                        info.stock_name = "KODEX 200";
+                    } else {
+                        info = myweb.getStockinfo(recyclerList.get(i));
+                        info.stock_code = recyclerList.get(i);
+                    }
                     web_stockinfo.add(i,info);
                 }
                 myexcel.writestockinfo(web_stockinfo);
             }
         }).start();
     }
+    public void dl_AgencyForeigne(List<String> buylist) {
+        MyWeb myweb = new MyWeb();
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                myweb.dl_fogninfo(buylist);
+            }
+        }).start();
+    }
 
 
     @Override

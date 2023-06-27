@@ -234,7 +234,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public int getItemCount()
     {
         //return recycler_size;
-        return buyList.size();
+        return buyList.size()-1;
     }
 
     public void showDialog_buy(){

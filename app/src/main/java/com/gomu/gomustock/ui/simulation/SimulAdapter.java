@@ -205,7 +205,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     @Override
     public int getItemCount()
     {
-        return buyList.size();
+        return buyList.size()-1;
     }
 
     public void showDialog_buy(){

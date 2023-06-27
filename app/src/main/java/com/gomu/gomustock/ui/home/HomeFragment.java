@@ -138,7 +138,6 @@ public class HomeFragment extends Fragment {
             {
                 List<String> buylist = hbsmanager.getOnlyBuyCode();
                 buylist.add("069500"); // 코덱스 200은 무조건 다운로드 해줌
-                dl_AgencyForeigne(buylist);
                 dl_NaverPriceByday(buylist, 60);
                 //dl_IndexHistory1Y("코스피 200");
                 //home_adapter.app_restart();
@@ -471,17 +470,7 @@ public class HomeFragment extends Fragment {
         }).start();
     }
 
-    public void dl_AgencyForeigne(List<String> buylist) {
-        MyWeb myweb = new MyWeb();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myweb.dl_fogninfo(buylist);
-            }
-        }).start();
-    }
 
     class BackgroundThread extends Thread {
         public void run() {

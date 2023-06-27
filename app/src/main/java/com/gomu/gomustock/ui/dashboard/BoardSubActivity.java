@@ -141,6 +141,7 @@ public class BoardSubActivity extends AppCompatActivity {
 
     public void show_popup_treemap(WebView webView, String region) {
 
+        webView.clearCache(true);
         webView.setWebViewClient(new WebViewClient());  // 새 창 띄우기 않기
         webView.setWebChromeClient(new WebChromeClient());
         //webView.setDownloadListener(new DownloadListener(){...});  // 파일 다운로드 설정
