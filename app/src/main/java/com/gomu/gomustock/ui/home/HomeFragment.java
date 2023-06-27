@@ -322,16 +322,16 @@ public class HomeFragment extends Fragment {
             MyBalance onebalance = new MyBalance(stock_code);
             onebalance.prepareDataset(mybsmanager.getBuyList(stock_code), mybsmanager.getSellList(stock_code));
             //------------------------------------------------------
-            // 시뮬데이션 대비 추가되는 내용 > 오늘 정보를 넣어주고 balance를 계산한다
-            // 준비한 balance dataset에 데이터를 넣어준다.
-            int todaybuy = buystock.getTodayBuyQuan(stock_code);
-            int todaysell = sellstock.getTodaySellQuan(stock_code);
-            onebalance.putTodayBuySellData(today,todaybuy,todaysell);
             // 오늘 현재가를 price table에 update해줘야 완벽하다.
             if(home_adapter != null ) {
                 int cur_price = home_adapter.getCurrentPrice(stock_code);
                 onebalance.putTodayPrice(today, cur_price);
             }
+            // 시뮬데이션 대비 추가되는 내용 > 오늘 정보를 넣어주고 balance를 계산한다
+            // 준비한 balance dataset에 데이터를 넣어준다.
+            int todaybuy = buystock.getTodayBuyQuan(stock_code);
+            int todaysell = sellstock.getTodaySellQuan(stock_code);
+            onebalance.putTodayBuySellData(today,todaybuy,todaysell);
             //------------------------------------------------------
             onebalance.makeBalancedata();
             balancelist.add(onebalance);

@@ -140,6 +140,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             }
         }
     }
+
     public void updatePortfolioPrice() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 

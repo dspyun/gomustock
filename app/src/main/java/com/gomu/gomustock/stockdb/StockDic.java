@@ -38,12 +38,14 @@ public class StockDic {
     public String getStockname(String stock_code) {
         StockDicDBData onedic = new StockDicDBData();
         onedic = stockdic_db.dicDao().getStockname(stock_code);
+        if(onedic==null) return "";
         return onedic.stock_name;
     }
 
     public String getStockcode(String stock_name) {
         StockDicDBData onedic = new StockDicDBData();
         onedic = stockdic_db.dicDao().getStockcode(stock_name);
+        if(onedic==null) return "";
         return onedic.stock_code;
     }
 }

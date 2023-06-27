@@ -126,7 +126,7 @@ public class MyBalance {
             //    주식을 하나 사면 inputDate에는 오늘날짜가 없어서
             //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(buystockList.get(i).buy_date);
-            if(index == -1) continue;
+            //if(index == -1) continue;
             inputBuyQuantity.set(index, buystockList.get(i).buy_quantity);
         }
         index = 0; // 디버깅용
@@ -135,8 +135,12 @@ public class MyBalance {
 
     public void makeBuyPricelist(List<BuyStockDBData> buystockList) {
 
+        //inputBuyPricelist = inputCloseprice;
+        int s = inputCloseprice.size();
+        for(int j =0;j<s;j++) {
+            inputBuyPricelist.set(j,inputCloseprice.get(j));
+        }
 
-        inputBuyPricelist = inputCloseprice;
         int index=0;
         int value=0;
         // date를 비교해보고 date가 있으면 해당날짜의 매수량을 copy한다
@@ -144,7 +148,7 @@ public class MyBalance {
         for(int i=0; i < size ;i++) {
             // 1.
             index = inputDate.indexOf(buystockList.get(i).buy_date);
-            if(index == -1) continue;
+            //if(index == -1) continue;
             if(buystockList.get(i).buy_quantity != 0) {
                 inputBuyPricelist.set(index, buystockList.get(i).buy_price);
             }
@@ -194,12 +198,29 @@ public class MyBalance {
         index = 0;
     }
 
+
+    public void putTodayPrice(String today, int price) {
+        // for debug
+        int j = inputBuyPricelist.size();
+        j = inputCloseprice.size();
+
+        // price는 현재>과거순으로 저장되어 있으니
+        // 오늘 price는 0번째에 넣어준다
+        if(inputDate.get(0).equals(today)) {
+            inputCloseprice.set(0, price);
+        }
+    }
+
     public void putTodayBuySellData(String today, int buyquan,int sellquan) {
+        // for debug
+        int j = inputBuyPricelist.size();
+        j = inputCloseprice.size();
 
         // 오늘 매매 데이터를 buylist와 selllist에 붙인다.(simulation에서는 안 붙여도 됨)
         // 날짜 inputDate의 index0은 오늘날짜가 들어가 있다(왜냐면 파일로 다운받았으니)
         // 하지만 매매데이터는 폰에서 생성된 정보이고 파일에 포함되어 있지 않다
         // 그래서 오늘 buy sell 수량을 index 0에 각각 넣어 주어야 한다.
+
 
         if(inputDate.get(0).equals(today)) {
             int size = inputBuyQuantity.size();
@@ -209,14 +230,6 @@ public class MyBalance {
         if(inputDate.get(0).equals(today)) {
             int size2 = inputSellQuantity.size();
             inputSellQuantity.set(0, sellquan);
-        }
-    }
-
-    public void putTodayPrice(String today, int price) {
-        // price는 현재>과거순으로 저장되어 있으니
-        // 오늘 price는 0번째에 넣어준다
-        if(inputDate.get(0).equals(today)) {
-            inputCloseprice.set(0, price);
         }
     }
 
@@ -231,12 +244,12 @@ public class MyBalance {
         // 차트배열에서도 과거>현재순으로 정렬된 값이 사용됨으로
         // 과거날짜>최신날짜 순으로 역정렬해준다.
         // 역순 정렬된 데이터로 계산한 후, 반환한다
-        List<Integer> inputStockprice_rev = new ArrayList<Integer>();
+        List<Integer> inputClosePrice_rev = new ArrayList<Integer>();
         List<Integer> inputBuyQuantity_rev = new ArrayList<Integer>();
         List<Integer> inputSellQuantity_rev = new ArrayList<Integer>();
         List<Integer> inputBuyPricelistv_rev = new ArrayList<Integer>();
         List<Integer> inputSellPricelistv_rev = new ArrayList<Integer>();
-        inputStockprice_rev = myexcel.arrangeRev_int(inputCloseprice);
+        inputClosePrice_rev = myexcel.arrangeRev_int(inputCloseprice);
         inputBuyQuantity_rev = myexcel.arrangeRev_int(inputBuyQuantity);
         inputSellQuantity_rev = myexcel.arrangeRev_int(inputSellQuantity);
         inputBuyPricelistv_rev =  myexcel.arrangeRev_int(inputBuyPricelist);
@@ -263,7 +276,7 @@ public class MyBalance {
         // 평가액 변화량을 계산한다
         // 일일보유수량*일일종가
         for(int i=0;i<listsize;i++) {
-            outputEstim.set(i, outputQuantity.get(i)*inputStockprice_rev.get(i));
+            outputEstim.set(i, outputQuantity.get(i)*inputClosePrice_rev.get(i));
         }
 
         // 총자산액
