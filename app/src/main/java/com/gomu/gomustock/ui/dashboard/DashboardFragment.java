@@ -97,7 +97,7 @@ public class DashboardFragment extends Fragment {
         // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
         // scoring을 할 준비를 한다
         // 나중에 사용자가 update버튼으로 score를 수동 update한다.
-        mysignal = new MySignal(bd_adapter.getRecyclerList());
+        mysignal = new MySignal(bd_adapter.getRecyclerList(), "069500");
         mysignal.getPriceThreadStart();
 
         na_zumimage.setOnClickListener(new View.OnClickListener() {
@@ -136,19 +136,7 @@ public class DashboardFragment extends Fragment {
         tvUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                //bd_adapter.adapter_refresh();
-                mysignal.calcScore();
-                int size = mysignal.scorebox.size();
-                for(int i =0; i< size;i++) {
-                    String stock_code = mysignal.scorebox.get(i).stock_code;
-                    if(stock_code.equals("코덱스 200")) continue;
-                    int score = mysignal.scorebox.get(i).score;
-                    bd_adapter.putScoreinfo(stock_code, String.valueOf(score));
-                }
-                bd_adapter.refresh();
 
-                 */
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 scoringstock(recyclerlist);
             }
@@ -224,6 +212,7 @@ public class DashboardFragment extends Fragment {
                 for(int i =0;i<adapterList.size();i++) {
                     if (adapterList.get(i).equals(stock_code)) {
                         adapterList.remove(i);
+                        break;
                     }
                 }
                 // 파일에도 추가해주고..info는 추가로 불러와야 함
@@ -271,6 +260,7 @@ public class DashboardFragment extends Fragment {
         // 불러오지 않았으면 60일치 결과로 계속 던져준다
         //mysignal = new MySignal(recyclerlist);
         //mysignal.getPriceThreadStart();
+
         mysignal.calcScore();
         bd_adapter.setScorebox( mysignal.getScorebox());
         bd_adapter.refresh();
@@ -315,7 +305,6 @@ public class DashboardFragment extends Fragment {
             newcode.addStockcode(stockcode);
             infolist.add(newcode);
         }
-
         myexcel.writestockinfo(infolist);
     }
     public void delInfoFile(String stockcode) {
@@ -327,6 +316,7 @@ public class DashboardFragment extends Fragment {
         for(int i =0;i<size;i++) {
             if(infolist.get(i).stock_code.equals(stockcode)) {
                 infolist.remove(i);
+                break;
             }
         }
         myexcel.writestockinfo(infolist);

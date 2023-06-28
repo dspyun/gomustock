@@ -85,7 +85,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         {
             if(stock_code.equals(web_stockinfo.get(i).stock_code)) {
                 result = web_stockinfo.get(i).toString();
-                return result;
+                break;
             }
         }
         return result;
@@ -142,9 +142,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
         //if(stock_code.equals("069500")) return;
         // information text view에 종목번호를 넣는다
-        if(stock_code.equals("069500")) {
-            int i =9;
-        }
+
         String stock_name = stockdic.getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
         holder.tvStockinfo.setText(getStockInfo(stock_code));

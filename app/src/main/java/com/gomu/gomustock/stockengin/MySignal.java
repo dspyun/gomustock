@@ -17,18 +17,17 @@ import java.util.List;
 public class MySignal {
 
     List<String> srcdata = new ArrayList<>();
-    List<String> basedata = new ArrayList<>();
-    List<Float> basestddata = new ArrayList<>();
+    List<Float> benchstd = new ArrayList<>();
+    List<String> benchdata = new ArrayList<>();
     List<Float> srcstddata = new ArrayList<>();
     public List<FormatScore> scorebox = new ArrayList<>();
     List<String> stockcodelist = new ArrayList<String>();
     //Context context;
-    List<String> kodex200data = new ArrayList<>();
+    FormatScore benchbox = new FormatScore();
+    public MySignal(List<String> codelist, String benchcode) {
 
-    public MySignal(List<String> codelist) {
-        //loadBuyList();
-        //codelist.add("069500"); // kodex200이 기준이라서 항상 들어가야 한다
         putStockcodelist(codelist);
+        makeBenchBox(benchcode);
         makeScoreBox(stockcodelist);
         loadHistory2Scorebox();
         //loadKodex2002Scorebox();
@@ -39,8 +38,9 @@ public class MySignal {
 
         int size = trim_scoreobx.size();
         for(int i =0;i<size;i++) {
-            if(trim_scoreobx.get(i).stock_code.equals("069500")) {
+            if(trim_scoreobx.get(i).stock_code.equals(benchbox.stock_code)) {
                 trim_scoreobx.remove(i);
+                break;
             }
         }
         return trim_scoreobx;
@@ -85,20 +85,16 @@ public class MySignal {
             srcdata.add(onemix.cur_price);
             scorebox.get(i).period_price = srcdata;
         }
+        benchbox.period_price = myexcel.oa_readItem(benchbox.stock_code+".xls", "CLOSE", false);
+        benchbox.period_price.add(benchbox.cur_price);
         int i = 0;
     }
-    public void loadKodex2002Scorebox() {
-        MyExcel myexcel = new MyExcel();
-        kodex200data = myexcel.oa_readItem("069500.xls", "CLOSE", false);
-    }
+
 
     public int scoring(String stock_code) {
         List<String> itemdata = new ArrayList<>();
-        List<String> kodex200 = new ArrayList<>();
         int score=0;
 
-        // kodex200은 스코어링을 하지 않는다
-        if(stock_code.equals("069500")) return 0;
         MyStat mystat = new MyStat();
 
         // 스코어링할 종목가격을 불러온다
@@ -110,19 +106,14 @@ public class MySignal {
         srcstddata = mystat.oa_standardization(itemdata);
 
         // 기준종목 가격을 불러온다.
-        if(basestddata.size() == 0 ){
-            index = find_index("069500");
-            kodex200 = scorebox.get(index).period_price;
-            //kodex200.add(0,scorebox.get(index).cur_price);
-            // kodex200은 한번만 읽어주면 된다
-            int size1 = kodex200.size();
-            basestddata = mystat.oa_standardization(kodex200);
+        if(benchstd.size() == 0 ){
+            benchstd = mystat.oa_standardization(benchbox.period_price);
         }
 
         // 기준종목과 스코어링종목을 비교하여 스코어링을 한다
         float diff=0;
         int i = srcstddata.size()-1;
-        diff = srcstddata.get(i) - basestddata.get(i);
+        diff = srcstddata.get(i) - benchstd.get(i);
 
         // -는 sell : 기준보다 가격이 높으면 판다
         if(diff >= 0.5 && diff < 1) score = -1;
@@ -147,6 +138,12 @@ public class MySignal {
         }
     }
 
+    public void makeBenchBox(String code) {
+        benchbox.stock_code = code;
+        benchbox.cur_price = "0";
+        benchbox.score = 0;
+    }
+
     public int find_index(String stock_code) {
         int size = scorebox.size();
         for (int i = 0; i < size ;i++) {
@@ -169,6 +166,7 @@ public class MySignal {
                 String cur_price = myweb.getCurrentStockPrice(stock_code);
                 scorebox.get(i).cur_price = cur_price.replaceAll(",", "");
             }
+            benchbox.cur_price = myweb.getCurrentStockPrice(benchbox.stock_code);
         }
         catch (Exception e) {
             throw new RuntimeException(e);

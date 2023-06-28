@@ -228,6 +228,7 @@ public class HomeFragment extends Fragment {
                 cashChart();
                 stockChart();
                 home_adapter.refresh();
+
             }
         });
 
@@ -473,7 +474,9 @@ public class HomeFragment extends Fragment {
         }).start();
     }
 
-
+    public void update_curprice() {
+        stop_flag = true;
+    }
 
     class BackgroundThread extends Thread {
         public void run() {
