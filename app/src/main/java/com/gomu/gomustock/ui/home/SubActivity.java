@@ -1,10 +1,10 @@
 package com.gomu.gomustock.ui.home;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
@@ -32,7 +32,6 @@ public class SubActivity extends AppCompatActivity {
         Intent intent = getIntent(); /*데이터 수신*/
 
         //show_example_data(intent);
-
         SubOption suboption = (SubOption)intent.getSerializableExtra("class"); /*클래스*/
         mybuylist = suboption.getBuyList();
         myselllist = suboption.getSellList();

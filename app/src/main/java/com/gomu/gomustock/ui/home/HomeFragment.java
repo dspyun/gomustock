@@ -38,6 +38,7 @@ import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockdb.SellStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MyBalance;
 import com.gomu.gomustock.ui.format.FormatChart;
@@ -69,7 +70,7 @@ public class HomeFragment extends Fragment {
     private String yesterday_price="empty";
 
     Button tuja_bt, bench_bt;
-    private BackgroundThread update_thread = new BackgroundThread();
+
     private boolean stop_flag = false;
     private int DelaySecond=1;
     List<MyBalance> balancelist = new ArrayList<>();
@@ -127,8 +128,6 @@ public class HomeFragment extends Fragment {
 
         if(stop_flag!= true) {
             stop_flag=true;
-            DelaySecond =1;
-            //update_thread.start();
         }
 
         binding.filedownload.setOnClickListener(new View.OnClickListener()
@@ -172,14 +171,12 @@ public class HomeFragment extends Fragment {
             public void onClick(View v)
             {
                 Intent intent = new Intent(context, SubActivity.class);
+                List<BuyStockDBData> mybuylist = hbsmanager.getBuyListAll();
+                List<SellStockDBData> myselllist = hbsmanager.getSellListAll();
+                SubOption mysuboption = new SubOption(mybuylist,myselllist);
 
-
-                //List<BuyStockDBData> mybuylist = hbsmanager.getBuyList();
-                //List<SellStockDBData> myselllist = hbsmanager.getSellList();
-                //SubOption mysuboption = new SubOption(mybuylist,myselllist);
-
-                //intent.putExtra("class",mysuboption);
-                //startActivity(intent);
+                intent.putExtra("class",mysuboption);
+                startActivity(intent);
             }
         });
         binding.dummy.setOnClickListener(new View.OnClickListener()
@@ -474,6 +471,8 @@ public class HomeFragment extends Fragment {
         }).start();
     }
 
+
+    private BackgroundThread update_thread = new BackgroundThread();
     public void update_curprice() {
         stop_flag = true;
     }
@@ -485,7 +484,6 @@ public class HomeFragment extends Fragment {
                     Thread.sleep(1L); // 진입 시 잠시라도 정지해야 함
                     // 60초*60분마다 한 번씩 웹크롤링으로 현재가 update
                     updatePortfolioPrice();
-                    Thread.sleep(1000*DelaySecond); //  1초 대기
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -505,8 +503,6 @@ public class HomeFragment extends Fragment {
                     Thread.sleep(1L); // 잠시라도 정지해야 함
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
                     update_account();
-                    //cashChart();
-                    //stockChart();
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -518,7 +514,6 @@ public class HomeFragment extends Fragment {
     void update_account() {
         tuja_bt.setText(home_adapter.show_myaccount());
         home_adapter.refresh();
-        DelaySecond = 60;
     }
 
     public void top_board(View view) {
@@ -567,10 +562,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        update_thread.interrupt();
-        stop_flag=true;
-        DelaySecond = 1;
-        binding = null;
     }
 
 }

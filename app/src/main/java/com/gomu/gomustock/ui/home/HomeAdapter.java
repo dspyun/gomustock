@@ -61,13 +61,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         this.buyList = dataList;
         recycler_size = buyList.size();
         stop_flag = true;
-        //homefind_stockno("069500");
         update_thread.start();
-
-        // getCurrentPrice();
-        // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
-        // openapi가 아니고 웹크롤링으로 구현필요
-        // BackgroundThread thread = new BackgroundThread();
     }
     public HomeAdapter(Activity context)
     {
@@ -127,12 +121,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             buyList.get(i).cur_price = int_price;
         }
     }
+
     class BackgroundThread extends Thread {
         public void run() {
             //여기서는 Toast를 비롯한 UI작업을 실행못함
             while(stop_flag) {
                 try {
-                    Thread.sleep(1000); // 1분에 한번씩 update
+                    Thread.sleep(10); // 1분에 한번씩 update
                     loadCurrentPrice();
                     updatePortfolioPrice();
                     stop_flag = false;

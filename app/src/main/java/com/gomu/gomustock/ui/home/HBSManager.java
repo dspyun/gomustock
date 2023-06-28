@@ -82,6 +82,9 @@ public class HBSManager {
         }
         return result;
     }
+    public List<BuyStockDBData> getBuyListAll() {
+        return buystockList;
+    }
     public List<SellStockDBData> getSellList(String stock_code) {
         List<SellStockDBData> result = new ArrayList<>();
 
@@ -93,7 +96,9 @@ public class HBSManager {
         }
         return result;
     }
-
+    public List<SellStockDBData> getSellListAll() {
+        return sellstockList;
+    }
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
     public void makeLastBuyList() {
 

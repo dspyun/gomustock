@@ -30,7 +30,7 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.StockDic;
-import com.gomu.gomustock.stockengin.MySignal;
+import com.gomu.gomustock.stockengin.MyScore;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.text.SimpleDateFormat;
@@ -50,7 +50,7 @@ public class DashboardFragment extends Fragment {
 
     BoardAdapter bd_adapter;
 
-    MySignal mysignal;
+    MyScore myscore;
     Dialog dialog_buy; // 커스텀 다이얼로그
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
@@ -97,8 +97,8 @@ public class DashboardFragment extends Fragment {
         // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
         // scoring을 할 준비를 한다
         // 나중에 사용자가 update버튼으로 score를 수동 update한다.
-        mysignal = new MySignal(bd_adapter.getRecyclerList(), "069500");
-        mysignal.getPriceThreadStart();
+        myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
+        myscore.getPriceThreadStart();
 
         na_zumimage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -242,7 +242,7 @@ public class DashboardFragment extends Fragment {
     public class BackgroundThread extends Thread {
         public void run() {
             try {
-                mysignal.addCurprice2Scorebox();
+                myscore.addCurprice2Scorebox();
                 Thread.sleep(1000L);
                 //myscoring2();
             } catch (InterruptedException e) {
@@ -261,8 +261,8 @@ public class DashboardFragment extends Fragment {
         //mysignal = new MySignal(recyclerlist);
         //mysignal.getPriceThreadStart();
 
-        mysignal.calcScore();
-        bd_adapter.setScorebox( mysignal.getScorebox());
+        myscore.calcScore();
+        bd_adapter.setScorebox( myscore.getScorebox());
         bd_adapter.refresh();
     }
 

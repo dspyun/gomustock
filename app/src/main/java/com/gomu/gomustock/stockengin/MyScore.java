@@ -14,7 +14,7 @@ import com.tictactec.ta.lib.RetCode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MySignal {
+public class MyScore {
 
     List<String> srcdata = new ArrayList<>();
     List<Float> benchstd = new ArrayList<>();
@@ -24,7 +24,8 @@ public class MySignal {
     List<String> stockcodelist = new ArrayList<String>();
     //Context context;
     FormatScore benchbox = new FormatScore();
-    public MySignal(List<String> codelist, String benchcode) {
+
+    public MyScore(List<String> codelist, String benchcode) {
 
         putStockcodelist(codelist);
         makeBenchBox(benchcode);

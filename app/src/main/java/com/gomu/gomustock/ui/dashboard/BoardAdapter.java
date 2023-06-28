@@ -13,14 +13,13 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.R;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatScore;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
-import com.gomu.gomustock.graph.MyChart;
-import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.R;
-import com.gomu.gomustock.ui.home.BuyStock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,15 +112,20 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         scorebox = input_scorebox;
     }
 
-    public String getScore(String stock_code) {
+    public String getScore(String stockname, String stock_code) {
         String result="";
         int size = scorebox.size();
-        for(int i =0;i<size;i++) {
-            if(scorebox.get(i).stock_code.equals(stock_code)) {
-                result = String.valueOf(scorebox.get(i).score);
-                result += " : " + scorebox.get(i).cur_price;
-                return result;
+        if(size > 0) {
+            for (int i = 0; i < size; i++) {
+                if (scorebox.get(i).stock_code.equals(stock_code)) {
+                    result = stockname + "(" + stock_code+ ") : " + scorebox.get(i).cur_price + "\n";
+                    result += "Score is " + String.valueOf(scorebox.get(i).score);
+                    break;
+                }
             }
+        } else {
+            result = stockname + "(" + stock_code+ ") : \n";
+            result += "Score is ";
         }
         return result;
     }
@@ -146,7 +150,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         String stock_name = stockdic.getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
         holder.tvStockinfo.setText(getStockInfo(stock_code));
-        holder.tvscoreboard.setText(stock_name + " score is " + getScore(stock_code));
+        holder.tvscoreboard.setText(getScore(stock_name,stock_code));
         // 차트에 코스피와 종목 데이터를 넣어준다
 
         standard_chart = new MyChart();
