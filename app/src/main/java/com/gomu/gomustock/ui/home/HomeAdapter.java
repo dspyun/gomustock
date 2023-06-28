@@ -96,6 +96,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public void setOpenday(String openday) {
         latestOpenday = openday;
     }
+    public void putBuylist(List<BuyStockDBData> new_buylist) {
+        buyList = new_buylist;
+    }
     public int getCurrentPrice(String stock_code) {
         int size = buyList.size();
         int price = 0;
@@ -234,7 +237,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public int getItemCount()
     {
         //return recycler_size;
-        return buyList.size()-1;
+        return buyList.size();
     }
 
     public void showDialog_buy(){

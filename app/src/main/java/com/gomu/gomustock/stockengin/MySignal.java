@@ -27,7 +27,7 @@ public class MySignal {
 
     public MySignal(List<String> codelist) {
         //loadBuyList();
-        codelist.add("069500"); // kodex200이 기준이라서 항상 들어가야 한다
+        //codelist.add("069500"); // kodex200이 기준이라서 항상 들어가야 한다
         putStockcodelist(codelist);
         makeScoreBox(stockcodelist);
         loadHistory2Scorebox();

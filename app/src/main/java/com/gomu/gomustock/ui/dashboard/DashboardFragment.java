@@ -181,7 +181,33 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // 원하는 기능 구현
+                // dialog 화면에서 입력된 정보를 읽어온다
+                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
+                String name = stock_name.getText().toString();
 
+                String stock_code = stockdic.getStockcode(name);
+                if(stock_code.equals("")) {
+                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // adapter list에 종목코드가 없으면 update사켜주고
+                List<String> adapterList = bd_adapter.getRecyclerList();
+                if(!adapterList.contains(stock_code)) {
+                    adapterList.add(stock_code);
+                    // 파일에도 추가해주고..info는 추가로 불러와야 함
+                    addInfoFile(stock_code);
+                    bd_adapter.putRecyclerList(adapterList);
+                }
+
+                bd_adapter.refresh();
+                dialog_buy.dismiss(); // 다이얼로그 닫기
+            }
+        });
+
+        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
                 // dialog 화면에서 입력된 정보를 읽어온다
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
@@ -195,22 +221,17 @@ public class DashboardFragment extends Fragment {
 
                 // adapter list update사켜주고
                 List<String> adapterList = bd_adapter.getRecyclerList();
-                adapterList.add(stock_code);
-                bd_adapter.putRecyclerList(adapterList);
-
+                for(int i =0;i<adapterList.size();i++) {
+                    if (adapterList.get(i).equals(stock_code)) {
+                        adapterList.remove(i);
+                    }
+                }
                 // 파일에도 추가해주고..info는 추가로 불러와야 함
-                addInfoFile(stock_code);
-
+                delInfoFile(stock_code);
+                bd_adapter.putRecyclerList(adapterList);
                 bd_adapter.refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
-            }
-        });
 
-        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 원하는 기능 구현
-                dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
     }
@@ -295,6 +316,19 @@ public class DashboardFragment extends Fragment {
             infolist.add(newcode);
         }
 
+        myexcel.writestockinfo(infolist);
+    }
+    public void delInfoFile(String stockcode) {
+        List<String> codelist = new ArrayList<>();
+        List<FormatStockInfo> infolist = myexcel.readStockinfo(false);
+        // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
+        // 있으면 삭제
+        int size = infolist.size();
+        for(int i =0;i<size;i++) {
+            if(infolist.get(i).stock_code.equals(stockcode)) {
+                infolist.remove(i);
+            }
+        }
         myexcel.writestockinfo(infolist);
     }
 

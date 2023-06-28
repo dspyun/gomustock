@@ -355,7 +355,6 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // 원하는 기능 구현
-
                 // dialog 화면에서 입력된 정보를 읽어온다
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
@@ -387,14 +386,18 @@ public class HomeFragment extends Fragment {
                 onebuy.buy_date = mybuydate;
                 onebuy.buy_quantity = Integer.parseInt(quantity);
                 onebuy.buy_price = Integer.parseInt(price);
+                // buyList에 update해해서 adapteer에 update해주고
                 buyList.add(onebuy);
+                home_adapter.putBuylist(buyList);
 
+                // db에 update해주고
                 BuyStock buystock = new BuyStock();
                 buystock.insert2db(onebuy);
-
+                // 현금도 update해주고
                 Cache mycache = new Cache();
                 int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price)*-1;
                 mycache.update_cache(buymoney);
+
                 //app_restart();
                 home_adapter.refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기

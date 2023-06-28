@@ -71,9 +71,11 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         if(web_stockinfo !=null) {
             recycler_list.clear();
             for (int i = 0; i < web_stockinfo.size(); i++) {
+                //if(web_stockinfo.get(i).stock_code.equals("")) continue;
                 recycler_list.add(web_stockinfo.get(i).stock_code);
             }
         }
+        int i =0;
     }
 
     public String getStockInfo(String stock_code) {
@@ -140,7 +142,9 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
         //if(stock_code.equals("069500")) return;
         // information text view에 종목번호를 넣는다
-
+        if(stock_code.equals("069500")) {
+            int i =9;
+        }
         String stock_name = stockdic.getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
         holder.tvStockinfo.setText(getStockInfo(stock_code));
@@ -174,7 +178,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     {
         // buyList size를 adaper에 알려주면
         // size만큼 list갯수를 보여준다
-        return recycler_list.size()-1;
+        return recycler_list.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder
