@@ -201,11 +201,10 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         return screen_info;
     }
 
-
     @Override
     public int getItemCount()
     {
-        return buyList.size()-1;
+        return buyList.size();
     }
 
     public void showDialog_buy(){
