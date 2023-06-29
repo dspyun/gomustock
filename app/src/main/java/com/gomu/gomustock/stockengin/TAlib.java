@@ -14,6 +14,9 @@ import java.util.List;
 
 public class TAlib {
 
+
+    public List<Float> bband_signal = new ArrayList<Float>();
+
     public TAlib() {
 
     }
@@ -227,13 +230,16 @@ public class TAlib {
             List<Float> value3 = new ArrayList<Float>();
             for(int i = 0;i<start;i++) {
                 value3.add((float)pricemax);
+                bband_signal.add(0f);
             }
             for(int i = 0; i <end-start;i++ ) {
-                double temp = (closePrice[start+i]-outRealLowerBand[i])/(outRealUpperBand[i]-outRealLowerBand[i]);
+                // %percent_b는 밴드내에서 주가의 위치를 알려준다. 0~1 사이이지만 마이너스로 갈때도 있다
+                double percent_b = (closePrice[start+i]-outRealLowerBand[i])/(outRealUpperBand[i]-outRealLowerBand[i]);
+                bband_signal.add((float)percent_b);
                 //%b 곡선에서 하단 0,2 아래 지점들에 표시를 해준다. 즉 %b값으로 저점매수 시기를 알려주는 표시.
                 //if(temp>0.8) value3.add((float)(pricemax + pricemax*0.02));
-                if(temp <= 0.2 && temp > 0.1) value3.add((float)(pricemax - pricemax*0.02));
-                else if(temp <= 0.1) value3.add((float)(pricemax - pricemax*0.03));
+                if(percent_b <= 0.2 && percent_b > 0.1) value3.add((float)(pricemax - pricemax*0.02));
+                else if(percent_b <= 0.1) value3.add((float)(pricemax - pricemax*0.03));
                 else value3.add((float)pricemax);
             }
 
@@ -244,6 +250,10 @@ public class TAlib {
         }
 
         return threechart;
+    }
+    public List<Float> bband_test_signal() {
+
+        return bband_signal;
     }
 
     public List<Float> adx_test(String stock_code, int total_period) {

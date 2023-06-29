@@ -3,6 +3,7 @@ package com.gomu.gomustock.network;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
+import com.gomu.gomustock.ui.format.FormatSector;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import org.jsoup.Jsoup;
@@ -355,5 +356,46 @@ public class MyWeb {
                 //updatePortfolioPrice();
             }
         }).start();
+    }
+
+
+    public List<FormatSector> getSectorInfo() {
+        ;
+        List<FormatSector> sectorlist = new ArrayList<FormatSector>();
+
+        try {
+
+            String URL = "http://www.paxnet.co.kr/stock/sise/industry";
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements tbody = doc.select("div.pne tbody");
+            for(int i =0;i<3;i++ ){
+                FormatSector oneinfo = new FormatSector();
+                Elements trlist = tbody.get(i).select("tr");
+                Elements tdlist = trlist.select("td");
+                oneinfo.name = tdlist.get(0).text(); // trlist 0번
+                oneinfo.changerate = tdlist.get(1).text(); //
+                Elements span2_1 = tdlist.get(2).select("span span");
+                oneinfo.changerate_period = span2_1.text();
+                Elements span2_2 = tdlist.get(3).select("span span");
+                oneinfo.foreign = span2_2.text();
+                Elements span2_3 = tdlist.get(4).select("span span");
+                oneinfo.agency = span2_3.text();
+                Elements span2_4 = tdlist.get(5).select("span span");
+                oneinfo.ant = span2_4.text();
+                Elements span_5 = tdlist.get(6).select("span");
+                oneinfo.top1 = span_5.text();
+                Elements span_6 = tdlist.get(7).select("span");
+                oneinfo.top2 = span_6.text();
+                sectorlist.add(oneinfo);
+            }
+
+            int j = 0;
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        };
+        return sectorlist;
     }
 }

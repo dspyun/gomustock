@@ -32,8 +32,8 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.MyBalance;
-import com.gomu.gomustock.stockengin.MyMagic01;
 import com.gomu.gomustock.ui.format.FormatChart;
 
 import java.util.ArrayList;
@@ -214,8 +214,10 @@ public class SimulationFragment extends Fragment {
                 // backtest용 data를 만들어 excel에 저장한다
                 for(int i =0;i<sim_stock.size();i++) {
                     code = sim_stock.get(i);
-                    MyMagic01 mymagic01 = new MyMagic01(code, "069500");
-                    mymagic01.makeBackdata();
+                    //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
+                    //mymagic01.makeBackdata();
+                    BBandTest mybbtest = new BBandTest(code);
+                    mybbtest.makeBackdata();
                 }
             }
         });
