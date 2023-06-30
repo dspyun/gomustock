@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.PortfolioData;
+import com.gomu.gomustock.ui.simulation.OnViewHolderItemClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -56,6 +58,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     String latestOpenday="";
     StockDic stockdic = new StockDic();
     ImageView btexpand,btpricerefresh;
+
+    TableLayout home_buysell_item;
     public HomeAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
@@ -161,7 +165,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     @Override
     public HomeAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.portfolio_list_row, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_list_row, parent, false);
 
         dialog_buy = new Dialog(context);       // Dialog 초기화
         dialog_buy.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
@@ -200,6 +204,24 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
         // expandable list에서 call이 되는 click listener
         // 리사이클러뷰의 리스트를 클릭하면 call된다
+        holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
+            @Override
+            public void onViewHolderItemClick() {
+
+                String bool;
+
+                for(int i =0;i<buyList.size();i++)  {
+                    selectedItems.delete(i);
+                }
+                selectedItems.put(position, true);
+                prePosition = position;
+                if (prePosition != -1) notifyItemChanged(prePosition);
+                notifyItemChanged(position);
+                //System.out.println("event position is " + Integer.toString(position));
+
+            }
+        });
+
     }
 
     public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
@@ -368,12 +390,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     // expandable view를 구현하기 위한 view holder
     public class ViewHolder extends RecyclerView.ViewHolder
     {
+        OnViewHolderItemClickListener onViewHolderItemClickListener;
         TextView tv_name,tv_estim_profit,tv_estim_price,tv_cur_price;
         TextView tv_hold_quantity,tv_profit_rate,tv_buy_price,tv_ave_price;
 
         Button buybt, sellbt;
         //private View portfolio_list_view;
-        LinearLayout portfolio_item;
+        LinearLayout home_list_item;
 
         int finger_position;
         public ViewHolder(View view)
@@ -396,36 +419,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             sellbt = view.findViewById(R.id.sell_stock);
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
 
-            portfolio_item = view.findViewById(R.id.portfolio_layout);
+            home_list_item = view.findViewById(R.id.home_list_layout);
+            home_buysell_item =  view.findViewById(R.id.home_buysell_layout);
 
-
-            btexpand.setOnClickListener(new View.OnClickListener() {
+            home_list_item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
-                    //onViewHolderItemClickListener.onViewHolderItemClick();
-
-                    if (selectedItems.get(finger_position)) {
-                        // 펼쳐진 Item을 클릭 시
-                        selectedItems.delete(finger_position);
-                        btexpand.setImageResource(R.drawable.minus48jpx);
-                    } else {
-                        // 직전의 클릭됐던 Item의 클릭상태를 지움
-                        selectedItems.delete(prePosition);
-                        // 클릭한 Item의 position을 저장
-                        selectedItems.put(finger_position, true);
-                        btexpand.setImageResource(R.drawable.plus48px);
-                    }
-
-                    // 해당 포지션의 변화를 알림
-                    String prepos = Integer.toString(prePosition);
-                    String fingerpos = Integer.toString(finger_position);
-                    Toast.makeText(context, "pre: "+prepos+" finger "+fingerpos, Toast.LENGTH_SHORT).show();
-                    if (prePosition != -1) notifyItemChanged(prePosition);
-                    notifyItemChanged(finger_position);
-                    // 클릭된 position 저장
-
-                    prePosition = finger_position;
+                    onViewHolderItemClickListener.onViewHolderItemClick();
                 }
             });
             buybt.setOnClickListener(new View.OnClickListener() {
@@ -445,14 +445,19 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 }
             });
         }
+        public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener onViewHolderItemClickListener)
+        {
+            this.onViewHolderItemClickListener = onViewHolderItemClickListener;
+        }
         void addItem(BuyStockDBData data) {
             // 외부에서 item을 추가시킬 함수입니다.
             buyList.add(data);
         }
 
         public void onBind(int position, SparseBooleanArray selectedItems) {
-            finger_position = position;
-            changeVisibility(selectedItems.get(position));
+            home_buysell_item.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
+            //finger_position = position;
+            //changeVisibility(selectedItems.get(position));
         }
 
         /**
