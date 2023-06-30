@@ -1,7 +1,6 @@
 package com.gomu.gomustock.ui.simulation;
 
 import static android.content.ContentValues.TAG;
-import static com.gomu.gomustock.ui.home.HomeAdapter.buyList;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
@@ -58,6 +57,7 @@ public class SimulationFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+
     public SimulationFragment() {
         // Required empty public constructor
     }
@@ -97,7 +97,7 @@ public class SimulationFragment extends Fragment {
     public MyOpenApi myopenapi = new MyOpenApi();
     Dialog dialog_buy; // 커스텀 다이얼로그
     private List<Integer> chartcolor = new ArrayList<>();
-
+    MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
 
     public static SimulationFragment newInstance(String param1, String param2) {
@@ -132,49 +132,14 @@ public class SimulationFragment extends Fragment {
         return view;
     }
     public void SimulationView(View view) {
-        BuyStockDBData lastbuy = new BuyStockDBData();
-        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
 
 
         initialize_color();
-
-        // 매수, 매도 DB를 합쳐서
-        // 최종 보유주식과 매매 히스토리를 만든다.
-        SCache mycache = new SCache();
-        mycache.initialize();
-        sim_bsmanager = new SBSManager(getActivity());
-        //sim_bsmanager.makeLastBuyList();
-        //lastbuy = sim_bsmanager.getLastBuy();
-
-        // 종목별 balance 결과 쭝 평가액변화를 차트에 보여준다.
-        MyChart stock_chart = new MyChart();
-        List<FormatChart> stockchart = new ArrayList<FormatChart>();
-        List<Integer> onechartdata = new ArrayList<Integer>();
-        for(int i = 0;i<30;i++) onechartdata.add(0);
-        stockchart = stock_chart.buildChart_int(onechartdata, "", chartcolor.get(0));
-
-        lineChart = (LineChart) view.findViewById(R.id.sim_stock_chart);
-        stock_chart.multi_chart(lineChart, stockchart, "초기값", false);
-
-        MyChart money_chart = new MyChart();
-        money_chart.multi_chart(lineChart, stockchart, "초기값", false);
-
-        // 계좌 정보 보여주기
-        top_board(view);
-
-        if(lastbuy != null) {
-            // recycler view 준비
-            recyclerView = view.findViewById(R.id.sim_recycler_view);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            lastbuylist.add(sim_bsmanager.getPortfolio_dummy());
-            simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
-            recyclerView.setAdapter(simul_adapter);
-        }
-
-        if(stop_flag!= true) {
-            stop_flag=true;
-            DelaySecond =1;
-            //update_thread.start();
+        sim_stock = myexcel.readSimullist();
+        if(sim_stock.size()==0) {
+            no_simulation();
+        } else {
+            first_simulation();
         }
 
         simselect_bt.setOnClickListener(new View.OnClickListener()
@@ -182,16 +147,7 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                List<BuyStockDBData> recyclerBuyList = new ArrayList<BuyStockDBData>();
-                recyclerBuyList = simul_adapter.getRecyclerList();
-                sim_stock.clear();
-                int size = recyclerBuyList.size();
-                String stock_code="";
-                for(int i = 0;i<size;i++) {
-                    stock_code = recyclerBuyList.get(i).stock_code;
-                    if(stock_code.equals("")) continue;
-                    else sim_stock.add(recyclerBuyList.get(i).stock_code);
-                }
+                sim_stock = myexcel.readSimullist();
             }
         });
 
@@ -200,6 +156,8 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+                sim_stock = myexcel.readSimullist();
+                // 파일다운로드
                 dl_NaverPriceByday(sim_stock, 60);
             }
         });
@@ -210,7 +168,7 @@ public class SimulationFragment extends Fragment {
             public void onClick(View v)
             {
                 String code, name;
-                MyExcel myexcel = new MyExcel();
+
                 // backtest용 data를 만들어 excel에 저장한다
                 for(int i =0;i<sim_stock.size();i++) {
                     code = sim_stock.get(i);
@@ -288,7 +246,6 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // 원하는 기능 구현
-                MyExcel myexcel = new MyExcel();
 
                 // dialog 화면에서 입력된 정보를 읽어온다
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
@@ -299,18 +256,27 @@ public class SimulationFragment extends Fragment {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
                 }
-                //dl_NaverPriceByday(stock_no,60);
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
+                List<BuyStockDBData> simulist = new ArrayList<>();
                 BuyStockDBData onebuy = new BuyStockDBData();
                 onebuy.stock_code = stock_no;
                 onebuy.stock_name = name;
-                buyList = simul_adapter.getRecyclerList();
-                buyList.add(onebuy);
-                simul_adapter.putBuyList(buyList);
+                simulist = simul_adapter.getRecyclerList();
+                simulist.add(onebuy);
+                simul_adapter.putBuyList(simulist);
 
-                SBuyStock buystock = new SBuyStock();
-                buystock.insert2db(onebuy);
+                //SBuyStock buystock = new SBuyStock();
+                //buystock.insert2db(onebuy);
+
+                List<String> filelist = new ArrayList<>();
+                filelist = myexcel.readSimullist();
+                if(!filelist.contains(stock_no)) {
+                    // 중복된 파일이 없으면 추가해준다.
+                    // file이 없으면 size()가 0이다. 0이어도 add, 아니어도 add한다.
+                    filelist.add(stock_no);
+                    myexcel.writeSimullist(filelist);
+                }
 
                 simul_adapter.refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
@@ -517,7 +483,100 @@ public class SimulationFragment extends Fragment {
         }
     }
 
+    public void no_simulation() {
+        BuyStockDBData lastbuy = new BuyStockDBData();
+        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+        // 매수, 매도 DB를 합쳐서
+        // 최종 보유주식과 매매 히스토리를 만든다.
+        SCache mycache = new SCache();
+        mycache.initialize();
+        sim_bsmanager = new SBSManager(getActivity());
+        //sim_bsmanager.makeLastBuyList();
+        //lastbuy = sim_bsmanager.getLastBuy();
 
+        // 종목별 balance 결과 쭝 평가액변화를 차트에 보여준다.
+        MyChart stock_chart = new MyChart();
+        List<FormatChart> stockchart = new ArrayList<FormatChart>();
+        List<Integer> onechartdata = new ArrayList<Integer>();
+        for(int i = 0;i<30;i++) onechartdata.add(0);
+        stockchart = stock_chart.buildChart_int(onechartdata, "", chartcolor.get(0));
+
+        lineChart = (LineChart) view.findViewById(R.id.sim_stock_chart);
+        stock_chart.multi_chart(lineChart, stockchart, "초기값", false);
+
+        MyChart money_chart = new MyChart();
+        money_chart.multi_chart(lineChart, stockchart, "초기값", false);
+
+        // 계좌 정보 보여주기
+        top_board(view);
+
+        if(lastbuy != null) {
+            // recycler view 준비
+            recyclerView = view.findViewById(R.id.sim_recycler_view);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            lastbuylist.add(sim_bsmanager.getPortfolio_dummy());
+            simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
+            recyclerView.setAdapter(simul_adapter);
+        }
+
+        if(stop_flag!= true) {
+            stop_flag=true;
+            DelaySecond =1;
+            //update_thread.start();
+        }
+
+    }
+    public void first_simulation() {
+        SCache mycache = new SCache();
+        mycache.initialize();
+        BuyStockDBData lastbuy = new BuyStockDBData();
+        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+        List<MyBalance> balancelist = new ArrayList<>();
+
+        //simul_adapter.reload_curprice();
+
+        // manager가 data를 생성해내고
+        // balance가 data를 계산한다
+        // 계산된 data는 차트가 보여준다
+        for(int i=0;i<sim_stock.size();i++) {
+
+            sim_bsmanager = new SBSManager();
+            sim_bsmanager.buystock.reset(); // buydb를 비운다
+            sim_bsmanager.sellstock.reset(); // selldb를 비운다
+
+            sim_bsmanager.loadExcel2DB(sim_stock.get(i)); // 과거>현재 순의 시험데이터를 DB로 넣는다.
+            sim_bsmanager.makeLastBuyList();
+            lastbuy = sim_bsmanager.getLastBuy(); // 과거>현재 순으로  정렬된 데이터.
+            lastbuylist.add(lastbuy);
+            // 포트폴리오 정보와 가격 히스토리를 가지고
+            // 수익변화차트 데이터를 만든다
+
+            String stock_code = lastbuy.stock_code;
+            MyBalance onebalance = new MyBalance(stock_code);
+            onebalance.prepareDataset(sim_bsmanager.getBuyList(stock_code), sim_bsmanager.getSellList(stock_code));
+            onebalance.makeBalancedata();
+            balancelist.add(onebalance);
+        }
+        cacheChart(balancelist);
+        stockChart(balancelist);
+
+        // 계좌 정보 보여주기
+        top_board(view);
+
+        // recycler view 준비
+        recyclerView = view.findViewById(R.id.sim_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
+        simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
+        recyclerView.setAdapter(simul_adapter);
+
+        if(stop_flag!= true) {
+            stop_flag=true;
+            DelaySecond =1;
+            //update_thread.start();
+        }
+
+    }
     public void cacheChart(List<MyBalance> balancelist) {
 
         int size = balancelist.size();

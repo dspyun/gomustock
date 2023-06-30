@@ -1,7 +1,6 @@
 package com.gomu.gomustock.ui.home;
 
 import static android.content.ContentValues.TAG;
-import static com.gomu.gomustock.ui.home.HomeAdapter.buyList;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
@@ -378,6 +377,7 @@ public class HomeFragment extends Fragment {
                 }
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
+                List<BuyStockDBData> buyList = new ArrayList<>();
                 BuyStockDBData onebuy = new BuyStockDBData();
                 onebuy.stock_code = stock_no;
                 onebuy.stock_name = name;

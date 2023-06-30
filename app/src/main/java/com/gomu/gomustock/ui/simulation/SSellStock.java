@@ -30,6 +30,7 @@ public class SSellStock {
         first_sellstock_data.sell_quantity = quantity;
         first_sellstock_data.sell_price = price;
         sellstock_db.sellstockDao().insert(first_sellstock_data);
+        sellstockList = sellstock_db.sellstockDao().getAll();
     }
 
     public void add(String stock_code) {
@@ -66,6 +67,7 @@ public class SSellStock {
         // 잔고 = 잔고 + 매도액
         SCache mycache = new SCache();
         mycache.update_cache(remain_cache);
+        sellstockList = sellstock_db.sellstockDao().getAll();
         int test = 0;
     }
 

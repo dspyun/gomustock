@@ -61,7 +61,8 @@ public class SBSManager {
                 result.add(buystockList.get(i));
             }
         }
-        return result;}
+        return result;
+    }
     public List<SellStockDBData> getSellList(String stock_code) {
         List<SellStockDBData> result = new ArrayList<>();
 
@@ -71,7 +72,8 @@ public class SBSManager {
                 result.add(sellstockList.get(i));
             }
         }
-        return result; }
+        return result;
+    }
 
     // 추후 BuyDB + SellDB로 포트폴리오 정보를 만들어야 한다
     public List<BuyStockDBData>  makeLastBuyList() {

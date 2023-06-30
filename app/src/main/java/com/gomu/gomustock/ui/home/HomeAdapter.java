@@ -1,6 +1,7 @@
 package com.gomu.gomustock.ui.home;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -24,21 +25,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.R;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
-import com.gomu.gomustock.R;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
-    public static List<BuyStockDBData> buyList;
+    private List<BuyStockDBData> buyList;
     private static Activity context;
     public String open_api_data="empty";
 
@@ -55,6 +55,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     private int recycler_size=0;
     String latestOpenday="";
     StockDic stockdic = new StockDic();
+    ImageView btexpand,btpricerefresh;
     public HomeAdapter(Activity context, List<BuyStockDBData> dataList)
     {
         this.context = context;
@@ -172,6 +173,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
 //        bt_tuja.setText(show_myaccount(buyList));
 
+
         return new HomeAdapter.ViewHolder(view);
     }
     int finger_position;
@@ -195,6 +197,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
         // expandable list를 펼쳐준다
         holder.onBind(position, selectedItems);
+
+
 
         // expandable list에서 call이 되는 click listener
         // 리사이클러뷰의 리스트를 클릭하면 call된다
@@ -368,7 +372,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     {
         TextView tv_name,tv_estim_profit,tv_estim_price,tv_cur_price;
         TextView tv_hold_quantity,tv_profit_rate,tv_buy_price,tv_ave_price;
-        ImageView btexpand,btpricerefresh;
+
         Button buybt, sellbt;
         //private View portfolio_list_view;
         LinearLayout portfolio_item;
@@ -396,16 +400,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
             portfolio_item = view.findViewById(R.id.portfolio_item);
 
+
             btexpand.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
                     //onViewHolderItemClickListener.onViewHolderItemClick();
+
                     if (selectedItems.get(finger_position)) {
                         // 펼쳐진 Item을 클릭 시
                         selectedItems.delete(finger_position);
                         btexpand.setImageResource(R.drawable.minus48jpx);
-
                     } else {
                         // 직전의 클릭됐던 Item의 클릭상태를 지움
                         selectedItems.delete(prePosition);
@@ -413,6 +418,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                         selectedItems.put(finger_position, true);
                         btexpand.setImageResource(R.drawable.plus48px);
                     }
+
                     // 해당 포지션의 변화를 알림
                     String prepos = Integer.toString(prePosition);
                     String fingerpos = Integer.toString(finger_position);
@@ -424,7 +430,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                     prePosition = finger_position;
                 }
             });
-
             buybt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

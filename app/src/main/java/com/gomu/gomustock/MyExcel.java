@@ -392,7 +392,7 @@ public class MyExcel extends MyStat{
 
     public Boolean file_check(String filename) {
 
-        String PathFile = filename;
+        String PathFile = STOCKDIR + filename;
         Boolean return_flag=false;
 
         try {
@@ -843,5 +843,76 @@ public class MyExcel extends MyStat{
             }
         }
         return 1;
+    }
+
+
+    public void writeSimullist(List<String> stocklist) {
+
+        String filename = "simul_list";
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";;
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+                    int size = stocklist.size();
+                    for(int row =0;row < size ;row++) {
+                        writablesheet.addCell(new Label(0, row, stocklist.get(row)));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+    public List<String> readSimullist() {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile = STOCKDIR+"simul_list"+".xls";;
+        List<String> stocklist = new ArrayList<String>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=0;i<size;i++) {
+                        stocklist.add(sheet.getCell(0, i).getContents());
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return stocklist;
     }
 }

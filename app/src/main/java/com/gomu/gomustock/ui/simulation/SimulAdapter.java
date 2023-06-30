@@ -33,7 +33,7 @@ import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
-    public List<BuyStockDBData> buyList;
+    private List<BuyStockDBData> buyList;
     private static Activity context;
 
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
@@ -71,6 +71,13 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     public void reload_curprice( ) {
         //priceupdate_thread.start();
         stop_flag=true;
+    }
+    public boolean checksamefile(String stock_code) {
+        int size = buyList.size();
+        for(int i=0;i<size;i++) {
+            if(stock_code.equals(buyList.get(i).stock_code)) return true;
+        }
+        return false;
     }
     public  List<BuyStockDBData> getRecyclerList() {
         return buyList;
@@ -166,11 +173,36 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         holder.tv_buy_price.setText(Integer.toString(data.buy_price));
         holder.tv_ave_price.setText(Integer.toString(data.ave_price));
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
-        // expandable list를 펼쳐준다
         holder.onBind(position, selectedItems);
+        holder.btexpand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
+                //onViewHolderItemClickListener.onViewHolderItemClick();
+                if (selectedItems.get(finger_position)) {
+                    // 펼쳐진 Item을 클릭 시
+                    selectedItems.delete(finger_position);
+                    holder.btexpand.setImageResource(R.drawable.minus48jpx);
 
-        // expandable list에서 call이 되는 click listener
-        // 리사이클러뷰의 리스트를 클릭하면 call된다
+                } else {
+                    // 직전의 클릭됐던 Item의 클릭상태를 지움
+                    selectedItems.delete(prePosition);
+                    // 클릭한 Item의 position을 저장
+                    selectedItems.put(finger_position, true);
+                    holder.btexpand.setImageResource(R.drawable.plus48px);
+                }
+                // 해당 포지션의 변화를 알림
+                String prepos = Integer.toString(prePosition);
+                String fingerpos = Integer.toString(finger_position);
+                Toast.makeText(context, "pre: "+prepos+" finger "+fingerpos, Toast.LENGTH_SHORT).show();
+                if (prePosition != -1) notifyItemChanged(prePosition);
+                notifyItemChanged(finger_position);
+                // 클릭된 position 저장
+
+                prePosition = finger_position;
+            }
+        });
+
     }
 
     public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
@@ -283,34 +315,10 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
 
             portfolio_item = view.findViewById(R.id.portfolio_item);
-            btexpand.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
-                    //onViewHolderItemClickListener.onViewHolderItemClick();
-                    if (selectedItems.get(finger_position)) {
-                        // 펼쳐진 Item을 클릭 시
-                        selectedItems.delete(finger_position);
-                        btexpand.setImageResource(R.drawable.minus48jpx);
 
-                    } else {
-                        // 직전의 클릭됐던 Item의 클릭상태를 지움
-                        selectedItems.delete(prePosition);
-                        // 클릭한 Item의 position을 저장
-                        selectedItems.put(finger_position, true);
-                        btexpand.setImageResource(R.drawable.plus48px);
-                    }
-                    // 해당 포지션의 변화를 알림
-                    String prepos = Integer.toString(prePosition);
-                    String fingerpos = Integer.toString(finger_position);
-                    Toast.makeText(context, "pre: "+prepos+" finger "+fingerpos, Toast.LENGTH_SHORT).show();
-                    if (prePosition != -1) notifyItemChanged(prePosition);
-                    notifyItemChanged(finger_position);
-                    // 클릭된 position 저장
+            // expandable list에서 call이 되는 click listener
+            // 리사이클러뷰의 리스트를 클릭하면 call된다
 
-                    prePosition = finger_position;
-                }
-            });
 
             buybt.setOnClickListener(new View.OnClickListener() {
                 @Override
