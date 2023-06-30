@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/simul_list_layout"
     android:orientation="vertical">
 
     <!-- xml 종목명 평가손익 평가금액, 현재가 -->
@@ -90,6 +91,7 @@
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/simul_buysell_layout"
         android:layout_gravity="center">
 
         <TableRow>

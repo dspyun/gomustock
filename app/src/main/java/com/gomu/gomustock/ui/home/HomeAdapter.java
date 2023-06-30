@@ -198,8 +198,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         // expandable list를 펼쳐준다
         holder.onBind(position, selectedItems);
 
-
-
         // expandable list에서 call이 되는 click listener
         // 리사이클러뷰의 리스트를 클릭하면 call된다
     }
@@ -398,7 +396,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             sellbt = view.findViewById(R.id.sell_stock);
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
 
-            portfolio_item = view.findViewById(R.id.portfolio_item);
+            portfolio_item = view.findViewById(R.id.portfolio_layout);
 
 
             btexpand.setOnClickListener(new View.OnClickListener() {

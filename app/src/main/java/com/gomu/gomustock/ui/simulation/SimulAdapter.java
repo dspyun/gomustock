@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +37,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     private List<BuyStockDBData> buyList;
     private static Activity context;
 
-    private SparseBooleanArray selectedItems = new SparseBooleanArray();
+    public SparseBooleanArray selectedItems = new SparseBooleanArray();
     // 직전에 클릭됐던 Item의 position
     private int prePosition = -1;
     private BackgroundThread priceupdate_thread = new BackgroundThread();
@@ -47,6 +48,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
     MyExcel myexcel = new MyExcel();
     Button buybt, sellbt;
+    TableLayout simul_buysell_item;
 
     StockDic stockdic = new StockDic();
     public SimulAdapter(Activity context, List<BuyStockDBData> dataList)
@@ -138,7 +140,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     }
 
     @Override
-    public SimulAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.simul_list_row, parent, false);
 
@@ -152,11 +154,12 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
 //        bt_tuja.setText(show_myaccount(buyList));
 
-        return new SimulAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
         int finger_position = position;//holder.getAdapterPosition();
         BuyStockDBData buydata = buyList.get(position);
@@ -173,36 +176,65 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         holder.tv_buy_price.setText(Integer.toString(data.buy_price));
         holder.tv_ave_price.setText(Integer.toString(data.ave_price));
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
-        holder.onBind(position, selectedItems);
+        holder.onBind(data, position, selectedItems);
+        // 일단 default로 + 아이콘을 뿌려준다.
+/*
         holder.btexpand.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
                 //onViewHolderItemClickListener.onViewHolderItemClick();
-                if (selectedItems.get(finger_position)) {
+                if (selectedItems.get(position)) {
                     // 펼쳐진 Item을 클릭 시
-                    selectedItems.delete(finger_position);
+                    selectedItems.delete(position);
                     holder.btexpand.setImageResource(R.drawable.minus48jpx);
-
                 } else {
                     // 직전의 클릭됐던 Item의 클릭상태를 지움
                     selectedItems.delete(prePosition);
                     // 클릭한 Item의 position을 저장
-                    selectedItems.put(finger_position, true);
+                    selectedItems.put(position, true);
                     holder.btexpand.setImageResource(R.drawable.plus48px);
                 }
+
                 // 해당 포지션의 변화를 알림
                 String prepos = Integer.toString(prePosition);
-                String fingerpos = Integer.toString(finger_position);
+                String fingerpos = Integer.toString(position);
                 Toast.makeText(context, "pre: "+prepos+" finger "+fingerpos, Toast.LENGTH_SHORT).show();
                 if (prePosition != -1) notifyItemChanged(prePosition);
-                notifyItemChanged(finger_position);
+                notifyItemChanged(position);
                 // 클릭된 position 저장
-
-                prePosition = finger_position;
+                //if (prePosition != -1) notifyItemRangeChanged(prePosition,1);
+                //notifyItemRangeChanged(position,1);
+                prePosition = position;
             }
         });
+ */
+        holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
+            @Override
+            public void onViewHolderItemClick() {
+                if (selectedItems.get(position)) {
+                    // 펼쳐진 Item을 클릭 시
+                    selectedItems.delete(position);
+                    //holder.btexpand.setImageResource(R.drawable.minus48jpx);
+                } else {
+                    // 직전의 클릭됐던 Item의 클릭상태를 지움
+                    selectedItems.delete(prePosition);
+                    // 클릭한 Item의 position을 저장
+                    selectedItems.put(position, true);
+                    //holder.btexpand.setImageResource(R.drawable.plus48px);
+                }
+                // 해당 포지션의 변화를 알림
+                if (prePosition != -1) notifyItemChanged(prePosition);
+                notifyItemChanged(position);
+                // 클릭된 position 저장
+                prePosition = position;
 
+                String bool;
+                if(selectedItems.get(position)) bool = " true";
+                else bool = "false";
+                System.out.println("event selectitem = " + Integer.toString(position) + " is " + bool);
+            }
+        });
     }
 
     public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
@@ -241,7 +273,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
     public void showDialog_buy(){
         dialog_buy.show(); // 다이얼로그 띄우기
-
         dialog_buy.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -283,12 +314,14 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     // expandable view를 구현하기 위한 view holder
     public class ViewHolder extends RecyclerView.ViewHolder
     {
+        OnViewHolderItemClickListener onViewHolderItemClickListener;
         TextView tv_name,tv_estim_profit,tv_estim_price,tv_cur_price;
         TextView tv_hold_quantity,tv_profit_rate,tv_buy_price,tv_ave_price;
         ImageView btexpand,btpricerefresh;
 
         //private View portfolio_list_view;
-        LinearLayout portfolio_item;
+        LinearLayout simul_list_item;
+        //TableLayout simul_buysell_item;
 
         int finger_position;
         public ViewHolder(View view)
@@ -314,11 +347,17 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             sellbt = view.findViewById(R.id.sim_sell_stock);
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
 
-            portfolio_item = view.findViewById(R.id.portfolio_item);
-
+            simul_list_item = view.findViewById(R.id.simul_list_layout);
+            simul_buysell_item =  view.findViewById(R.id.simul_buysell_layout);
             // expandable list에서 call이 되는 click listener
             // 리사이클러뷰의 리스트를 클릭하면 call된다
 
+            simul_list_item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onViewHolderItemClickListener.onViewHolderItemClick();
+                }
+            });
 
             buybt.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -336,16 +375,25 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 }
             });
         }
+        public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener onViewHolderItemClickListener)
+        {
+            this.onViewHolderItemClickListener = onViewHolderItemClickListener;
+        }
         void addItem(BuyStockDBData data) {
             // 외부에서 item을 추가시킬 함수입니다.
             buyList.add(data);
         }
-
-        public void onBind(int position, SparseBooleanArray selectedItems) {
-            finger_position = position;
-            changeVisibility(selectedItems.get(position));
+        public void onBind(PortfolioData data, int position, SparseBooleanArray selectedItems) {
+            String bool;
+            for(int i =0;i<buyList.size();i++)  {
+                if(selectedItems.get(i) == true) bool =  Integer.toString(i) + " true";
+                else bool =  Integer.toString(i) + " false";
+                System.out.println("selectitem = " + bool);
+            }
+            System.out.println("position is " + Integer.toString(position));
+            simul_buysell_item.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
+            //changeVisibility(selectedItems.get(position));
         }
-
     }
 
     /**
@@ -362,6 +410,12 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
 
+
+                simul_buysell_item.getLayoutParams().height = (int) animation.getAnimatedValue();
+                simul_buysell_item.requestLayout();
+                // imageView가 실제로 사라지게하는 부분
+                simul_buysell_item.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+/*
                 buybt.getLayoutParams().height = (int) animation.getAnimatedValue();
                 buybt.requestLayout();
                 // imageView가 실제로 사라지게하는 부분
@@ -371,6 +425,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 sellbt.requestLayout();
                 // imageView가 실제로 사라지게하는 부분
                 sellbt.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+*/
             }
         });
         // Animation start
