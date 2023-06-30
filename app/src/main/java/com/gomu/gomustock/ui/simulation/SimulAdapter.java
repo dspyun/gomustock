@@ -212,27 +212,18 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
             @Override
             public void onViewHolderItemClick() {
-                if (selectedItems.get(position)) {
-                    // 펼쳐진 Item을 클릭 시
-                    selectedItems.delete(position);
-                    //holder.btexpand.setImageResource(R.drawable.minus48jpx);
-                } else {
-                    // 직전의 클릭됐던 Item의 클릭상태를 지움
-                    selectedItems.delete(prePosition);
-                    // 클릭한 Item의 position을 저장
-                    selectedItems.put(position, true);
-                    //holder.btexpand.setImageResource(R.drawable.plus48px);
-                }
-                // 해당 포지션의 변화를 알림
-                if (prePosition != -1) notifyItemChanged(prePosition);
-                notifyItemChanged(position);
-                // 클릭된 position 저장
-                prePosition = position;
 
                 String bool;
-                if(selectedItems.get(position)) bool = " true";
-                else bool = "false";
-                System.out.println("event selectitem = " + Integer.toString(position) + " is " + bool);
+
+                for(int i =0;i<buyList.size();i++)  {
+                    selectedItems.delete(i);
+                }
+                selectedItems.put(position, true);
+                prePosition = position;
+                if (prePosition != -1) notifyItemChanged(prePosition);
+                notifyItemChanged(position);
+                //System.out.println("event position is " + Integer.toString(position));
+
             }
         });
     }
@@ -384,13 +375,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             buyList.add(data);
         }
         public void onBind(PortfolioData data, int position, SparseBooleanArray selectedItems) {
-            String bool;
-            for(int i =0;i<buyList.size();i++)  {
-                if(selectedItems.get(i) == true) bool =  Integer.toString(i) + " true";
-                else bool =  Integer.toString(i) + " false";
-                System.out.println("selectitem = " + bool);
-            }
-            System.out.println("position is " + Integer.toString(position));
+            //System.out.println("position is " + Integer.toString(position));
             simul_buysell_item.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
             //changeVisibility(selectedItems.get(position));
         }
