@@ -95,16 +95,20 @@ public class BoardSubActivity extends AppCompatActivity {
             bband_chart.buildChart_float(bb_chart_list.get(1), "middle", Color.LTGRAY);
             bband_chart.buildChart_float(bb_chart_list.get(2), "lower", Color.GRAY);
             bband_chartdata = bband_chart.buildChart_float(bb_chart_list.get(3), "test", Color.BLUE);
-            bband_chart.setYMinmax(0, 0);
+            //bband_chart.setYMinmax(0, 0);
             bband_chart.multi_chart(bbnandChart, bband_chartdata, "볼린저밴드", false);
             //lineChart.invalidate();
 
             // rsi test
             MyChart rsi_chart = new MyChart();
             rsiChart = findViewById(R.id.rsi_chart);
-            List<Float> rsi_chartdata = new ArrayList<>();
-            rsi_chartdata = mytalib.rsi_test(stock_code, 60);
-            rsi_chart.single_float(rsiChart,rsi_chartdata,"RSI",false );
+            List<List<Float>> rsi_chartlist = new ArrayList<List<Float>>();
+            List<FormatChart> rsi_chartdata = new ArrayList<FormatChart>();
+            rsi_chartlist = mytalib.rsi_test(stock_code, 60);
+            rsi_chart.buildChart_float(rsi_chartlist.get(0), "RSI", Color.YELLOW);
+            rsi_chartdata = rsi_chart.buildChart_float(rsi_chartlist.get(1), "Interval", Color.WHITE);
+            rsi_chart.multi_chart(rsiChart,rsi_chartdata,"RSI",false );
+
 
             // macd test
             MyChart macd_chart = new MyChart();
@@ -115,7 +119,7 @@ public class BoardSubActivity extends AppCompatActivity {
             macd_chart.buildChart_float(macd_chart_list.get(0), "fast", Color.YELLOW);
             macd_chart.buildChart_float(macd_chart_list.get(1), "slow", Color.WHITE);
             macd_chartdata = macd_chart.buildChart_float(macd_chart_list.get(2), "signal", Color.RED);
-            bband_chart.setYMinmax(0, 0);
+            //macd_chart.setYMinmax(0, 0);
             macd_chart.multi_chart(macdChart, macd_chartdata, "MACD", false);
 
             // adx test
@@ -133,7 +137,7 @@ public class BoardSubActivity extends AppCompatActivity {
             stoch_chart_list = mytalib.stoch_test(stock_code, 60);
             stoch_chart.buildChart_float(stoch_chart_list.get(0), "slow-K", Color.GRAY);
             stock_chartdata = stoch_chart.buildChart_float(stoch_chart_list.get(1), "slow-D", Color.LTGRAY);
-            stoch_chart.setYMinmax(0, 0);
+            //stoch_chart.setYMinmax(0, 0);
             stoch_chart.multi_chart(stochChart, stock_chartdata, "스토케스틱", false);
 
             mytext.setOnClickListener(new View.OnClickListener() {

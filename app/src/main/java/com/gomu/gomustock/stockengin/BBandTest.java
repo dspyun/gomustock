@@ -42,6 +42,7 @@ public class BBandTest {
         }
         bband_buyscore = bband_testtest(stock_code);
         rsi_buyscore = rsi_testtest(stock_code);
+
         size = bband_buyscore.size();
         for(int i=0;i<size;i++){
             if(bband_buyscore.get(i)>=70 && bband_buyscore.get(i) <80
@@ -77,9 +78,9 @@ public class BBandTest {
 
     public List<Float> rsi_testtest(String stock_code) {
 
-        List<Float> rsi_score = new ArrayList<>();
+        List<List<Float>> rsi_score = new ArrayList<>();
         rsi_score = mytalib.rsi_test(stock_code, 60);
-        return rsi_score; // rsi는 0~100 사이의 값을 가진다
+        return rsi_score.get(0); // rsi는 0~100 사이의 값을 가진다
     }
 
     public void makeBackdata() {

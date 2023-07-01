@@ -92,8 +92,8 @@ public class TAlib {
         return result;
     }
 
-    public List<Float> rsi_test(String stock_code, int total_period) {
-
+    public List<List<Float>> rsi_test(String stock_code, int total_period) {
+        List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
         final int TOTAL_PERIODS = total_period;
@@ -133,8 +133,13 @@ public class TAlib {
             for(int i = 0;i < end-start;i++ ) {
                 result.add((float)outReal[i]);
             }
+
+            resultlist.add(result);
+
+            List<Float> temp = rsi_interval(start, end, result);
+            resultlist.add(temp);
         }
-        return result;
+        return resultlist;
     }
 
 
@@ -262,6 +267,7 @@ public class TAlib {
         // The total number of periods to generate data for.
         final int TOTAL_PERIODS = total_period;
 
+
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
         double[] lowPrice = new double[TOTAL_PERIODS];
@@ -326,6 +332,37 @@ public class TAlib {
         return value;
     }
 
+    public List<Float> rsi_interval(int start, int end, List<Float> input) {
+        List<Float> resultlist = new ArrayList<>();
+        int size = input.size();
+        float average=0f;
+        for(int i = start;i<end - start;i++) {
+            average += input.get(i);
+        }
+        average = average/(size-start);
+
+        int i;
+        float month1_ave=0f, month2_ave=0, month3_ave=0, month4_ave=0;
+        for(i=50;i<60;i++) month1_ave += input.get(i);
+        month1_ave = month1_ave/10;
+
+        for(i=40;i<50;i++) month2_ave += input.get(i);
+        month2_ave = month2_ave/10;
+
+        for(i=30;i<40;i++) month3_ave += input.get(i);
+        month3_ave = month3_ave/10;
+
+        for(i=20;i<30;i++) month4_ave += input.get(i);
+        month4_ave = month4_ave/10;
+
+        for(i =0;i<20;i++) resultlist.add(average);
+        for(i =20;i<30;i++) resultlist.add(month4_ave);
+        for(i =30;i<40;i++) resultlist.add(month3_ave);
+        for(i =40;i<50;i++) resultlist.add(month2_ave);
+        for(i =50;i<60;i++) resultlist.add(month1_ave);
+
+        return resultlist;
+    }
 
     public List<List<Float>> stoch_test(String stock_code, int total_period ) {
 
