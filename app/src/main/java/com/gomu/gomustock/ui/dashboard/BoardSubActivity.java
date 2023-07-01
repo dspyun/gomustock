@@ -122,12 +122,21 @@ public class BoardSubActivity extends AppCompatActivity {
             //macd_chart.setYMinmax(0, 0);
             macd_chart.multi_chart(macdChart, macd_chartdata, "MACD", false);
 
+            /*
             // adx test
             MyChart adx_chart = new MyChart();
             adxChart = findViewById(R.id.adx_chart);
             List<Float> adx_chartdata = new ArrayList<>();
             adx_chartdata = mytalib.adx_test(stock_code, 60);
             rsi_chart.single_float(adxChart,adx_chartdata,"ADX",false );
+
+             */
+            MyChart adx_chart = new MyChart();
+            adxChart = findViewById(R.id.adx_chart);
+            List<Float> adx_chartdata = new ArrayList<>();
+            adx_chartdata = mytalib.mom_test(stock_code, 60);
+            rsi_chart.single_float(adxChart,adx_chartdata,"MOM",false );
+
 
             // stoch test
             MyChart stoch_chart = new MyChart();

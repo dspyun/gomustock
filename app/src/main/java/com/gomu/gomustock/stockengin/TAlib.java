@@ -444,4 +444,49 @@ public class TAlib {
 
         return threechart;
     }
+
+
+    public List<Float> mom_test(String stock_code, int total_period ) {
+
+        List<List<Float>> resultlist = new ArrayList<List<Float>>();
+
+        // The total number of periods to generate data for.
+        final int TOTAL_PERIODS = total_period;
+
+        // The number of periods to average together.
+        final int optInTimePeriod = 10;
+
+        double[] closePrice = new double[TOTAL_PERIODS];
+        double[] outReal = new double[TOTAL_PERIODS];
+        MInteger outBegIdx = new MInteger();
+        MInteger outNBElement = new MInteger();
+
+        MyExcel myexcel = new MyExcel();
+        List<String> close_str = new ArrayList<>();
+        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.arrangeRev_string(close_str);
+        List<Double> closedata = myexcel.string2double(close_str,1);
+        for (int i =  0; i < closePrice.length; i++) {
+            closePrice[i] = (double) closedata.get(i);
+        }
+
+        Core c = new Core();
+        RetCode retCode  = c.mom( 0, closePrice.length -1, closePrice,optInTimePeriod,
+                outBegIdx, outNBElement, outReal);
+
+        List<List<Float>> threechart = new ArrayList<List<Float>>();
+
+        List<Float> result = new ArrayList<Float>();
+        int start = outBegIdx.value;
+        int end = (outBegIdx.value + outNBElement.value);
+
+        for(int i = 0;i<start;i++) {
+            result.add((float)outReal[0]);
+        }
+        for(int i = 0;i < end-start;i++ ) {
+            result.add((float)outReal[i]);
+        }
+        return result;
+    }
+
 }
