@@ -1,6 +1,8 @@
 package com.gomu.gomustock.ui.dashboard;
 
 
+import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
@@ -30,7 +34,7 @@ public class BoardSubActivity extends AppCompatActivity {
     FormatStockInfo basic_info = new FormatStockInfo();
 
     TextView mytext;
-    ImageView myimage;
+    ImageView pergragh;
     LineChart bbnandChart, adxChart, stochChart, rsiChart, macdChart;
     BarChart fognChart, agencyChart;
 
@@ -63,6 +67,7 @@ public class BoardSubActivity extends AppCompatActivity {
             fognChart = findViewById(R.id.fogn_chart);
             agencyChart = findViewById(R.id.agency_chart);
             mytext = findViewById(R.id.textView1);
+            pergragh = findViewById(R.id.per_graph);
 
             String stock_name = suboption.getStockname();
             String stock_code = suboption.getStockcode();
@@ -72,6 +77,11 @@ public class BoardSubActivity extends AppCompatActivity {
             agency_chart(stock_code);
             show_information(stock_name, stock_code, stock_info);
 
+            String graghUrl ="https://cdn.fnguide.com/SVO2/chartImg/07_02/A"+stock_code+"_A_PER_D_FY1_07_02.png";
+            Glide.with(context).load(graghUrl)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(pergragh);
 
 
             MyExcel myexcel = new MyExcel();

@@ -343,6 +343,7 @@ public class DashboardFragment extends Fragment {
                     }
                     web_stockinfo.add(i,info);
                 }
+
                 myexcel.writestockinfo(web_stockinfo);
             }
         }).start();

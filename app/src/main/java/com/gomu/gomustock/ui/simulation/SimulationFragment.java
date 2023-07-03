@@ -140,6 +140,7 @@ public class SimulationFragment extends Fragment {
             no_simulation();
         } else {
             first_simulation();
+            //no_simulation();
         }
 
         simselect_bt.setOnClickListener(new View.OnClickListener()
@@ -157,7 +158,7 @@ public class SimulationFragment extends Fragment {
             public void onClick(View v)
             {
                 sim_stock = myexcel.readSimullist();
-                // 파일다운로드
+                // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
                 dl_NaverPriceByday(sim_stock, 60);
             }
         });
@@ -524,7 +525,6 @@ public class SimulationFragment extends Fragment {
             DelaySecond =1;
             //update_thread.start();
         }
-
     }
     public void first_simulation() {
         SCache mycache = new SCache();

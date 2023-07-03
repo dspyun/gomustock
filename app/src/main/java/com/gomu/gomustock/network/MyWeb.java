@@ -180,7 +180,7 @@ public class MyWeb {
         return stockprice;
     }
 
-    public String getCurrentKosp200() {
+    public String getCurrentKospi200() {
 
         //https://jul-liet.tistory.com/209
         String stockprice="";

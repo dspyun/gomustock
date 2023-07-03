@@ -166,7 +166,8 @@ public class MyScore {
             }
             benchbox.cur_price = myweb.getCurrentStockPrice(benchbox.stock_code);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return;
+            //throw new RuntimeException(e);
         }
     }
 
