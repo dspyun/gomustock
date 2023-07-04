@@ -139,7 +139,7 @@ public class SimulationFragment extends Fragment {
             no_simulation();
         } else {
             if(myexcel.file_check(sim_stock.get(0)+"_testset.xls")) {
-                simulation();
+                no_simulation();
             }
             else {
                 sim_stock.clear();
@@ -180,7 +180,7 @@ public class SimulationFragment extends Fragment {
                     //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
                     //mymagic01.makeBackdata();
                     BBandTest mybbtest = new BBandTest(code);
-                    mybbtest.makeBackdata();
+                    mybbtest.makeBackTestData();
                 }
             }
         });
@@ -454,9 +454,6 @@ public class SimulationFragment extends Fragment {
         for(int i=0;i<sim_stock.size();i++) {
 
             sim_bsmanager = new BSManager(context,sim_stock.get(i));
-            sim_bsmanager.buystock.reset(); // buydb를 비운다
-            sim_bsmanager.sellstock.reset(); // selldb를 비운다
-
             sim_bsmanager.loadExcel2BuySellList(); // 과거>현재 순의 시험데이터를 DB로 넣는다.
             lastbuy = sim_bsmanager.CurrentStockInfo(); // 과거>현재 순으로  정렬된 데이터.
             lastbuylist.add(lastbuy);

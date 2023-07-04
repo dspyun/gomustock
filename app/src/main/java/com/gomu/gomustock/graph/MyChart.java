@@ -86,6 +86,7 @@ public class MyChart {
         }
         // 라인을 차트와 연결시킨다
         lineChart.setData(lineData);
+        lineChart.setTouchEnabled(false);
 
         setxAaxis(lineChart, true, true);
         setyRAxis(lineChart, true, true);

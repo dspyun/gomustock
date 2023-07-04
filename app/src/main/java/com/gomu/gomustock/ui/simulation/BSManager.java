@@ -12,16 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BSManager {
-    SBuyStockDB buystock_db;
-    SSellStockDB sellstock_db;
+
     StockDic stockdic = new StockDic();
     MyExcel myexcel = new MyExcel();
-    SBuyStock buystock = new SBuyStock();
-    SSellStock sellstock = new SSellStock();
+
     List<BuyStockDBData> buystockList = new ArrayList<>();
     List<SellStockDBData> sellstockList = new ArrayList<>();
 
-    List<BuyStockDBData> buysell_mergelist = new ArrayList<BuyStockDBData>();
     String STOCK_CODE;
     Context context;
     int last_quantity=0, last_sum_price=0, last_ave_price=0;
@@ -29,17 +26,13 @@ public class BSManager {
         context = inputontext;
         STOCK_CODE = stock_code;
         if(!stock_code.equals("")) {
-            buystock_db = SBuyStockDB.getInstance(context);
-            sellstock_db = SSellStockDB.getInstance(context);
-            buystock.reset(); // buydb를 비운다
-            sellstock.reset(); // selldb를 비운다
+
             loadExcel2BuySellList(); // simul file을 db에 넣고
         }
     }
 
     public List<BuyStockDBData> getBuystockList()
     {
-        // 매수이력이기 때문에 차트에
         return buystockList;
     }
     public List<SellStockDBData> getSellstockList()
@@ -90,7 +83,8 @@ public class BSManager {
             price = Integer.parseInt(signallist.get(i).price);
             date = signallist.get(i).date;
             // 그날의 매수현황을 db에 저장한다(수량, 가격, 매수일을 저장한다.)
-            buystock.insert2db(name, code, buyquan, price, date);
+            //buystock.insert2db(name, code, buyquan, price, date);
+            buystock_insert2list(name, code, buyquan, price, date);
             // 누적 매수애을 계산한다. 매수 후 매수액을 원금애써 빼줌
             withdrawal = price * buyquan;
             remain_cache = remain_cache - withdrawal;
@@ -109,7 +103,8 @@ public class BSManager {
                 buy_total_quan = buy_total_quan - sellquan;
             }
             // 그날의 매도현황을 db에 저장한다(매도시그널이 없으면 0으로, 있으면 시그널만큼 저장됨(보유량이 있을 시에만))
-            sellstock.insert2db(name, code, sellquan, price, date);
+            //sellstock.insert2db(name, code, sellquan, price, date);
+            sellstock_insert2list(name, code, sellquan, price, date);
             // 매도 후 매도액을 원금에 추가해줌
             receipt = sellquan * price;
             remain_cache = remain_cache + receipt;
@@ -127,10 +122,8 @@ public class BSManager {
         // buystockList는 매수시스널 테이블과 동일해야 한고
         // 과매도 수량은 모두 0으로 처리되어야 한다.
         // 아래 리스트에서 엑셀파일의 데이터와 비교해야 검증할 수 있다.
-        buystockList = buystock_db.buystockDao().getAll();
-        //buystockList = buystock_db.buystockDao().getAll();
-        sellstockList = sellstock_db.sellstockDao().getAll();
-        //sellstockList = sellstock_db.sellstockDao().getAll();
+        // buystockList
+        // sellstockList
     }
 
     public BuyStockDBData CurrentStockInfo() {
@@ -159,5 +152,24 @@ public class BSManager {
         lastinfo.stock_name = stockdic.getStockname(STOCK_CODE);
 
         return lastinfo;
+    }
+
+    public void buystock_insert2list(String name, String code, int quan, int price, String date) {
+        BuyStockDBData lastinfo = new BuyStockDBData();
+        lastinfo.buy_price = price;
+        lastinfo.buy_quantity = quan;
+        lastinfo.stock_code = code;
+        lastinfo.stock_name = name;
+        lastinfo.buy_date = date;
+        buystockList.add(lastinfo);
+    }
+    public void sellstock_insert2list(String name, String code, int quan, int price, String date) {
+        SellStockDBData lastinfo = new SellStockDBData();
+        lastinfo.sell_price = price;
+        lastinfo.sell_quantity = quan;
+        lastinfo.stock_code = code;
+        lastinfo.stock_name = name;
+        lastinfo.sell_date = date;
+        sellstockList.add(lastinfo);
     }
 }

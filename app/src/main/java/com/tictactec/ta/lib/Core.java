@@ -2217,6 +2217,152 @@ public class Core {
             stddev.add(input[i]) ;
         }
     }
+
+    public RetCode bbands_oneday( int startIdx,
+                           int endIdx,
+                           double inReal[],
+                           int optInTimePeriod,
+                           double optInNbDevUp,
+                           double optInNbDevDn,
+                           MAType optInMAType,
+                           MInteger outBegIdx,
+                           MInteger outNBElement,
+                           double outRealUpperBand[],
+                           double outRealMiddleBand[],
+                           double outRealLowerBand[] )
+    {
+        RetCode retCode;
+        int i;
+        double tempReal, tempReal2;
+        double []tempBuffer1 ;
+        double []tempBuffer2 ;
+        if( startIdx < 0 )
+            return RetCode.OutOfRangeStartIndex ;
+        if( (endIdx < 0) || (endIdx < startIdx))
+            return RetCode.OutOfRangeEndIndex ;
+        if( (int)optInTimePeriod == ( Integer.MIN_VALUE ) )
+            optInTimePeriod = 5;
+        else if( ((int)optInTimePeriod < 2) || ((int)optInTimePeriod > 100000) )
+            return RetCode.BadParam ;
+        if( optInNbDevUp == (-4e+37) )
+            optInNbDevUp = 2.000000e+0;
+        else if( (optInNbDevUp < -3.000000e+37) || (optInNbDevUp > 3.000000e+37) )
+            return RetCode.BadParam ;
+        if( optInNbDevDn == (-4e+37) )
+            optInNbDevDn = 2.000000e+0;
+        else if( (optInNbDevDn < -3.000000e+37) || (optInNbDevDn > 3.000000e+37) )
+            return RetCode.BadParam ;
+        if( inReal == outRealUpperBand )
+        {
+            tempBuffer1 = outRealMiddleBand;
+            tempBuffer2 = outRealLowerBand;
+        }
+        else if( inReal == outRealLowerBand )
+        {
+            tempBuffer1 = outRealMiddleBand;
+            tempBuffer2 = outRealUpperBand;
+        }
+        else if( inReal == outRealMiddleBand )
+        {
+            tempBuffer1 = outRealLowerBand;
+            tempBuffer2 = outRealUpperBand;
+        }
+        else
+        {
+            tempBuffer1 = outRealMiddleBand;
+            tempBuffer2 = outRealUpperBand;
+        }
+        if( (tempBuffer1 == inReal) || (tempBuffer2 == inReal) )
+            return RetCode.BadParam ;
+        retCode = movingAverage ( startIdx, endIdx, inReal,
+                optInTimePeriod, optInMAType,
+                outBegIdx, outNBElement, tempBuffer1 );
+        if( (retCode != RetCode.Success ) || ((int) outNBElement.value == 0) )
+        {
+            outNBElement.value = 0 ;
+            return retCode;
+        }
+        if( optInMAType == MAType.Sma )
+        {
+            TA_INT_stddev_using_precalc_ma ( inReal, tempBuffer1,
+                    (int) outBegIdx.value , (int) outNBElement.value ,
+                    optInTimePeriod, tempBuffer2 );
+            put_bband_stddev(tempBuffer2);
+            put_bband_stddev(tempBuffer2);
+        }
+        else
+        {
+            retCode = stdDev ( (int) outBegIdx.value , endIdx, inReal,
+                    optInTimePeriod, 1.0,
+                    outBegIdx, outNBElement, tempBuffer2 );
+            put_bband_stddev(tempBuffer2);
+            if( retCode != RetCode.Success )
+            {
+                outNBElement.value = 0 ;
+                return retCode;
+            }
+        }
+        if( tempBuffer1 != outRealMiddleBand )
+        {
+            System.arraycopy(tempBuffer1,0,outRealMiddleBand,0,outNBElement.value) ;
+        }
+        if( optInNbDevUp == optInNbDevDn )
+        {
+            if( optInNbDevUp == 1.0 )
+            {
+
+                i = outNBElement.value-1;
+                tempReal = tempBuffer2[i];
+                tempReal2 = outRealMiddleBand[i];
+                outRealUpperBand[i] = tempReal2 + tempReal;
+                outRealLowerBand[i] = tempReal2 - tempReal;
+
+            }
+            else
+            {
+                i = outNBElement.value-1;
+                tempReal = tempBuffer2[i] * optInNbDevUp;
+                tempReal2 = outRealMiddleBand[i];
+                outRealUpperBand[i] = tempReal2 + tempReal;
+                outRealLowerBand[i] = tempReal2 - tempReal;
+
+            }
+        }
+        else if( optInNbDevUp == 1.0 )
+        {
+            i = outNBElement.value-1;
+            tempReal = tempBuffer2[i];
+            tempReal2 = outRealMiddleBand[i];
+            outRealUpperBand[i] = tempReal2 + tempReal;
+            outRealLowerBand[i] = tempReal2 - (tempReal * optInNbDevDn);
+
+        }
+        else if( optInNbDevDn == 1.0 )
+        {
+
+            i = outNBElement.value-1;
+            tempReal = tempBuffer2[i];
+            tempReal2 = outRealMiddleBand[i];
+            outRealLowerBand[i] = tempReal2 - tempReal;
+            outRealUpperBand[i] = tempReal2 + (tempReal * optInNbDevUp);
+
+        }
+        else
+        {
+
+            i = outNBElement.value-1;
+            tempReal = tempBuffer2[i];
+            tempReal2 = outRealMiddleBand[i];
+            outRealUpperBand[i] = tempReal2 + (tempReal * optInNbDevUp);
+            outRealLowerBand[i] = tempReal2 - (tempReal * optInNbDevDn);
+
+        }
+
+        return RetCode.Success ;
+    }
+
+
+
    /* Generated */
    public int betaLookback( int optInTimePeriod )
    {

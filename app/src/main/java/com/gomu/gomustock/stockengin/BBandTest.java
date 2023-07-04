@@ -75,7 +75,7 @@ public class BBandTest {
         myexcel.write_testdata(stock_code,date,close, buy_score, sell_score);
     }
 
-    public void genQuantity2() {
+    public void ScoringNTestfile() {
 
         List<Float> bband_buyscore = new ArrayList<>();
         List<Float> rsi_buyscore = new ArrayList<>();
@@ -83,8 +83,8 @@ public class BBandTest {
         List<Integer> sell_score = new ArrayList<>();
 
         int days = 60;
-        bband_buyscore = bband_test_today(days);
-        rsi_buyscore = rsi_test_today(days);
+        bband_buyscore = bband_test_loop(days);
+        rsi_buyscore = rsi_test_loop(days);
         int size = bband_buyscore.size();
         for(int i = 0; i< size; i++) {
             buy_score.add(0);
@@ -113,7 +113,7 @@ public class BBandTest {
         myexcel.write_testdata(stock_code,date,close, buy_score, sell_score);
     }
 
-    public List<Float> bband_test_today(int days) {
+    public List<Float> bband_test_loop(int days) {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
@@ -132,28 +132,23 @@ public class BBandTest {
         double optInNbDevDn = 2; // 하한선 = 표준편차*2
         MAType optInMAType = Sma; // 단순이동평균
 
+        Core c = new Core();
         for(int l = 0;l<days;l++) {
             // CLOSEDATA는 과거>현재순으로 정렬된 상태
             for (int i = 0; i < days; i++) {
                 closePrice[i] = (double) CLOSEDATA.get(l+days * 2 + i);
             }
 
-            Core c = new Core();
-            RetCode retCode = c.bbands(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE,
+            RetCode retCode = c.bbands_oneday(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE,
                     optInNbDevUp, optInNbDevDn, optInMAType,
                     begin, length, outRealUpperBand, outRealMiddleBand, outRealLowerBand);
 
-            List<Float> bband_signal = new ArrayList<Float>();
             int start = begin.value;
             int end = (begin.value + length.value);
-            for (int i = 0; i < start; i++) {
-                bband_signal.add(0f);
-            }
             int today = end - start - 1;
             for (int i = 0; i < end - start; i++) {
                 // %percent_b는 밴드내에서 주가의 위치를 알려준다. 0~1 사이이지만 마이너스로 갈때도 있다
                 double percent_b = (closePrice[start + i] - outRealLowerBand[i]) / (outRealUpperBand[i] - outRealLowerBand[i]);
-                bband_signal.add((float) percent_b);
             }
             float today_perb = (float) ((closePrice[start + today] - outRealLowerBand[today]) / (outRealUpperBand[today] - outRealLowerBand[today]));
             todaylist.add(today_perb*100);
@@ -161,7 +156,8 @@ public class BBandTest {
         return todaylist;
     }
 
-    public List<Float> rsi_test_today(int days) {
+
+    public List<Float> rsi_test_loop(int days) {
         List<Float> todaylist = new ArrayList<>();
 
         // The total number of periods to generate data for.
@@ -237,9 +233,9 @@ public class BBandTest {
         return rsi_score.get(0); // rsi는 0~100 사이의 값을 가진다
     }
 
-    public void makeBackdata() {
+    public void makeBackTestData() {
         readData();
-        genQuantity2();
+        ScoringNTestfile();
         //genQuantity();
     }
 

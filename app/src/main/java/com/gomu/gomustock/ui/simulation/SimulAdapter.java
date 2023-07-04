@@ -173,8 +173,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
         MyChart simul_chart = new MyChart();
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
-        chartlist = new ArrayList<FormatChart>();
 
+        // price history를 읽어서 차트빌더에 넣는다.
         List<String> pricelist_str = new ArrayList<>();
         pricelist_str = myexcel.readhistory(stock_code+".xls","CLOSE", 60,false);
         pricelist_str = myexcel.arrangeRev_string(pricelist_str);
@@ -182,6 +182,9 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         simul_chart.buildChart_int(pricelist,stock_code,context.getColor(R.color.Red));
         int maxprice = Collections.max(pricelist);
 
+        // simulation 후 생성된 buy sell data를 읽어서
+        // buy sell list로 변환 후 price value에 맞게 scaling을 하고
+        // 차트 빌더에 집어 넣는다. 그리고 차트를 그린다.
         BSManager mybsmanager = new BSManager(context,stock_code );
         List<Integer> buyhistory = mybsmanager.getBuyQuantityList();
         int size = buyhistory.size();
@@ -191,17 +194,19 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             buyhistory.set(i,scale_data);
         }
         if(pricelist.size() > 0 && buyhistory.size() > 0) {
-            // 리스트에 첫번째로 추가되면 buyhistory가 없다.
+            // 리스트에 stock이 추가되면 buyhistory가 없다.
             // 이 때는 그냥 넘어간다
             chartlist = simul_chart.buildChart_int(buyhistory, stock_code, context.getColor(R.color.Blue));
             simul_chart.multi_chart(simulChart, chartlist, "표준화차트", false);
         }
+
+        // bsmanager에서 last buy stock info를 읽어와서 돈계산 후, 텍스트로 보여준다.
         BuyStockDBData currentstockinfo = new BuyStockDBData();
         currentstockinfo =mybsmanager.CurrentStockInfo();
         PortfolioData data= estim_buystock(currentstockinfo, now_price);
 
         String stock_info = data.stock_name + " " + Integer.toString(data.hold_quantity)+"주"
-                + " " + "현재가 " +Integer.toString(data.cur_price);
+                + "\n" + "현재가 " +Integer.toString(data.cur_price);
         String simul_info = "평가액 " + Integer.toString(data.estim_price) + "\n"+
                 "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
                 "매수액 " + Integer.toString(data.buy_price) + "\n" +
@@ -288,8 +293,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 onebuy.stock_code = stock_code;
                 buyList.add(onebuy);
 
-                SBuyStock buystock = new SBuyStock();
-                buystock.insert2db(onebuy);
+                //SBuyStock buystock = new SBuyStock();
+                //buystock.insert2db(onebuy);
 
                 notifyDataSetChanged();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
