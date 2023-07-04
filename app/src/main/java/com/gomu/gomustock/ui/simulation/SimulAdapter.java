@@ -168,19 +168,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
         int finger_position = position;//holder.getAdapterPosition();
         BuyStockDBData buydata = buyList.get(position);
-
         String stock_code = buydata.stock_code;
         int now_price = buyList.get(position).cur_price;
-        PortfolioData data = estim_buystock(buydata, now_price);
-
-        String stock_info = data.stock_name + " " + Integer.toString(data.hold_quantity)+"주"
-                + " " + "현재가 " +Integer.toString(data.cur_price);
-        String simul_info = "평가액 " + Integer.toString(data.estim_price) + "\n"+
-            "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
-                "매수액 " + Integer.toString(data.buy_price) + "\n" +
-                "평단가 " + Integer.toString(data.estim_profit);
-        holder.tvStockinfo.setText(stock_info);
-        holder.tvSimulinfo.setText(simul_info);
 
         MyChart simul_chart = new MyChart();
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
@@ -197,9 +186,9 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         List<Integer> buyhistory = mybsmanager.getBuyQuantityList();
         int size = buyhistory.size();
         for(int i =0;i<size;i++) {
-            int temp = buyhistory.get(i);
-            temp = (int)(maxprice + maxprice*0.01*temp);
-            buyhistory.set(i,temp);
+            int scale_data = buyhistory.get(i);
+            scale_data = (int)(maxprice + maxprice*0.01*scale_data);
+            buyhistory.set(i,scale_data);
         }
         if(pricelist.size() > 0 && buyhistory.size() > 0) {
             // 리스트에 첫번째로 추가되면 buyhistory가 없다.
@@ -207,7 +196,18 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             chartlist = simul_chart.buildChart_int(buyhistory, stock_code, context.getColor(R.color.Blue));
             simul_chart.multi_chart(simulChart, chartlist, "표준화차트", false);
         }
+        BuyStockDBData currentstockinfo = new BuyStockDBData();
+        currentstockinfo =mybsmanager.CurrentStockInfo();
+        PortfolioData data= estim_buystock(currentstockinfo, now_price);
 
+        String stock_info = data.stock_name + " " + Integer.toString(data.hold_quantity)+"주"
+                + " " + "현재가 " +Integer.toString(data.cur_price);
+        String simul_info = "평가액 " + Integer.toString(data.estim_price) + "\n"+
+                "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
+                "매수액 " + Integer.toString(data.buy_price) + "\n" +
+                "평단가 " + Integer.toString(data.estim_profit);
+        holder.tvStockinfo.setText(stock_info);
+        holder.tvSimulinfo.setText(simul_info);
 
         holder.onBind(data, position, selectedItems);
         // 일단 default로 + 아이콘을 뿌려준다.

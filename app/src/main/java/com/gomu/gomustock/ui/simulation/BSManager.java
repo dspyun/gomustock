@@ -21,19 +21,20 @@ public class BSManager {
     List<BuyStockDBData> buystockList = new ArrayList<>();
     List<SellStockDBData> sellstockList = new ArrayList<>();
 
-    List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
+    List<BuyStockDBData> buysell_mergelist = new ArrayList<BuyStockDBData>();
     String STOCK_CODE;
     Context context;
-
+    int last_quantity=0, last_sum_price=0, last_ave_price=0;
     public BSManager(Context inputontext, String stock_code) {
         context = inputontext;
         STOCK_CODE = stock_code;
-        buystock_db = SBuyStockDB.getInstance(context);
-        sellstock_db = SSellStockDB.getInstance(context);
-        buystock.reset(); // buydb를 비운다
-        sellstock.reset(); // selldb를 비운다
-        loadExcel2DB(); // simul file을 db에 넣고
-        makeBuySelllist(); //
+        if(!stock_code.equals("")) {
+            buystock_db = SBuyStockDB.getInstance(context);
+            sellstock_db = SSellStockDB.getInstance(context);
+            buystock.reset(); // buydb를 비운다
+            sellstock.reset(); // selldb를 비운다
+            loadExcel2BuySellList(); // simul file을 db에 넣고
+        }
     }
 
     public List<BuyStockDBData> getBuystockList()
@@ -44,10 +45,6 @@ public class BSManager {
     public List<SellStockDBData> getSellstockList()
     {
         return sellstockList;
-    }
-    public List<BuyStockDBData> getLastBuystockList()
-    {
-        return lastbuylist;
     }
     public List<Integer> getBuyQuantityList() {
         List<Integer> quantity = new ArrayList<>();
@@ -66,8 +63,7 @@ public class BSManager {
         return quantity;
     }
 
-
-    public void loadExcel2DB() {
+    public void loadExcel2BuySellList() {
 
         // 엑셀파일에서 시험용 매수주식 시그널을 읽는다
         // 이 시그널은 60개로 구성된 것이 아니고 매수,,매도 횟수만큼 데이터가 있다
@@ -137,111 +133,31 @@ public class BSManager {
         //sellstockList = sellstock_db.sellstockDao().getAll();
     }
 
-
-    // buylist를 읽어서 누정매수량, 누정매수액으로 구성된 buylist를 만들어준다. > 차트 그릴 때 써야 한다.
-    public List<BuyStockDBData> make_buystocklist_accumulated() {
-        BuyStockDBData buystock_accumulated = new BuyStockDBData();;
-        List<BuyStockDBData> buystocklist_accumulated = new ArrayList<>();
-
-        // 엑셀2DB를 종료하고 DB를 읽어서 60일간의 buystockList를 채워놓았다.
-        // buystockList는 과거>핸재 순으로 데이터가 정렬되어 있다.
-        int size =  buystockList.size();
-
-        int quantity=0, total_buy_price=0;
-        for(int j=0; j< size;j++ ) {
-            quantity = quantity + buystockList.get(j).buy_quantity;
-            total_buy_price = total_buy_price + buystockList.get(j).buy_quantity * buystockList.get(j).buy_price;
-
-            buystock_accumulated.buy_quantity = quantity;
-            buystock_accumulated.stock_name = buystockList.get(j).stock_name;
-            buystock_accumulated.stock_code = buystockList.get(j).stock_code;
-            if(quantity ==0) buystock_accumulated.buy_price = 0;
-            else buystock_accumulated.buy_price = total_buy_price/quantity;
-            buystocklist_accumulated.add(buystock_accumulated);
+    public BuyStockDBData CurrentStockInfo() {
+        int total_buy_quantity=0, total_buy_price=0;
+        int size = buystockList.size();
+        for(int i =0;i<size;i++) {
+            total_buy_quantity = total_buy_quantity + buystockList.get(i).buy_quantity;
+            total_buy_price = total_buy_price + buystockList.get(i).buy_price * buystockList.get(i).buy_quantity;
+        }
+        int total_sell_quantity=0, total_sell_price=0;
+        size = sellstockList.size();
+        for(int i =0;i<size;i++) {
+            total_sell_quantity = total_sell_quantity + sellstockList.get(i).sell_quantity;
+            total_sell_price = total_sell_price + sellstockList.get(i).sell_price * sellstockList.get(i).sell_quantity;
         }
 
-        return buystocklist_accumulated;
-    }
+        last_quantity = total_buy_quantity - total_sell_quantity;
+        last_sum_price = total_buy_price - total_sell_price;
+        last_ave_price = last_sum_price/last_quantity;
 
-    public List<SellStockDBData> make_sellstocklist_accumulated() {
-        SellStockDBData sellstock_accumulated = new SellStockDBData();;
-        List<SellStockDBData> sellstocklist_accumulated = new ArrayList<>();
+        StockDic stockdic = new StockDic();
+        BuyStockDBData lastinfo = new BuyStockDBData();
+        lastinfo.buy_price = last_ave_price;
+        lastinfo.buy_quantity = last_quantity;
+        lastinfo.stock_code = STOCK_CODE;
+        lastinfo.stock_name = stockdic.getStockname(STOCK_CODE);
 
-        // 엑셀2DB를 종료하고 DB를 읽어서 60일간의 buystockList를 채워놓았다.
-        // buystockList는 과거>핸재 순으로 데이터가 정렬되어 있다.
-        int size =  sellstockList.size();
-
-        int quantity=0, total_sell_price=0;
-        for(int j=0; j< size;j++ ) {
-            quantity = quantity + sellstockList.get(j).sell_quantity;
-            total_sell_price = total_sell_price + sellstockList.get(j).sell_quantity * sellstockList.get(j).sell_price;
-
-            sellstock_accumulated.sell_quantity = quantity;
-            sellstock_accumulated.stock_name = buystockList.get(j).stock_name;
-            sellstock_accumulated.stock_code = buystockList.get(j).stock_code;
-            if(quantity ==0) sellstock_accumulated.sell_price = 0;
-            else sellstock_accumulated.sell_price = total_sell_price/quantity;
-            sellstocklist_accumulated.add(sellstock_accumulated);
-        }
-
-        return sellstocklist_accumulated;
-    }
-
-
-    public List<BuyStockDBData> makeBuySelllist() {
-
-
-
-        // 누적매수량, 누정매수액이 저장된 리스트를 읽어온다.
-        // 과거>핸재 순으로 저장되어 있다.
-        List<BuyStockDBData> buylist = new ArrayList<BuyStockDBData>();
-        buylist = make_buystocklist_accumulated();
-
-        // 누정매도량, 누정매도액이 저장된 리스트를 읽어온다
-        // 과거>현재 순으로 저정되어 있다.
-        List<SellStockDBData> selllist = new ArrayList<SellStockDBData>();
-        selllist = make_sellstocklist_accumulated();
-
-        int temp=0;
-        int buyprice=0, buyquantity=0, sellprice=0, sellquantity=0, diff_quantity=0;
-        BuyStockDBData arraybuff;
-
-        int size = buylist.size();
-        int size1 = selllist.size();
-        for(int i=0; i< size; i++ ) {
-
-            String buystock = buylist.get(i).stock_name;
-            buyquantity = buylist.get(i).buy_quantity;
-            buyprice = buylist.get(i).buy_price;
-            for(int j=0;j<size1;j++ ) {
-                arraybuff = new BuyStockDBData();
-                String sellstock = selllist.get(j).stock_name;
-                sellquantity = selllist.get(j).sell_quantity;
-                sellprice = selllist.get(j).sell_price;
-
-                if (buystock.equals(sellstock)) {
-                    // 잔량 및 평단가(총매수액/수량)
-                    diff_quantity = buyquantity - sellquantity;
-                    // buyprice는 평균단가를 구해야 한다
-                    // 평균단가 = (매수총액-매도총액)/잔량
-                    if (diff_quantity <= 0) {
-                        buyprice = 0;
-                        buyquantity = 0;
-                    } else {
-                        buyprice = (buyprice * buyquantity - sellprice * sellquantity) / diff_quantity;
-                        buyquantity = diff_quantity;
-                    }
-                    arraybuff.setStockNo(buylist.get(i).stock_code);
-                    arraybuff.setName(buystock);
-                    arraybuff.setPrice(buyprice);
-                    arraybuff.setQuantity(buyquantity);
-                    //buylist.set(i, arraybuff);
-                    lastbuylist.add(arraybuff);
-                }
-            }
-        }
-        // 최종 남은 매수종목 및 가격, 수량이 현재 포트폴리오 임
-        // 과거>현재 순으로 저장되어 있다
-        return lastbuylist;
+        return lastinfo;
     }
 }

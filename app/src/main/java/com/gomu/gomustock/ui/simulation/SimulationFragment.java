@@ -82,7 +82,7 @@ public class SimulationFragment extends Fragment {
     private List<Integer> chart1_data1 = new ArrayList<Integer>();
     private List<Integer> chart1_data2 = new ArrayList<Integer>();
 
-    private SBSManager sim_bsmanager;
+    private BSManager sim_bsmanager;
 
     private String open_api_data="empty";
     private String yesterday_price="empty";
@@ -133,21 +133,18 @@ public class SimulationFragment extends Fragment {
     }
     public void SimulationView(View view) {
 
-
         initialize_color();
         sim_stock = myexcel.readSimullist();
         if(sim_stock.size()==0) {
             no_simulation();
         } else {
             if(myexcel.file_check(sim_stock.get(0)+"_testset.xls")) {
-                first_simulation();
-                //no_simulation();
+                simulation();
             }
             else {
                 sim_stock.clear();
                 no_simulation();
             }
-            //no_simulation();
         }
 
         simselect_bt.setOnClickListener(new View.OnClickListener()
@@ -244,7 +241,6 @@ public class SimulationFragment extends Fragment {
             }
         });
     }
-
 
     public void showDialog_buy(){
 
@@ -452,27 +448,24 @@ public class SimulationFragment extends Fragment {
         List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
         List<MyBalance> balancelist = new ArrayList<>();
 
-        simul_adapter.reload_curprice();
-
         // manager가 data를 생성해내고
         // balance가 data를 계산한다
         // 계산된 data는 차트가 보여준다
         for(int i=0;i<sim_stock.size();i++) {
 
-            sim_bsmanager = new SBSManager();
+            sim_bsmanager = new BSManager(context,sim_stock.get(i));
             sim_bsmanager.buystock.reset(); // buydb를 비운다
             sim_bsmanager.sellstock.reset(); // selldb를 비운다
 
-            sim_bsmanager.loadExcel2DB(sim_stock.get(i)); // 과거>현재 순의 시험데이터를 DB로 넣는다.
-            sim_bsmanager.makeLastBuyList();
-            lastbuy = sim_bsmanager.getLastBuy(); // 과거>현재 순으로  정렬된 데이터.
+            sim_bsmanager.loadExcel2BuySellList(); // 과거>현재 순의 시험데이터를 DB로 넣는다.
+            lastbuy = sim_bsmanager.CurrentStockInfo(); // 과거>현재 순으로  정렬된 데이터.
             lastbuylist.add(lastbuy);
             // 포트폴리오 정보와 가격 히스토리를 가지고
             // 수익변화차트 데이터를 만든다
 
             String stock_code = lastbuy.stock_code;
             MyBalance onebalance = new MyBalance(stock_code);
-            onebalance.prepareDataset(sim_bsmanager.getBuyList(stock_code), sim_bsmanager.getSellList(stock_code));
+            onebalance.prepareDataset(sim_bsmanager.getBuystockList(), sim_bsmanager.getSellstockList());
             onebalance.makeBalancedata();
             balancelist.add(onebalance);
         }
@@ -503,7 +496,7 @@ public class SimulationFragment extends Fragment {
         // 최종 보유주식과 매매 히스토리를 만든다.
         SCache mycache = new SCache();
         mycache.initialize();
-        sim_bsmanager = new SBSManager(getActivity());
+        sim_bsmanager = new BSManager(context,"");
         //sim_bsmanager.makeLastBuyList();
         //lastbuy = sim_bsmanager.getLastBuy();
 
@@ -538,57 +531,7 @@ public class SimulationFragment extends Fragment {
             //update_thread.start();
         }
     }
-    public void first_simulation() {
-        SCache mycache = new SCache();
-        mycache.initialize();
-        BuyStockDBData lastbuy = new BuyStockDBData();
-        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
-        List<MyBalance> balancelist = new ArrayList<>();
 
-        //simul_adapter.reload_curprice();
-
-        // manager가 data를 생성해내고
-        // balance가 data를 계산한다
-        // 계산된 data는 차트가 보여준다
-        for(int i=0;i<sim_stock.size();i++) {
-
-            sim_bsmanager = new SBSManager();
-            sim_bsmanager.buystock.reset(); // buydb를 비운다
-            sim_bsmanager.sellstock.reset(); // selldb를 비운다
-
-            sim_bsmanager.loadExcel2DB(sim_stock.get(i)); // 과거>현재 순의 시험데이터를 DB로 넣는다.
-            sim_bsmanager.makeLastBuyList();
-            lastbuy = sim_bsmanager.getLastBuy(); // 과거>현재 순으로  정렬된 데이터.
-            lastbuylist.add(lastbuy);
-            // 포트폴리오 정보와 가격 히스토리를 가지고
-            // 수익변화차트 데이터를 만든다
-
-            String stock_code = lastbuy.stock_code;
-            MyBalance onebalance = new MyBalance(stock_code);
-            onebalance.prepareDataset(sim_bsmanager.getBuyList(stock_code), sim_bsmanager.getSellList(stock_code));
-            onebalance.makeBalancedata();
-            balancelist.add(onebalance);
-        }
-        cacheChart(balancelist);
-        stockChart(balancelist);
-
-        // 계좌 정보 보여주기
-        top_board(view);
-
-        // recycler view 준비
-        recyclerView = view.findViewById(R.id.sim_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
-        recyclerView.setAdapter(simul_adapter);
-
-        if(stop_flag!= true) {
-            stop_flag=true;
-            DelaySecond =1;
-            //update_thread.start();
-        }
-
-    }
     public void cacheChart(List<MyBalance> balancelist) {
 
         int size = balancelist.size();
