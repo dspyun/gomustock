@@ -16,15 +16,37 @@ public class TAlib {
 
 
     public List<Float> bband_signal = new ArrayList<Float>();
-
+    Double[] CLOSEPRICE = new Double[240];
+    List<String> CLOSE_STR = new ArrayList<>();
     public TAlib() {
 
     }
+    public TAlib(String stock_code, int days) {
+        CLOSEPRICE = readClosePrice(stock_code, days);
+    }
 
-    public List<List<Float>> macd_test(String stock_code, int total_period ) {
+    public Double[] readClosePrice(String stock_code, int days) {
+        Double[] price = new Double[240];
+        MyExcel myexcel = new MyExcel();
+        CLOSE_STR = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
+        CLOSE_STR = myexcel.arrangeRev_string(CLOSE_STR);
+        List<Double> closedata = myexcel.string2double(CLOSE_STR,1);
+        for (int i =  0; i < price.length; i++) {
+            price[i] = (double) closedata.get(i);
+        }
+        return price;
+    }
+    public boolean checkPriceBufferEmpty(int days) {
+        boolean flag;
+        if(days>CLOSE_STR.size()) flag = true;
+        else flag = false;
+        return flag;
+    }
+
+    public List<List<Float>> macd_test(String stock_code, int days ) {
 
         List<List<Float>> result = new ArrayList<List<Float>>();
-        final int TOTAL_PERIODS = total_period;
+        final int TOTAL_PERIODS = days;
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] outMACD = new double[TOTAL_PERIODS];
@@ -43,12 +65,13 @@ public class TAlib {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
         close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
+
 
         Core c = new Core();
         RetCode retCode = c.macd(0, closePrice.length - 1,closePrice,
@@ -92,11 +115,11 @@ public class TAlib {
         return result;
     }
 
-    public List<List<Float>> rsi_test(String stock_code, int total_period) {
+    public List<List<Float>> rsi_test(String stock_code, int days) {
         List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = total_period;
+        final int TOTAL_PERIODS = days;
 
         // The number of periods to average together.
         final int optInTimePeriod = 5;
@@ -108,12 +131,13 @@ public class TAlib {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
         close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
+
         Core c = new Core();
         RetCode retCode = c.rsi(0, closePrice.length - 1, closePrice, optInTimePeriod, begin, length, outReal);
 
@@ -144,12 +168,12 @@ public class TAlib {
 
 
 
-    public List<List<Float>> bbands_test(String stock_code, int total_period) {
+    public List<List<Float>> bbands_test(String stock_code, int days) {
 
         List<List<Float>> threechart = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = total_period;
+        final int TOTAL_PERIODS = days;
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -166,7 +190,7 @@ public class TAlib {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
         close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
@@ -261,11 +285,11 @@ public class TAlib {
         return bband_signal;
     }
 
-    public List<Float> adx_test(String stock_code, int total_period) {
+    public List<Float> adx_test(String stock_code, int days) {
 
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = total_period;
+        final int TOTAL_PERIODS = days;
 
 
         double[] closePrice = new double[TOTAL_PERIODS];
@@ -282,21 +306,21 @@ public class TAlib {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
         close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
         List<String> high_str = new ArrayList<>();
-        high_str = myexcel.oa_readItem(stock_code+".xls","HIGH",false);
+        close_str = myexcel.readhistory(stock_code+".xls","HIGH",days,false);
         high_str = myexcel.arrangeRev_string(high_str);
         List<Double> highdata = myexcel.string2double(high_str,1);
         for (int i =  0; i < highPrice.length; i++) {
             highPrice[i] = (double) highdata.get(i);
         }
         List<String> low_str = new ArrayList<>();
-        low_str = myexcel.oa_readItem(stock_code+".xls","LOW",false);
+        close_str = myexcel.readhistory(stock_code+".xls","LOW",days,false);
         low_str = myexcel.arrangeRev_string(low_str);
         List<Double> lowdata = myexcel.string2double(low_str,1);
         for (int i =  0; i < lowPrice.length; i++) {
@@ -364,10 +388,10 @@ public class TAlib {
         return resultlist;
     }
 
-    public List<List<Float>> stoch_test(String stock_code, int total_period ) {
+    public List<List<Float>> stoch_test(String stock_code, int days ) {
 
         // The total number of periods to generate data for.
-        int TOTAL_PERIODS = total_period;
+        int TOTAL_PERIODS = days;
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
@@ -388,21 +412,21 @@ public class TAlib {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
         close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
             closePrice[i] = (double) closedata.get(i);
         }
         List<String> high_str = new ArrayList<>();
-        high_str = myexcel.oa_readItem(stock_code+".xls","HIGH",false);
+        high_str = myexcel.readhistory(stock_code+".xls","HIGH",days,false);
         high_str = myexcel.arrangeRev_string(high_str);
         List<Double> highdata = myexcel.string2double(high_str,1);
         for (int i =  0; i < highPrice.length; i++) {
             highPrice[i] = (double) highdata.get(i);
         }
         List<String> low_str = new ArrayList<>();
-        low_str = myexcel.oa_readItem(stock_code+".xls","LOW",false);
+        low_str = myexcel.readhistory(stock_code+".xls","LOW",days,false);
         low_str = myexcel.arrangeRev_string(low_str);
         List<Double> lowdata = myexcel.string2double(low_str,1);
         for (int i =  0; i < lowPrice.length; i++) {
@@ -446,12 +470,12 @@ public class TAlib {
     }
 
 
-    public List<Float> mom_test(String stock_code, int total_period ) {
+    public List<Float> mom_test(String stock_code, int days ) {
 
         List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = total_period;
+        final int TOTAL_PERIODS = days;
 
         // The number of periods to average together.
         final int optInTimePeriod = 10;
@@ -463,7 +487,7 @@ public class TAlib {
 
         MyExcel myexcel = new MyExcel();
         List<String> close_str = new ArrayList<>();
-        close_str = myexcel.oa_readItem(stock_code+".xls","CLOSE",false);
+        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
         close_str = myexcel.arrangeRev_string(close_str);
         List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {

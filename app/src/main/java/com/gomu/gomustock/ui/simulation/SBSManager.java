@@ -16,6 +16,7 @@ public class SBSManager {
     SBuyStockDB buystock_db;
     SSellStockDB sellstock_db;
 
+
     List<BuyStockDBData> buystockList = new ArrayList<>();
     List<SellStockDBData> sellstockList = new ArrayList<>();
     Activity context;
@@ -333,7 +334,6 @@ public class SBSManager {
             }
             // 그날의 매도현황을 db에 저장한다(매도시그널이 없으면 0으로, 있으면 시그널만큼 저장됨(보유량이 있을 시에만))
             sellstock.insert2db(name, code, sellquan, price, date);
-
             // 매도 후 매도액을 원금에 추가해줌
             receipt = sellquan * price;
             remain_cache = remain_cache + receipt;

@@ -155,13 +155,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
         standard_chart = new MyChart();
         chartlist = new ArrayList<FormatChart>();
-        pricelist = myexcel.oa_readItem(stock_code+".xls","CLOSE", false);
+        pricelist = myexcel.readhistory(stock_code+".xls","CLOSE", 60,false);
         pricelist = myexcel.arrangeRev_string(pricelist);
         chart_data1 = myexcel.oa_standardization(pricelist);
         standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
 
         if(chart_data2.size() == 0) {
-            pricelist = myexcel.oa_readItem("069500" + ".xls", "CLOSE", false);
+            pricelist = myexcel.readhistory("069500" + ".xls", "CLOSE", 60,false);
             pricelist = myexcel.arrangeRev_string(pricelist);
             chart_data2 = myexcel.oa_standardization(pricelist);
         }

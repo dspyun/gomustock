@@ -325,6 +325,52 @@ public class MyExcel extends MyStat{
     }
 
 
+    public List<String> readhistory(String filename, String tag, int days, boolean header) {
+
+        // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
+        int column = getTagColumn(tag);
+        InputStream is=null;
+        Workbook wb=null;
+        int maxcol;
+
+        String PathFile = STOCKDIR+filename;;
+        List<String> pricebuffer = new ArrayList<String>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int start = 0;
+                    if(header != TRUE) start = 1;
+                    // -1 : data를 max로 읽으려면 헤더때문에 -1을 해줘야 한다
+                    maxcol = sheet.getColumn(column).length-1;
+                    // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
+                    if(days >= maxcol || days <= -1) days = maxcol;
+                    for(int i=start;i<days+start;i++) {
+                        // formatOA class의 구조로 저장된다
+                        // 종가는 6번째 컬럼의 값
+                        pricebuffer.add(sheet.getCell(column, i).getContents());
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        } finally {
+            //wb.close();
+            //is.close();
+        }
+
+        return pricebuffer;
+    }
+
+
     public List<List<String>> readStockDic() {
         List<String> STOCK_NO = new ArrayList<String>();
         List<String> STOCK_NAME = new ArrayList<String>();

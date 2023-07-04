@@ -139,7 +139,14 @@ public class SimulationFragment extends Fragment {
         if(sim_stock.size()==0) {
             no_simulation();
         } else {
-            first_simulation();
+            if(myexcel.file_check(sim_stock.get(0)+"_testset.xls")) {
+                first_simulation();
+                //no_simulation();
+            }
+            else {
+                sim_stock.clear();
+                no_simulation();
+            }
             //no_simulation();
         }
 
@@ -159,7 +166,7 @@ public class SimulationFragment extends Fragment {
             {
                 sim_stock = myexcel.readSimullist();
                 // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
-                dl_NaverPriceByday(sim_stock, 60);
+                dl_NaverPriceByday(sim_stock, 240);
             }
         });
 
@@ -256,6 +263,11 @@ public class SimulationFragment extends Fragment {
                 if(stock_no.equals("")) {
                     Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
                     return;
+                }
+
+                if(!myexcel.file_check(stock_no+".xls")) {
+                    sim_stock.add(stock_no);
+                    dl_NaverPriceByday(sim_stock, 240);
                 }
 
                 // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
@@ -515,7 +527,7 @@ public class SimulationFragment extends Fragment {
             // recycler view 준비
             recyclerView = view.findViewById(R.id.sim_recycler_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            lastbuylist.add(sim_bsmanager.getPortfolio_dummy());
+            //lastbuylist.add(sim_bsmanager.getPortfolio_dummy());
             simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
             recyclerView.setAdapter(simul_adapter);
         }

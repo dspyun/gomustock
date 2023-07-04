@@ -136,7 +136,7 @@ public class MyChart {
         linechart.invalidate(); // 차트 업데이트
 
     }
-/*
+
     public void single_int(LineChart linechart, List<Integer> chartdata, String description, boolean GRID_SHOW) {
         //LineChart lineChart = linechart;
         ArrayList<Entry> entrychart = new ArrayList<>();
@@ -153,9 +153,13 @@ public class MyChart {
             if(chartdata.get(i)<0) color.add(ContextCompat.getColor(context,R.color.CharBlue));
             else color.add(ContextCompat.getColor(context,R.color.Salmon));
         }
-        lineDataSet.setColors(color);
-
+        linedata.addDataSet(setLinedata(entrychart,Color.CYAN,description));
+        lineDataSet.setColors(R.color.Red);
+        lineDataSet.setDrawValues(false);
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setDrawCircles(false);
         lineDataSet.setValueTextColor(Color.WHITE);
+
         linedata.addDataSet(lineDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
 
         linechart.setData(linedata); // 차트에 위의 DataSet 을 넣는다.
@@ -168,7 +172,7 @@ public class MyChart {
         setdescription(linechart,false,description,Color.YELLOW);
         linechart.invalidate(); // 차트 업데이트
     }
-*/
+
     public void barchart_float(BarChart barchart, List<Float> chartdata, String description, boolean GRID_SHOW) {
         //BarChart barChart = barchart;
         ArrayList<BarEntry> entrychart = new ArrayList<>();

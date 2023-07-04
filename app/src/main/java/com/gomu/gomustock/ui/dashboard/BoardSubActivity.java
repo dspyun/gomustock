@@ -47,8 +47,6 @@ public class BoardSubActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.board_sub_activity);
 
-
-
         Intent intent = getIntent(); /*데이터 수신*/
         suboption = (BoardSubOption) intent.getSerializableExtra("class"); /*클래스*/
 
@@ -83,14 +81,13 @@ public class BoardSubActivity extends AppCompatActivity {
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(pergragh);
 
-
             MyExcel myexcel = new MyExcel();
 
             // bband 결과값에는 price chart data가 포함되지 않았다
             // 아래처럼 별도로 하나 만들어서 추가해준다.
             List<Float> price_data = new ArrayList<Float>();
             List<String> temp = new ArrayList<>();
-            temp = myexcel.oa_readItem(stock_code + ".xls","CLOSE", false);
+            temp = myexcel.readhistory(stock_code + ".xls","CLOSE", 60,false);
             temp = myexcel.arrangeRev_string(temp);
             price_data = myexcel.string2float(temp, 1);
 

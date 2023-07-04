@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Looper;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -14,7 +15,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -23,13 +23,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
@@ -49,7 +54,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     MyExcel myexcel = new MyExcel();
     Button buybt, sellbt;
     TableLayout simul_buysell_item;
-
+    LineChart simulChart;
     StockDic stockdic = new StockDic();
     public SimulAdapter(Activity context, List<BuyStockDBData> dataList)
     {
@@ -164,51 +169,49 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         int finger_position = position;//holder.getAdapterPosition();
         BuyStockDBData buydata = buyList.get(position);
 
+        String stock_code = buydata.stock_code;
         int now_price = buyList.get(position).cur_price;
         PortfolioData data = estim_buystock(buydata, now_price);
 
-        holder.tv_name.setText(data.stock_name);
-        holder.tv_estim_profit.setText(Integer.toString(data.estim_profit));
-        holder.tv_estim_price.setText(Integer.toString(data.estim_price));
-        holder.tv_cur_price.setText(Integer.toString(data.cur_price));
-        holder.tv_hold_quantity.setText(Integer.toString(data.hold_quantity));
-        holder.tv_profit_rate.setText(String.format("%.2f",data.profit_rate) + "%");
-        holder.tv_buy_price.setText(Integer.toString(data.buy_price));
-        holder.tv_ave_price.setText(Integer.toString(data.ave_price));
-        //holder.btexpand.setImageResource(R.drawable.circle_plus);
+        String stock_info = data.stock_name + " " + Integer.toString(data.hold_quantity)+"주"
+                + " " + "현재가 " +Integer.toString(data.cur_price);
+        String simul_info = "평가액 " + Integer.toString(data.estim_price) + "\n"+
+            "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
+                "매수액 " + Integer.toString(data.buy_price) + "\n" +
+                "평단가 " + Integer.toString(data.estim_profit);
+        holder.tvStockinfo.setText(stock_info);
+        holder.tvSimulinfo.setText(simul_info);
+
+        MyChart simul_chart = new MyChart();
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        chartlist = new ArrayList<FormatChart>();
+
+        List<String> pricelist_str = new ArrayList<>();
+        pricelist_str = myexcel.readhistory(stock_code+".xls","CLOSE", 60,false);
+        pricelist_str = myexcel.arrangeRev_string(pricelist_str);
+        List<Integer> pricelist = myexcel.string2int(pricelist_str, 1);
+        simul_chart.buildChart_int(pricelist,stock_code,context.getColor(R.color.Red));
+        int maxprice = Collections.max(pricelist);
+
+        BSManager mybsmanager = new BSManager(context,stock_code );
+        List<Integer> buyhistory = mybsmanager.getBuyQuantityList();
+        int size = buyhistory.size();
+        for(int i =0;i<size;i++) {
+            int temp = buyhistory.get(i);
+            temp = (int)(maxprice + maxprice*0.01*temp);
+            buyhistory.set(i,temp);
+        }
+        if(pricelist.size() > 0 && buyhistory.size() > 0) {
+            // 리스트에 첫번째로 추가되면 buyhistory가 없다.
+            // 이 때는 그냥 넘어간다
+            chartlist = simul_chart.buildChart_int(buyhistory, stock_code, context.getColor(R.color.Blue));
+            simul_chart.multi_chart(simulChart, chartlist, "표준화차트", false);
+        }
+
+
         holder.onBind(data, position, selectedItems);
         // 일단 default로 + 아이콘을 뿌려준다.
-/*
-        holder.btexpand.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Toast.makeText(context, "click expandable icon", Toast.LENGTH_SHORT).show();
-                //onViewHolderItemClickListener.onViewHolderItemClick();
-                if (selectedItems.get(position)) {
-                    // 펼쳐진 Item을 클릭 시
-                    selectedItems.delete(position);
-                    holder.btexpand.setImageResource(R.drawable.minus48jpx);
-                } else {
-                    // 직전의 클릭됐던 Item의 클릭상태를 지움
-                    selectedItems.delete(prePosition);
-                    // 클릭한 Item의 position을 저장
-                    selectedItems.put(position, true);
-                    holder.btexpand.setImageResource(R.drawable.plus48px);
-                }
 
-                // 해당 포지션의 변화를 알림
-                String prepos = Integer.toString(prePosition);
-                String fingerpos = Integer.toString(position);
-                Toast.makeText(context, "pre: "+prepos+" finger "+fingerpos, Toast.LENGTH_SHORT).show();
-                if (prePosition != -1) notifyItemChanged(prePosition);
-                notifyItemChanged(position);
-                // 클릭된 position 저장
-                //if (prePosition != -1) notifyItemRangeChanged(prePosition,1);
-                //notifyItemRangeChanged(position,1);
-                prePosition = position;
-            }
-        });
- */
         holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
             @Override
             public void onViewHolderItemClick() {
@@ -306,34 +309,25 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         OnViewHolderItemClickListener onViewHolderItemClickListener;
-        TextView tv_name,tv_estim_profit,tv_estim_price,tv_cur_price;
-        TextView tv_hold_quantity,tv_profit_rate,tv_buy_price,tv_ave_price;
-        ImageView btexpand,btpricerefresh;
-
-        //private View portfolio_list_view;
+        TextView tvStockinfo,tvSimulinfo;
         LinearLayout simul_list_item;
-        //TableLayout simul_buysell_item;
 
-        int finger_position;
+
         public ViewHolder(View view)
         {
             super(view);
 
             // recycler resource 초기화
-            tv_name = view.findViewById(R.id.sim_stock_name);
-            tv_estim_profit = view.findViewById(R.id.sim_estim_profit);
-            tv_estim_price = view.findViewById(R.id.sim_estim_price);
-            tv_cur_price = view.findViewById(R.id.sim_cur_price);
-            tv_hold_quantity = view.findViewById(R.id.sim_hold_quantity);
-            tv_profit_rate = view.findViewById(R.id.sim_profit_rate);
-            tv_buy_price = view.findViewById(R.id.sim_buy_price);
-            tv_ave_price = view.findViewById(R.id.sim_ave_price);
+            simulChart = (LineChart)view.findViewById(R.id.simul_chart);
+            //tvStockinfo = view.findViewById(R.id.textView2);
+            tvStockinfo = view.findViewById(R.id.stock_info);
+            tvSimulinfo = view.findViewById(R.id.simul_info);
+            tvStockinfo.setBackgroundColor(Color.DKGRAY);
 
             // simulation의 top board 초기화
             bt_tuja = view.findViewById(R.id.sim_asset_info);
             //portfolio_item = view.findViewById(R.id.portfolio_item);
 
-            btexpand = view.findViewById(R.id.sim_button_expanable);
             buybt = view.findViewById(R.id.sim_buy_stock);
             sellbt = view.findViewById(R.id.sim_sell_stock);
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener

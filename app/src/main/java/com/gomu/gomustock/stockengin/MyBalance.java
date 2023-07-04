@@ -53,7 +53,7 @@ public class MyBalance {
         MyDate mydate = new MyDate();
         List<String>  price = new ArrayList<String>();
        // 날짜는 파일에서 읽어와서 카피한다. 현재>과거 순으로 정열되어 있다.
-        inputDate.addAll(myexcel.oa_readItem(stock_code+".xls", "DATE", false));
+        inputDate.addAll(myexcel.readhistory(stock_code+".xls", "DATE", 60,false));
         if(inputDate.size() <= 0) balanace_valid = -1;
 
         // buyquantity와 sellquantity 리스트의 모든 element에
@@ -65,7 +65,7 @@ public class MyBalance {
 
 
         // 엑셀에서 읽은 값은 모두 string이다. integer로 바꾼 다음 list에 저장한다
-        price.addAll(myexcel.oa_readItem(stock_code+".xls", "CLOSE", false));
+        price.addAll(myexcel.readhistory(stock_code+".xls", "CLOSE", 60,false));
         if(price.size() <= 0) balanace_valid = -1;
         listsize = price.size();
         for(int i = 0; i< listsize; i++) {

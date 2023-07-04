@@ -48,17 +48,14 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <GridLayout
+
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="5"
             android:orientation="horizontal"
             android:rowCount="2">
+            <TableRow>
             <TextView
                 android:id="@+id/sim_selectitem"
                 android:layout_width="@dimen/grid_width"
@@ -111,62 +108,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"/>
-
-            <ImageView
-                android:id="@+id/sim_addnew"
-                android:layout_width="@dimen/grid_imagewidth"
-                android:layout_height="38dp"
-                android:layout_column="4"
-                android:layout_rowSpan="2"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:src="@drawable/stock_add_48px"/>
-        </GridLayout>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="5"
-            android:orientation="horizontal"
-            android:rowCount="2">
-            <TextView
-                android:id="@+id/sIM_stock_name_tag"
-                android:text="종목명"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/sim_estim_profit_tag"
-                android:text="평가손익"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/sim_estim_price_tag"
-                android:text="평가금액"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/sim_cur_price_tag"
-                android:text="현재가"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-
             <ImageView
                 android:id="@+id/sim_refresh_price"
                 android:layout_width="@dimen/grid_imagewidth"
@@ -177,43 +118,17 @@
                 android:gravity="center"
                 android:src="@drawable/sync_48px"/>
 
-            <TextView
-                android:id="@+id/sim_quantity_tag"
-                android:text="보유수량"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
+            <ImageView
+                android:id="@+id/sim_addnew"
+                android:layout_width="@dimen/grid_imagewidth"
+                android:layout_height="38dp"
+                android:layout_column="4"
+                android:layout_rowSpan="2"
                 android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/sim_profit_rate_tag"
-                android:text="수익률%"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/sim_buy_price_tag"
-                android:text="매입금액"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/sim_ave_price_tag"
-                android:text="평균단가"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:textSize="14sp" />
-
-        </GridLayout>
-    </LinearLayout>
+                android:gravity="center"
+                android:src="@drawable/stock_add_48px"/>
+            </TableRow>
+        </TableLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -222,7 +137,8 @@
         android:id="@+id/sim_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="70dp"
         android:layout_marginTop="8dp"
-        tools:listitem="@layout/portfolio_list_row"/>
+        tools:listitem="@layout/simul_list_row"/>
     </FrameLayout>
 </LinearLayout>
