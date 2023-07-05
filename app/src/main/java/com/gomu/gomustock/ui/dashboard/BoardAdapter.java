@@ -161,6 +161,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
 
         if(chart_data2.size() == 0) {
+            // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
             pricelist = myexcel.readhistory("069500" + ".xls", "CLOSE", 60,false);
             pricelist = myexcel.arrangeRev_string(pricelist);
             chart_data2 = myexcel.oa_standardization(pricelist);

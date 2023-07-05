@@ -207,10 +207,11 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
         String stock_info = data.stock_name + " " + Integer.toString(data.hold_quantity)+"주"
                 + "\n" + "현재가 " +Integer.toString(data.cur_price);
-        String simul_info = "평가액 " + Integer.toString(data.estim_price) + "\n"+
-                "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
+        String simul_info =
                 "매수액 " + Integer.toString(data.buy_price) + "\n" +
-                "평단가 " + Integer.toString(data.estim_profit);
+                "평가액 " + Integer.toString(data.estim_price) + "\n"+
+                "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
+                "평단가 " + Integer.toString(data.ave_price);
         holder.tvStockinfo.setText(stock_info);
         holder.tvSimulinfo.setText(simul_info);
 
@@ -329,8 +330,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             tvSimulinfo = view.findViewById(R.id.simul_info);
             tvStockinfo.setBackgroundColor(Color.DKGRAY);
 
-            // simulation의 top board 초기화
-            bt_tuja = view.findViewById(R.id.sim_asset_info);
             //portfolio_item = view.findViewById(R.id.portfolio_item);
 
             buybt = view.findViewById(R.id.sim_buy_stock);

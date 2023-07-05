@@ -6,47 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.simulation.SimulationFragment">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-
-        <Button
-            android:id="@+id/sim_asset_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_weight = "1"
-            android:text="투자계정"/>
-        <Button
-            android:id="@+id/sim_bench_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_weight = "1"
-            android:text="벤치계정"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/sim_cache_chart"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_weight="1" />
-
-
-        <!-- com.github.mikephil.charting.charts.CandleStickChart -->
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/sim_stock_chart"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
 
 
         <TableLayout
@@ -122,17 +81,29 @@
                 android:gravity="center"
                 android:src="@drawable/sync_48px"/>
 
-            <ImageView
-                android:id="@+id/sim_addnew"
-                android:layout_width="@dimen/grid_imagewidth"
-                android:layout_height="38dp"
-                android:layout_column="4"
-                android:layout_rowSpan="2"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:src="@drawable/stock_add_48px"/>
+
             </TableRow>
         </TableLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/noti_board"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_weight = "1"/>
+        <ImageView
+            android:id="@+id/sim_addnew"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="38dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/stock_add_48px"/>
+
+    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,9 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
@@ -33,7 +30,6 @@ import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.MyBalance;
-import com.gomu.gomustock.ui.format.FormatChart;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -87,9 +83,11 @@ public class SimulationFragment extends Fragment {
     private String open_api_data="empty";
     private String yesterday_price="empty";
 
-    Button asset_bt, bench_bt;
     TextView simselect_bt, simdl_bt, simtool_bt, simsim_bt;
+    TextView noti_board;
     ImageView refreshPrice;
+    ImageView addnew_img;
+
     private BackgroundThread update_thread = new BackgroundThread();
     private boolean stop_flag = false;
     private int DelaySecond=1;
@@ -133,17 +131,20 @@ public class SimulationFragment extends Fragment {
     }
     public void SimulationView(View view) {
 
-        initialize_color();
         sim_stock = myexcel.readSimullist();
+
+        init_resource(view);
+        noti_board.setText(code2name(sim_stock));
         if(sim_stock.size()==0) {
             no_simulation();
         } else {
-            if(myexcel.file_check(sim_stock.get(0)+"_testset.xls")) {
+            if(!checkTestFile(sim_stock)) {
+                String info = "test파일이 없습니다\n"+"전력선택 버튼을 눌러주세요";
+                noti_board.setText(info);
                 no_simulation();
             }
             else {
-                sim_stock.clear();
-                no_simulation();
+                simulation();
             }
         }
 
@@ -185,7 +186,6 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-        TextView buysell_history = view.findViewById(R.id.buysellhistory);
         simsim_bt.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -195,7 +195,7 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-        ImageView addnew_img = view.findViewById(R.id.sim_addnew);
+
         addnew_img.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -206,27 +206,6 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-        asset_bt.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                // 아래 내용 바꿀 것
-            }
-        });
-
-        bench_bt.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                // 아래 내용 바꿀 것
-                DelaySecond = 1;
-                asset_bt.setText(simul_adapter.show_myaccount());
-                simul_adapter.reload_curprice();
-                simul_adapter.refresh();
-            }
-        });
 
         refreshPrice= (ImageView) view.findViewById(R.id.sim_refresh_price);
         refreshPrice.setOnClickListener(new View.OnClickListener()
@@ -235,11 +214,37 @@ public class SimulationFragment extends Fragment {
             public void onClick(View v)
             {
                 DelaySecond = 1;
-                asset_bt.setText(simul_adapter.show_myaccount());
                 simul_adapter.reload_curprice();
                 simul_adapter.refresh();
             }
         });
+    }
+
+    public String code2name(List<String> codelist) {
+        String name = " 시뮬레이션 종목 리스트 : \n";
+        StockDic stockdic = new StockDic();
+        int size = codelist.size();
+        if(size <= 0) {
+            name = " 종목을 추가해주세요 \n";
+        }
+        else {
+            for (int i = 0; i < size; i++) {
+                name += stockdic.getStockname(codelist.get(i));
+                name += " ";
+            }
+        }
+        return name;
+    }
+    public boolean checkTestFile(List<String> codelist) {
+        boolean flag=true;
+        int size = codelist.size();
+        for(int i =0;i<size;i++) {
+            if(!myexcel.file_check(sim_stock.get(i)+"_testset.xls")) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
     }
 
     public void showDialog_buy(){
@@ -396,28 +401,18 @@ public class SimulationFragment extends Fragment {
     }
 
     void update_account() {
-        asset_bt.setText(simul_adapter.show_myaccount());
         simul_adapter.refresh();
         DelaySecond = 60;
     }
 
-    public void top_board(View view) {
+    public void init_resource(View view) {
 
         simselect_bt = view.findViewById(R.id.sim_selectitem);;
         simdl_bt = view.findViewById(R.id.sim_dl);
         simtool_bt = view.findViewById(R.id.sim_tool);;
         simsim_bt = view.findViewById(R.id.sim_sim);
-
-        asset_bt = view.findViewById(R.id.sim_asset_info);
-        bench_bt = view.findViewById(R.id.sim_bench_info);
-
-        asset_bt.setText("투자계정 총10,000\n"+"현9,000"+"평1,000");
-        asset_bt.setBackgroundColor(context.getColor(R.color.MyBlack));
-        asset_bt.setTextColor(context.getColor(R.color.MyGray));
-
-        bench_bt.setText("벤치계정 \n총1억"+"\n현금 : 1억"+"\n이자 : 500");
-        bench_bt.setBackgroundColor(context.getColor(R.color.MyBlack));
-        bench_bt.setTextColor(context.getColor(R.color.MyGray));
+        noti_board = view.findViewById(R.id.noti_board);
+        addnew_img = view.findViewById(R.id.sim_addnew);
     }
 
     public List<String> ReadBuyList() {
@@ -459,18 +454,20 @@ public class SimulationFragment extends Fragment {
             lastbuylist.add(lastbuy);
             // 포트폴리오 정보와 가격 히스토리를 가지고
             // 수익변화차트 데이터를 만든다
-
+            /*
             String stock_code = lastbuy.stock_code;
             MyBalance onebalance = new MyBalance(stock_code);
             onebalance.prepareDataset(sim_bsmanager.getBuystockList(), sim_bsmanager.getSellstockList());
             onebalance.makeBalancedata();
             balancelist.add(onebalance);
+
+             */
         }
-        cacheChart(balancelist);
-        stockChart(balancelist);
+        //cacheChart(balancelist);
+        //stockChart(balancelist);
 
         // 계좌 정보 보여주기
-        top_board(view);
+        //top_board(view);
 
         // recycler view 준비
         recyclerView = view.findViewById(R.id.sim_recycler_view);
@@ -489,29 +486,8 @@ public class SimulationFragment extends Fragment {
     public void no_simulation() {
         BuyStockDBData lastbuy = new BuyStockDBData();
         List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
-        // 매수, 매도 DB를 합쳐서
-        // 최종 보유주식과 매매 히스토리를 만든다.
-        SCache mycache = new SCache();
-        mycache.initialize();
+
         sim_bsmanager = new BSManager(context,"");
-        //sim_bsmanager.makeLastBuyList();
-        //lastbuy = sim_bsmanager.getLastBuy();
-
-        // 종목별 balance 결과 쭝 평가액변화를 차트에 보여준다.
-        MyChart stock_chart = new MyChart();
-        List<FormatChart> stockchart = new ArrayList<FormatChart>();
-        List<Integer> onechartdata = new ArrayList<Integer>();
-        for(int i = 0;i<30;i++) onechartdata.add(0);
-        stockchart = stock_chart.buildChart_int(onechartdata, "", chartcolor.get(0));
-
-        lineChart = (LineChart) view.findViewById(R.id.sim_stock_chart);
-        stock_chart.multi_chart(lineChart, stockchart, "초기값", false);
-
-        MyChart money_chart = new MyChart();
-        money_chart.multi_chart(lineChart, stockchart, "초기값", false);
-
-        // 계좌 정보 보여주기
-        top_board(view);
 
         if(lastbuy != null) {
             // recycler view 준비
@@ -528,73 +504,4 @@ public class SimulationFragment extends Fragment {
             //update_thread.start();
         }
     }
-
-    public void cacheChart(List<MyBalance> balancelist) {
-
-        int size = balancelist.size();
-        // 각 종목의 balance의 평가액과 현금을 총합한다.
-        if(size != 0 ) {
-            List<List<Integer>> remainmoney = new ArrayList<List<Integer>>();
-            List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
-            for (int i = 0; i < size ; i++) {
-                remainmoney.add(balancelist.get(i).getRemaincache());
-                estimmoney.add(balancelist.get(i).getEstimStock());
-                int j = 0;
-            }
-            MyStat mystat = new MyStat();
-            List<Integer> last_remainmoney = mystat.sumlist(remainmoney);
-            List<Integer> last_estimmoney = mystat.sumlist(estimmoney);
-            size = last_remainmoney.size();
-            int temp;
-            SCache mycache = new SCache();
-            int firstcache = mycache.getFirstCache();
-            for(int i=0;i<size;i++) {
-                temp = last_remainmoney.get(i) +last_estimmoney.get(i)+ firstcache;
-                last_remainmoney.set(i,temp);
-            }
-
-            // 총합된 평가액과 현금을 차트로 보여준다
-            MyChart money_chart = new MyChart();
-            // 합친내용을 차트에 보여준다
-            List<FormatChart> chartlist = new ArrayList<FormatChart>();
-            chartlist = money_chart.buildChart_int(last_remainmoney, "잔액", context.getColor(R.color.White));
-
-            lineChart = (LineChart) view.findViewById(R.id.sim_cache_chart);
-            //money_chart.setYMinmax(0, 0);
-            money_chart.multi_chart(lineChart, chartlist, "자산증감", false);
-        }
-    }
-
-    public void stockChart(List<MyBalance> balancelist) {
-        // 종목별 balance 결과 중 평가액변화를 차트에 보여준다.
-        MyChart stock_chart = new MyChart();
-        List<FormatChart> stockchart = new ArrayList<FormatChart>();
-        List<List<Integer>> estimmoney = new ArrayList<List<Integer>>();
-        int size = balancelist.size();
-        if(size != 0 ) {
-            for (int i = 0; i < size; i++) {
-                List<Integer> onechartdata = new ArrayList<Integer>();
-                String stock_code = "";
-                onechartdata = balancelist.get(i).getEstimStock();
-                estimmoney.add(onechartdata); // 평가금액 총합 리스트에 개별종목 평가금액을 넣어준다.
-                stock_code = balancelist.get(i).stock_code;
-                stockchart = stock_chart.buildChart_int(onechartdata, stock_code, chartcolor.get(i));
-            }
-            MyStat mystat = new MyStat();
-            List<Integer> last_estimmoney = mystat.sumlist(estimmoney); // 평가금액 총합리스트의 액수를 계산한다
-            lineChart = (LineChart) view.findViewById(R.id.sim_stock_chart);
-            //stock_chart.setYMinmax(0, 0);
-            stock_chart.multi_chart(lineChart, stockchart, "종목별총액증감", false);
-        }
-    }
-
-    public void initialize_color() {
-        chartcolor.add( context.getColor(R.color.Red));
-        chartcolor.add( context.getColor(R.color.Yellow));
-        chartcolor.add( context.getColor(R.color.Burlywood));
-        chartcolor.add( context.getColor(R.color.Brown));
-        chartcolor.add( context.getColor(R.color.SeaGreen));
-        chartcolor.add( context.getColor(R.color.LawnGreen));
-    }
-
 }
