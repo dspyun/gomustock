@@ -97,7 +97,7 @@ public class RSITest {
 
         // CLOSEDATA는 과거>현재순으로 정렬된 상태
         for (int i = 0; i < days; i++) {
-            closePrice[i] = (double) CLOSEDATA.get(days * 2 + i);
+            closePrice[i] = (double) CLOSEDATA.get(i);
         }
 
         Core c = new Core();

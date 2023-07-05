@@ -148,10 +148,6 @@ public class BBandTest {
             int start = begin.value;
             int end = (begin.value + length.value);
             int today = end - start - 1;
-            for (int i = 0; i < end - start; i++) {
-                // %percent_b는 밴드내에서 주가의 위치를 알려준다. 0~1 사이이지만 마이너스로 갈때도 있다
-                double percent_b = (closePrice[start + i] - outRealLowerBand[i]) / (outRealUpperBand[i] - outRealLowerBand[i]);
-            }
             float today_perb = (float) ((closePrice[start + today] - outRealLowerBand[today]) / (outRealUpperBand[today] - outRealLowerBand[today]));
             todaylist.add(today_perb*100);
         }
@@ -182,7 +178,7 @@ public class BBandTest {
 
         // CLOSEDATA는 과거>현재순으로 정렬된 상태
         for (int i = 0; i < days; i++) {
-            closePrice[i] = (double) CLOSEDATA.get(days * 2 + i);
+            closePrice[i] = (double) CLOSEDATA.get(i);
         }
 
         RetCode retCode = c.bbands_oneday(0, closePrice.length - 1, closePrice, PERIODS_AVERAGE,
@@ -192,13 +188,10 @@ public class BBandTest {
         int start = begin.value;
         int end = (begin.value + length.value);
         int today = end - start - 1;
-        for (int i = 0; i < end - start; i++) {
-            // %percent_b는 밴드내에서 주가의 위치를 알려준다. 0~1 사이이지만 마이너스로 갈때도 있다
-            double percent_b = (closePrice[start + i] - outRealLowerBand[i]) / (outRealUpperBand[i] - outRealLowerBand[i]);
-        }
+
         float today_perb = (float) ((closePrice[start + today] - outRealLowerBand[today]) / (outRealUpperBand[today] - outRealLowerBand[today]));
 
-        return today_perb;
+        return today_perb*100;
     }
 
     public void loadPrice( ) {

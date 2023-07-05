@@ -58,7 +58,7 @@ public class MyScore {
         for (int i = 0; i < size; i++) {
             //if(mixlist.get(i).stock_name.equals("코스피 200")) continue;
             String stock_code = scorebox.get(i).stock_code;
-            int score = scoring2(stock_code);
+            int score = scoring_bband(stock_code);
             scorebox.get(i).score = score;
             System.out.println(scorebox.get(i).stock_code + " = " + Integer.toString(score));
         }
@@ -103,7 +103,7 @@ public class MyScore {
         return temp;
     }
 
-    public int scoring(String stock_code) {
+    public int scoring_std(String stock_code) {
         List<String> itemdata = new ArrayList<>();
         int score = 0;
 
@@ -139,7 +139,7 @@ public class MyScore {
 
         return score;
     }
-    public int scoring2(String stock_code) {
+    public int scoring_bband(String stock_code) {
         List<String> itemdata = new ArrayList<>();
         int score = 0;
 
