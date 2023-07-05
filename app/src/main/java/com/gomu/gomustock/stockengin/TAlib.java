@@ -237,24 +237,7 @@ public class TAlib {
                 value2.add((float)outRealLowerBand[i]);
             }
             threechart.add(value2);
-            /* 커스텀 매도 타임 시그널
-            double pricemax = Collections.max(closedata);
-            List<Float> value3 = new ArrayList<Float>();
-            for(int i = 0;i<start;i++) {
-                value3.add((float)pricemax);
-            }
-            for(int i = 0; i <end-start;i++ ) {
-                double temp1 = closePrice[start+i]-outRealMiddleBand[i];
-                double temp2 = closePrice[start+i]-outRealLowerBand[i];
-                double temp3 = 0.2*(outRealMiddleBand[i]-outRealLowerBand[i]);
-                if((temp1 <= 0) && (temp2 <= temp3)) {
-                    value3.add((float)(pricemax+pricemax*0.02));
-                }
-                else {
-                    value3.add((float)pricemax);
-                }
-            }
-            */
+
             double pricemax = Collections.max(closedata);
             List<Float> value3 = new ArrayList<Float>();
             for(int i = 0;i<start;i++) {

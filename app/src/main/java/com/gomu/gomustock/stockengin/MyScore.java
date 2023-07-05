@@ -19,6 +19,8 @@ public class MyScore {
     //Context context;
     FormatScore benchbox = new FormatScore();
 
+    String STOCK_CODE;
+
     public MyScore(List<String> codelist, String benchcode) {
 
         putStockcodelist(codelist);
@@ -28,6 +30,12 @@ public class MyScore {
         //loadKodex2002Scorebox();
     }
 
+    public MyScore(String stockcode) {
+        STOCK_CODE = stockcode;
+        FormatScore temp = new FormatScore();
+        temp = makeScoreBox(stockcode);
+        temp = loadHistory2Scorebox(temp, 60);
+    }
     public List<FormatScore> getScorebox() {
         List<FormatScore> trim_scoreobx = scorebox;
 
@@ -50,7 +58,7 @@ public class MyScore {
         for (int i = 0; i < size; i++) {
             //if(mixlist.get(i).stock_name.equals("코스피 200")) continue;
             String stock_code = scorebox.get(i).stock_code;
-            int score = scoring(stock_code);
+            int score = scoring2(stock_code);
             scorebox.get(i).score = score;
             System.out.println(scorebox.get(i).stock_code + " = " + Integer.toString(score));
         }
@@ -87,6 +95,13 @@ public class MyScore {
         int i = 0;
     }
 
+    public FormatScore loadHistory2Scorebox(FormatScore onemix, int days) {
+        MyExcel myexcel = new MyExcel();
+        FormatScore temp = onemix;
+        srcdata = myexcel.readhistory(onemix.stock_code + ".xls", "CLOSE", days, false);
+        temp.period_price = srcdata;
+        return temp;
+    }
 
     public int scoring(String stock_code) {
         List<String> itemdata = new ArrayList<>();
@@ -109,7 +124,7 @@ public class MyScore {
             benchstd = mystat.oa_standardization(benchbox.period_price);
         }
 
-        // 기준종목과 스코어링종목을 비교하여 스코어링을 한다
+        // 기준종목과 스코어링종목의 가장 마지막 날 가치를 비교하여 스코어링을 한다
         float diff = 0;
         int i = srcstddata.size() - 1;
         diff = srcstddata.get(i) - benchstd.get(i);
@@ -124,6 +139,29 @@ public class MyScore {
 
         return score;
     }
+    public int scoring2(String stock_code) {
+        List<String> itemdata = new ArrayList<>();
+        int score = 0;
+
+        // 스코어링할 종목가격을 불러온다
+        BBandTest bbandtest = new BBandTest(stock_code);
+        RSITest rsitest = new RSITest(stock_code);
+        float bband_score = bbandtest.TodayScore(60);
+        float rsi_score = rsitest.TodayScore(60);
+
+        if(bband_score<=30 && bband_score > 20
+                && rsi_score<=50 && rsi_score > 40) {
+            score = 1;
+        } else if( bband_score<=20 && bband_score >10
+                && rsi_score<=40 && rsi_score > 30){
+            score = 2;
+        }else if( bband_score<=10
+                && rsi_score<=30 ) {
+            score = 3;
+        }
+
+        return score;
+    }
 
     public void makeScoreBox(List<String> codelist) {
         scorebox.clear();
@@ -135,6 +173,13 @@ public class MyScore {
             temp.score = 0;
             scorebox.add(temp);
         }
+    }
+    public FormatScore makeScoreBox(String stockcode) {
+        FormatScore temp = new FormatScore();
+        temp.stock_code = stockcode;
+        temp.cur_price = "0";
+        temp.score = 0;
+        return temp;
     }
 
     public void makeBenchBox(String code) {

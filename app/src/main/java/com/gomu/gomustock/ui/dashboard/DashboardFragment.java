@@ -1,10 +1,14 @@
 package com.gomu.gomustock.ui.dashboard;
 
+import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -128,7 +132,7 @@ public class DashboardFragment extends Fragment {
                 MyWeb myweb = new MyWeb();
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 dl_getStockinfo(recyclerlist);
-                myweb.dl_NaverPriceByday(recyclerlist,60);
+                myweb.dl_NaverPriceByday(recyclerlist,240);
                 dl_AgencyForeigne(recyclerlist);
             }
         });
@@ -322,6 +326,18 @@ public class DashboardFragment extends Fragment {
         myexcel.writestockinfo(infolist);
     }
 
+    public void dl_AgencyForeigne(List<String> buylist) {
+        MyWeb myweb = new MyWeb();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                myweb.dl_fogninfo(buylist);
+            }
+        }).start();
+    }
+
     public void dl_getStockinfo(List<String> recyclerList) {
         MyWeb myweb = new MyWeb();
         MyExcel myexcel = new MyExcel();
@@ -343,21 +359,30 @@ public class DashboardFragment extends Fragment {
                     }
                     web_stockinfo.add(i,info);
                 }
-
                 myexcel.writestockinfo(web_stockinfo);
+                notice_ok();
             }
         }).start();
     }
-    public void dl_AgencyForeigne(List<String> buylist) {
-        MyWeb myweb = new MyWeb();
 
-        new Thread(new Runnable() {
+
+
+    public void notice_ok() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
-                myweb.dl_fogninfo(buylist);
+                try {
+                    Thread.sleep(1L); // 잠시라도 정지해야 함
+                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
+                    tvDownload.setTextColor(Color.YELLOW);
+                } catch (Exception e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
             }
-        }).start();
+        });
     }
 
 
