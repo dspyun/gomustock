@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -25,11 +26,12 @@ import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
-import com.gomu.gomustock.stockengin.MyBalance;
+import com.gomu.gomustock.stockengin.PriceBox;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -92,11 +94,11 @@ public class SimulationFragment extends Fragment {
     private boolean stop_flag = false;
     private int DelaySecond=1;
     private List<String> sim_stock = new ArrayList<>();
-    public MyOpenApi myopenapi = new MyOpenApi();
     Dialog dialog_buy; // 커스텀 다이얼로그
     private List<Integer> chartcolor = new ArrayList<>();
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
+    List<BBandTest> bbandtestlist = new ArrayList<>();
 
     public static SimulationFragment newInstance(String param1, String param2) {
         SimulationFragment fragment = new SimulationFragment();
@@ -164,7 +166,7 @@ public class SimulationFragment extends Fragment {
             {
                 sim_stock = myexcel.readSimullist();
                 // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
-                dl_NaverPriceByday(sim_stock, 240);
+                dl_yahoofinance_price(sim_stock);
             }
         });
 
@@ -180,9 +182,12 @@ public class SimulationFragment extends Fragment {
                     code = sim_stock.get(i);
                     //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
                     //mymagic01.makeBackdata();
-                    BBandTest mybbtest = new BBandTest(code);
-                    mybbtest.makeBackTestData();
+                    PriceBox pricebox = new PriceBox(code);
+                    List<Float> closeprice = pricebox.getClose();
+                    BBandTest bbtest = new BBandTest(code,closeprice);
+                    bbandtestlist.add(bbtest);
                 }
+                simul_adapter.putBBandTestList(bbandtestlist);
             }
         });
 
@@ -195,7 +200,6 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-
         addnew_img.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -206,7 +210,6 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-
         refreshPrice= (ImageView) view.findViewById(R.id.sim_refresh_price);
         refreshPrice.setOnClickListener(new View.OnClickListener()
         {
@@ -214,8 +217,13 @@ public class SimulationFragment extends Fragment {
             public void onClick(View v)
             {
                 DelaySecond = 1;
-                simul_adapter.reload_curprice();
-                simul_adapter.refresh();
+                //simul_adapter.reload_curprice();
+                //simul_adapter.putStocklist(sim_stock);
+                //simul_adapter.refresh();
+
+                for(int i =0;i<sim_stock.size();i++) {
+                    simul_adapter.notifyItemChanged(i);
+                }
             }
         });
     }
@@ -235,6 +243,7 @@ public class SimulationFragment extends Fragment {
         }
         return name;
     }
+
     public boolean checkTestFile(List<String> codelist) {
         boolean flag=true;
         int size = codelist.size();
@@ -276,9 +285,9 @@ public class SimulationFragment extends Fragment {
                 BuyStockDBData onebuy = new BuyStockDBData();
                 onebuy.stock_code = stock_no;
                 onebuy.stock_name = name;
-                simulist = simul_adapter.getRecyclerList();
+                //simulist = simul_adapter.getRecyclerList();
                 simulist.add(onebuy);
-                simul_adapter.putBuyList(simulist);
+                //simul_adapter.putBuyList(simulist);
 
                 //SBuyStock buystock = new SBuyStock();
                 //buystock.insert2db(onebuy);
@@ -318,6 +327,38 @@ public class SimulationFragment extends Fragment {
                 }
             }
         }).start();
+    }
+
+    void dl_yahoofinance_price(List<String> stocklist) {
+        MyWeb myweb = new MyWeb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                for(int i=0;i<stocklist.size();i++) {
+                    new YFDownload(stocklist.get(i));
+                }
+                notice_ok();
+            }
+        }).start();
+    }
+
+    public void notice_ok() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1L); // 잠시라도 정지해야 함
+                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
+                    simdl_bt.setTextColor(Color.YELLOW);
+                } catch (Exception e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
+            }
+        });
     }
 
     public void dl_PriceHistory1Y(List<String> itemlist) {
@@ -368,7 +409,6 @@ public class SimulationFragment extends Fragment {
 
     class BackgroundThread extends Thread {
         public void run() {
-
                 try {
                     Thread.sleep(1L); // 진입 시 잠시라도 정지해야 함
                     // 60초*60분마다 한 번씩 웹크롤링으로 현재가 update
@@ -439,19 +479,20 @@ public class SimulationFragment extends Fragment {
 
         SCache mycache = new SCache();
         mycache.initialize();
-        BuyStockDBData lastbuy = new BuyStockDBData();
-        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
-        List<MyBalance> balancelist = new ArrayList<>();
+
 
         // manager가 data를 생성해내고
         // balance가 data를 계산한다
         // 계산된 data는 차트가 보여준다
         for(int i=0;i<sim_stock.size();i++) {
 
+            /*
             sim_bsmanager = new BSManager(context,sim_stock.get(i));
             sim_bsmanager.loadExcel2BuySellList(); // 과거>현재 순의 시험데이터를 DB로 넣는다.
             lastbuy = sim_bsmanager.CurrentStockInfo(); // 과거>현재 순으로  정렬된 데이터.
             lastbuylist.add(lastbuy);
+
+             */
             // 포트폴리오 정보와 가격 히스토리를 가지고
             // 수익변화차트 데이터를 만든다
             /*
@@ -469,12 +510,25 @@ public class SimulationFragment extends Fragment {
         // 계좌 정보 보여주기
         //top_board(view);
 
+        for(int i =0;i<sim_stock.size();i++) {
+            String code = sim_stock.get(i);
+            //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
+            //mymagic01.makeBackdata();
+            PriceBox pricebox = new PriceBox(code);
+            List<Float> closeprice = pricebox.getClose();
+            BBandTest bbtest = new BBandTest(code,closeprice);
+            bbandtestlist.add(bbtest);
+        }
+
+
         // recycler view 준비
         recyclerView = view.findViewById(R.id.sim_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
+        simul_adapter = new SimulAdapter(getActivity(), sim_stock);
+        //simul_adapter.putBBandTestList(bbandtestlist);
         recyclerView.setAdapter(simul_adapter);
+        simul_adapter.putStocklist(sim_stock);
 
         if(stop_flag!= true) {
             stop_flag=true;
@@ -485,7 +539,6 @@ public class SimulationFragment extends Fragment {
 
     public void no_simulation() {
         BuyStockDBData lastbuy = new BuyStockDBData();
-        List<BuyStockDBData> lastbuylist = new ArrayList<BuyStockDBData>();
 
         sim_bsmanager = new BSManager(context,"");
 
@@ -494,7 +547,7 @@ public class SimulationFragment extends Fragment {
             recyclerView = view.findViewById(R.id.sim_recycler_view);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             //lastbuylist.add(sim_bsmanager.getPortfolio_dummy());
-            simul_adapter = new SimulAdapter(getActivity(), lastbuylist);
+            simul_adapter = new SimulAdapter(getActivity(), sim_stock);
             recyclerView.setAdapter(simul_adapter);
         }
 

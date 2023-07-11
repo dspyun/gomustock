@@ -3,7 +3,6 @@ package com.gomu.gomustock.ui.format;
 import com.github.mikephil.charting.data.Entry;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class FormatChart {
@@ -21,8 +20,8 @@ public class FormatChart {
         for(int i=0;i<size;i++ ) {
             entries.add(new Entry(i, data.get(i)));
         }
-        this.max = (float) Collections.max(data);
-        this.min = (float) Collections.min(data);
+        //this.max = (float) Collections.max(data);
+        //this.min = (float) Collections.min(data);
     }
     public void floatEntry(List<Float> data) {
         entries = new ArrayList<>();
@@ -30,7 +29,7 @@ public class FormatChart {
         for(int i=0;i<size;i++ ) {
             entries.add(new Entry(i, data.get(i)));
         }
-        this.max = Collections.max(data);
-        this.min = Collections.min(data);
+        //this.max = Collections.max(data);
+        //this.min = Collections.min(data);
     }
 }

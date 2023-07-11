@@ -255,7 +255,7 @@ public class HomeFragment extends Fragment {
             List<Integer> last_remainmoney = mystat.sumlist(remainmoney);
 
             // 보유현금을 차트빌더에 넣는다
-            chartlist = money_chart.buildChart_int(last_remainmoney, "잔액", chartcolor.get(0));
+            chartlist = money_chart.adddata_int(last_remainmoney, "잔액", chartcolor.get(0));
             //money_chart.setYMinmax(0, 0);
             money_chart.multi_chart(lineChart, chartlist, "자산증감", false);
         }
@@ -275,7 +275,7 @@ public class HomeFragment extends Fragment {
             List<Integer> last_estimmoney = mystat.sumlist(estimmoney);
 
             // 총평가액을 차트에 보여준다
-            chartlist = stock_chart.buildChart_int(last_estimmoney, "잔액", chartcolor.get(1));
+            chartlist = stock_chart.adddata_int(last_estimmoney, "잔액", chartcolor.get(1));
             //stock_chart.setYMinmax(0, 0);
             stock_chart.multi_chart(lineChart, chartlist, "종목별총액증감", false);
         }
@@ -294,7 +294,7 @@ public class HomeFragment extends Fragment {
                 String stock_code = "";
                 onechartdata = balancelist.get(i).getEstimStock();
                 stock_code = balancelist.get(i).stock_code;
-                stockchart = stock_chart.buildChart_int(onechartdata, stock_code, chartcolor.get(i));
+                stockchart = stock_chart.adddata_int(onechartdata, stock_code, chartcolor.get(i));
             }
 
             //stock_chart.setYMinmax(0, 0);

@@ -98,7 +98,7 @@ public class MyScore {
     public FormatScore loadHistory2Scorebox(FormatScore onemix, int days) {
         MyExcel myexcel = new MyExcel();
         FormatScore temp = onemix;
-        srcdata = myexcel.readhistory(onemix.stock_code + ".xls", "CLOSE", days, false);
+        srcdata = myexcel.read_ohlcv(onemix.stock_code + ".xls", "CLOSE", days, false);
         temp.period_price = srcdata;
         return temp;
     }
@@ -142,9 +142,9 @@ public class MyScore {
     public int scoring_bband(String stock_code) {
         List<String> itemdata = new ArrayList<>();
         int score = 0;
-
+/*
         // 스코어링할 종목가격을 불러온다
-        BBandTest bbandtest = new BBandTest(stock_code);
+        MyBBandTest bbandtest = new MyBBandTest(stock_code);
         RSITest rsitest = new RSITest(stock_code);
         float bband_score = bbandtest.TodayScore(60);
         float rsi_score = rsitest.TodayScore(60);
@@ -159,7 +159,7 @@ public class MyScore {
                 && rsi_score<=30 ) {
             score = 3;
         }
-
+*/
         return score;
     }
 

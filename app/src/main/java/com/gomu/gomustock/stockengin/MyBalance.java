@@ -53,7 +53,7 @@ public class MyBalance {
         MyDate mydate = new MyDate();
         List<String>  price = new ArrayList<String>();
        // 날짜는 파일에서 읽어와서 카피한다. 현재>과거 순으로 정열되어 있다.
-        inputDate.addAll(myexcel.readhistory(stock_code+".xls", "DATE", 60,false));
+        inputDate.addAll(myexcel.oa_readItem(stock_code+".xls", "DATE", false));
         if(inputDate.size() <= 0) balanace_valid = -1;
 
         // buyquantity와 sellquantity 리스트의 모든 element에
@@ -65,7 +65,7 @@ public class MyBalance {
 
 
         // 엑셀에서 읽은 값은 모두 string이다. integer로 바꾼 다음 list에 저장한다
-        price.addAll(myexcel.readhistory(stock_code+".xls", "CLOSE", 60,false));
+        price.addAll(myexcel.oa_readItem(stock_code+".xls", "CLOSE", false));
         if(price.size() <= 0) balanace_valid = -1;
         listsize = price.size();
         for(int i = 0; i< listsize; i++) {
@@ -124,10 +124,10 @@ public class MyBalance {
             //    현재>과거 순으로 저장된다.
             // 2. 오늘아침에 inputDate파일이 update되지않고
             //    주식을 하나 사면 inputDate에는 오늘날짜가 없어서
-            //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 매수량을 0으로 설정
+            //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(buystockList.get(i).buy_date);
-            if(index == -1) inputBuyQuantity.add(0);
-            else inputBuyQuantity.set(index, buystockList.get(i).buy_quantity);
+            //if(index == -1) continue;
+            inputBuyQuantity.set(index, buystockList.get(i).buy_quantity);
         }
         index = 0; // 디버깅용
     }
@@ -148,11 +148,9 @@ public class MyBalance {
         for(int i=0; i < size ;i++) {
             // 1.
             index = inputDate.indexOf(buystockList.get(i).buy_date);
-            if(index == -1) inputBuyPricelist.add(0); // 일단 0으로 처리(매수한 주식가격이 없을 경우
-            else {
-                if(buystockList.get(i).buy_quantity != 0) {
+            //if(index == -1) continue;
+            if(buystockList.get(i).buy_quantity != 0) {
                 inputBuyPricelist.set(index, buystockList.get(i).buy_price);
-                }
             }
         }
         index = 0; // 디버깅용
@@ -167,11 +165,9 @@ public class MyBalance {
         int size = sellstockList.size();
         for(int i=0; i < size ;i++) {
             index = inputDate.indexOf(sellstockList.get(i).sell_date);
-            if(index == -1) inputSellPricelist.add(0); // 매도날짜가 없을 경우, 일단 0으로 처리
-            else {
-                if(sellstockList.get(i).sell_quantity != 0) {
-                    inputSellPricelist.set(index, sellstockList.get(i).sell_price);
-                }
+            if(index == -1) continue;
+            if(sellstockList.get(i).sell_quantity != 0) {
+                inputSellPricelist.set(index, sellstockList.get(i).sell_price);
             }
         }
         index = 0; // 디버깅용
@@ -196,8 +192,8 @@ public class MyBalance {
             //    주식을 하나 팔면 inputDate에는 오늘날짜가 없어서
             //    아래 index는 -1이 된다. 어떻게 처리할 것이냐? > 일단 continue로 가자
             index = inputDate.indexOf(sellstockList.get(i).sell_date);
-            if(index == -1) inputSellQuantity.add(0); //매도날짜가 없을 경우, 일단 0으로 처리
-            else inputSellQuantity.set(index,sellstockList.get(i).sell_quantity);
+            if(index == -1) continue;
+            inputSellQuantity.set(index,sellstockList.get(i).sell_quantity);
         }
         index = 0;
     }

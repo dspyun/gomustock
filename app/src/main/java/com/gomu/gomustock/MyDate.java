@@ -13,6 +13,13 @@ public class MyDate {
 
     }
 
+    public long yf_epoch_today() {
+        return System.currentTimeMillis()/(1000); // 초단위 epoch day
+    }
+    public long yf_epoch_1yearago() {
+        long today = System.currentTimeMillis()/(1000); // 초단위 epoch day
+        return today - (365*24*60*60);
+    }
     public String getCurrentTime(String index) {
         String result="";
         long now = System.currentTimeMillis();

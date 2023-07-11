@@ -9,7 +9,6 @@ import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TAlib {
@@ -28,7 +27,7 @@ public class TAlib {
     public Double[] readClosePrice(String stock_code, int days) {
         Double[] price = new Double[240];
         MyExcel myexcel = new MyExcel();
-        CLOSE_STR = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
+        CLOSE_STR = myexcel.read_ohlcv(stock_code+".xls","CLOSE",days,false);
         CLOSE_STR = myexcel.arrangeRev_string(CLOSE_STR);
         List<Double> closedata = myexcel.string2double(CLOSE_STR,1);
         for (int i =  0; i < price.length; i++) {
@@ -43,10 +42,10 @@ public class TAlib {
         return flag;
     }
 
-    public List<List<Float>> macd_test(String stock_code, int days ) {
+    public List<List<Float>> macd(List<Float> close, int days ) {
 
         List<List<Float>> result = new ArrayList<List<Float>>();
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] outMACD = new double[TOTAL_PERIODS];
@@ -63,13 +62,8 @@ public class TAlib {
         int optInSlowPeriod = 26;
         int optInSignalPeriod = 9;
 
-        MyExcel myexcel = new MyExcel();
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        close_str = myexcel.arrangeRev_string(close_str);
-        List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) closedata.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
 
@@ -79,8 +73,8 @@ public class TAlib {
                 begin, length, outMACD, outMACDSignal,outMACDHist);
 
         if (retCode == RetCode.Success) {
-            System.out.println("Output Start Period: " + begin.value);
-            System.out.println("Output End Period: " + (begin.value + length.value - 1));
+            //System.out.println("Output Start Period: " + begin.value);
+            //System.out.println("Output End Period: " + (begin.value + length.value - 1));
             int start = begin.value;
             int end = (begin.value + length.value);
             // 결과를 float 리스트로 패킹해서 전달한다;
@@ -115,11 +109,11 @@ public class TAlib {
         return result;
     }
 
-    public List<List<Float>> rsi_test(String stock_code, int days) {
+    public List<List<Float>> rsi(List<Float> close, int days) {
         List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         // The number of periods to average together.
         final int optInTimePeriod = 5;
@@ -129,13 +123,8 @@ public class TAlib {
         MInteger begin = new MInteger();
         MInteger length = new MInteger();
 
-        MyExcel myexcel = new MyExcel();
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        close_str = myexcel.arrangeRev_string(close_str);
-        List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) closedata.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
         Core c = new Core();
@@ -143,8 +132,8 @@ public class TAlib {
 
         List<Float> result = new ArrayList<Float>();
         if (retCode == RetCode.Success) {
-            System.out.println("Output Start Period: " + begin.value);
-            System.out.println("Output End Period: " + (begin.value + length.value - 1));
+            //System.out.println("Output Start Period: " + begin.value);
+            //System.out.println("Output End Period: " + (begin.value + length.value - 1));
             int start = begin.value;
             int end = (begin.value + length.value);
             // 결과를 float 리스트로 패킹해서 전달한다
@@ -160,7 +149,7 @@ public class TAlib {
 
             resultlist.add(result);
 
-            List<Float> temp = rsi_interval(start, end, result);
+            List<Float> temp = rsi_month_average(start, end, result);
             resultlist.add(temp);
         }
         return resultlist;
@@ -168,12 +157,12 @@ public class TAlib {
 
 
 
-    public List<List<Float>> bbands_test(String stock_code, int days) {
+    public List<List<Float>> bbands(List<Float> close) {
 
         List<List<Float>> threechart = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         // The number of periods to average together.
         final int PERIODS_AVERAGE = 5;
@@ -188,13 +177,8 @@ public class TAlib {
         double optInNbDevDn = 2; // 하한선 = 표준편차*2
         MAType optInMAType = Sma; // 단순이동평균
 
-        MyExcel myexcel = new MyExcel();
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        close_str = myexcel.arrangeRev_string(close_str);
-        List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) closedata.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
         Core c = new Core();
@@ -204,8 +188,8 @@ public class TAlib {
                 begin, length, outRealUpperBand, outRealMiddleBand, outRealLowerBand);
 
         if (retCode == RetCode.Success) {
-            System.out.println("Output Start Period: " + begin.value);
-            System.out.println("Output End Period: " + (begin.value + length.value - 1));
+            //System.out.println("Output Start Period: " + begin.value);
+            //System.out.println("Output End Period: " + (begin.value + length.value - 1));
             int start = begin.value;
             int end = (begin.value + length.value);
             // 결과를 float 리스트로 패킹해서 전달한다
@@ -238,21 +222,16 @@ public class TAlib {
             }
             threechart.add(value2);
 
-            double pricemax = Collections.max(closedata);
             List<Float> value3 = new ArrayList<Float>();
-            for(int i = 0;i<start;i++) {
-                value3.add((float)pricemax);
-                bband_signal.add(0f);
-            }
+
             for(int i = 0; i <end-start;i++ ) {
                 // %percent_b는 밴드내에서 주가의 위치를 알려준다. 0~1 사이이지만 마이너스로 갈때도 있다
                 double percent_b = (closePrice[start+i]-outRealLowerBand[i])/(outRealUpperBand[i]-outRealLowerBand[i]);
-                bband_signal.add((float)percent_b);
-                //%b 곡선에서 하단 0,2 아래 지점들에 표시를 해준다. 즉 %b값으로 저점매수 시기를 알려주는 표시.
-                //if(temp>0.8) value3.add((float)(pricemax + pricemax*0.02));
-                if(percent_b <= 0.2 && percent_b > 0.1) value3.add((float)(pricemax - pricemax*0.02));
-                else if(percent_b <= 0.1) value3.add((float)(pricemax - pricemax*0.03));
-                else value3.add((float)pricemax);
+                value3.add((float)percent_b);
+            }
+            float first_perb = value3.get(0);
+            for(int i = 0;i<start;i++) {
+                value3.add(0,(float)first_perb);
             }
 
             threechart.add(value3);
@@ -263,17 +242,13 @@ public class TAlib {
 
         return threechart;
     }
-    public List<Float> bband_test_signal() {
 
-        return bband_signal;
-    }
 
-    public List<Float> adx_test(String stock_code, int days) {
+    public List<Float> adx(List<Float> close, List<Float> highdata, List<Float> lowdata, int days) {
 
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
-
+        final int TOTAL_PERIODS = close.size();
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
@@ -287,25 +262,14 @@ public class TAlib {
 
         List<Float> value = new ArrayList<Float>();
 
-        MyExcel myexcel = new MyExcel();
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        close_str = myexcel.arrangeRev_string(close_str);
-        List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) closedata.get(i);
+            closePrice[i] = (double) close.get(i);
         }
-        List<String> high_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","HIGH",days,false);
-        high_str = myexcel.arrangeRev_string(high_str);
-        List<Double> highdata = myexcel.string2double(high_str,1);
+
         for (int i =  0; i < highPrice.length; i++) {
             highPrice[i] = (double) highdata.get(i);
         }
-        List<String> low_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","LOW",days,false);
-        low_str = myexcel.arrangeRev_string(low_str);
-        List<Double> lowdata = myexcel.string2double(low_str,1);
+
         for (int i =  0; i < lowPrice.length; i++) {
             lowPrice[i] = (double) lowdata.get(i);
         }
@@ -316,8 +280,8 @@ public class TAlib {
                 optInTimePeriod, begin, length,  outReal);
 
         if (retCode == RetCode.Success) {
-            System.out.println("Output Start Period: " + begin.value);
-            System.out.println("Output Period length : " +length.value);
+            //System.out.println("Output Start Period: " + begin.value);
+            //System.out.println("Output Period length : " +length.value);
             int start = begin.value;
             int end = (begin.value + length.value);
             // 결과를 float 리스트로 패킹해서 전달한다
@@ -339,7 +303,7 @@ public class TAlib {
         return value;
     }
 
-    public List<Float> rsi_interval(int start, int end, List<Float> input) {
+    public List<Float> rsi_month_average(int start, int end, List<Float> input) {
         List<Float> resultlist = new ArrayList<>();
         int size = input.size();
         float average=0f;
@@ -371,10 +335,10 @@ public class TAlib {
         return resultlist;
     }
 
-    public List<List<Float>> stoch_test(String stock_code, int days ) {
+    public List<List<Float>> stoch(List<Float> close, List<Float> highdata, List<Float> lowdata, int days ) {
 
         // The total number of periods to generate data for.
-        int TOTAL_PERIODS = days;
+        int TOTAL_PERIODS = close.size();
 
         double[] closePrice = new double[TOTAL_PERIODS];
         double[] highPrice = new double[TOTAL_PERIODS];
@@ -393,25 +357,14 @@ public class TAlib {
         MAType optInSlowK_MAType = Sma;
         MAType optInSlowD_MAType = Sma;
 
-        MyExcel myexcel = new MyExcel();
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        close_str = myexcel.arrangeRev_string(close_str);
-        List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) closedata.get(i);
+            closePrice[i] = (double) close.get(i);
         }
-        List<String> high_str = new ArrayList<>();
-        high_str = myexcel.readhistory(stock_code+".xls","HIGH",days,false);
-        high_str = myexcel.arrangeRev_string(high_str);
-        List<Double> highdata = myexcel.string2double(high_str,1);
+
         for (int i =  0; i < highPrice.length; i++) {
             highPrice[i] = (double) highdata.get(i);
         }
-        List<String> low_str = new ArrayList<>();
-        low_str = myexcel.readhistory(stock_code+".xls","LOW",days,false);
-        low_str = myexcel.arrangeRev_string(low_str);
-        List<Double> lowdata = myexcel.string2double(low_str,1);
+
         for (int i =  0; i < lowPrice.length; i++) {
             lowPrice[i] = (double) lowdata.get(i);
         }
@@ -453,12 +406,12 @@ public class TAlib {
     }
 
 
-    public List<Float> mom_test(String stock_code, int days ) {
+    public List<Float> mom(List<Float> close, int days) {
 
         List<List<Float>> resultlist = new ArrayList<List<Float>>();
 
         // The total number of periods to generate data for.
-        final int TOTAL_PERIODS = days;
+        final int TOTAL_PERIODS = close.size();
 
         // The number of periods to average together.
         final int optInTimePeriod = 10;
@@ -468,13 +421,8 @@ public class TAlib {
         MInteger outBegIdx = new MInteger();
         MInteger outNBElement = new MInteger();
 
-        MyExcel myexcel = new MyExcel();
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.readhistory(stock_code+".xls","CLOSE",days,false);
-        close_str = myexcel.arrangeRev_string(close_str);
-        List<Double> closedata = myexcel.string2double(close_str,1);
         for (int i =  0; i < closePrice.length; i++) {
-            closePrice[i] = (double) closedata.get(i);
+            closePrice[i] = (double) close.get(i);
         }
 
         Core c = new Core();
@@ -495,5 +443,4 @@ public class TAlib {
         }
         return result;
     }
-
 }

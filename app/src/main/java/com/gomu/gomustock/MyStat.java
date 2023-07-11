@@ -56,32 +56,49 @@ public class MyStat {
 
     public List<Float> string2float(List<String> input, int scale) {
         List<Float> result = new ArrayList<Float>();
-        String temp;
+        String temp, pre_temp="";
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
-            result.add(Float.parseFloat(temp)/scale);
+            if(temp ==null || temp.length() == 0 || temp.equals("null")) {
+                result.add(Float.parseFloat(pre_temp)/scale);
+            }
+            else {
+                result.add(Float.parseFloat(temp)/scale);
+                pre_temp = temp;
+            }
         }
         return result;
     }
     public List<Integer> string2int(List<String> input, int scale) {
         List<Integer> result = new ArrayList<Integer>();
-        String temp;
+        String temp,pre_temp="";;
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
-            result.add(Integer.parseInt(temp)/scale);
+            if(temp ==null || temp.length() == 0 || temp.equals("null")) {
+                result.add(Integer.parseInt(pre_temp)/scale);
+            }
+            else {
+                result.add(Integer.parseInt(temp) / scale);
+                pre_temp = temp;
+            }
         }
         return result;
     }
     public List<Double> string2double(List<String> input, int scale) {
         List<Double> result = new ArrayList<Double>();
-        String temp;
+        String temp, pre_temp="";
         int size = input.size();
         for(int i=0;i< size;i++) {
-            if(input.get(i).equals("")) temp = "0";
             temp = input.get(i).replaceAll(",", "");
-            result.add(Double.valueOf(temp)/scale);
+            if(temp ==null || temp.length() == 0 || temp.equals("null")) {
+                result.add(Double.valueOf(pre_temp)/scale);
+            }
+            else {
+                result.add(Double.valueOf(temp) / scale);
+                pre_temp = temp;
+            }
         }
         return result;
     }

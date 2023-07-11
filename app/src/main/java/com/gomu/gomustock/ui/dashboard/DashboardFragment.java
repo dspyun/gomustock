@@ -33,6 +33,7 @@ import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
 import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockdb.StockDic;
 import com.gomu.gomustock.stockengin.MyScore;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -132,7 +133,8 @@ public class DashboardFragment extends Fragment {
                 MyWeb myweb = new MyWeb();
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 dl_getStockinfo(recyclerlist);
-                myweb.dl_NaverPriceByday(recyclerlist,240);
+                //myweb.dl_NaverPriceByday(recyclerlist,240);
+                dl_yahoofinance_price(recyclerlist);
                 dl_AgencyForeigne(recyclerlist);
             }
         });
@@ -169,7 +171,6 @@ public class DashboardFragment extends Fragment {
 
         dialog_buy.show(); // 다이얼로그 띄우기
         dialog_buy.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
                 // 원하는 기능 구현
@@ -229,8 +230,6 @@ public class DashboardFragment extends Fragment {
         });
     }
 
-
-
     public void initResource(View v) {
         tvDownload= v.findViewById(R.id.tv_dl);
         tvUpdate = v.findViewById(R.id.tv_update);
@@ -239,7 +238,6 @@ public class DashboardFragment extends Fragment {
         imgAddlist = v.findViewById(R.id.dash_addnew);
         recyclerView = v.findViewById(R.id.recycler_view);
     }
-
 
     boolean stop_flag;
     private BackgroundThread scoring_thread = new BackgroundThread();
@@ -326,6 +324,38 @@ public class DashboardFragment extends Fragment {
         myexcel.writestockinfo(infolist);
     }
 
+
+    void dl_yahoofinance_price(List<String> stocklist) {
+        MyWeb myweb = new MyWeb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                for(int i=0;i<stocklist.size();i++) {
+                    new YFDownload(stocklist.get(i));
+                }
+                notice_ok();
+            }
+        }).start();
+    }
+    void notice_ok() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1L); // 잠시라도 정지해야 함
+                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
+                    tvDownload.setTextColor(Color.YELLOW);
+                } catch (Exception e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
+            }
+        });
+    }
+
     public void dl_AgencyForeigne(List<String> buylist) {
         MyWeb myweb = new MyWeb();
 
@@ -363,26 +393,6 @@ public class DashboardFragment extends Fragment {
                 notice_ok();
             }
         }).start();
-    }
-
-
-
-    public void notice_ok() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1L); // 잠시라도 정지해야 함
-                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
-                    tvDownload.setTextColor(Color.YELLOW);
-                } catch (Exception e) {
-                    System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
-                }
-            }
-        });
     }
 
 

@@ -48,7 +48,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     {
         this.context = context;
         loadRecyclerList();
-
     }
 
     public void refresh( ) {
@@ -147,31 +146,34 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         //if(stock_code.equals("069500")) return;
         // information text view에 종목번호를 넣는다
 
-        String stock_name = stockdic.getStockname(stock_code);
-        //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
-        holder.tvStockinfo.setText(getStockInfo(stock_code));
-        holder.tvscoreboard.setText(getScore(stock_name,stock_code));
-        // 차트에 코스피와 종목 데이터를 넣어준다
+        if(myexcel.file_check(stock_code+".xls") && myexcel.file_check("069500"+".xls") ) {
+            String stock_name = stockdic.getStockname(stock_code);
+            //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
+            holder.tvStockinfo.setText(getStockInfo(stock_code));
+            holder.tvscoreboard.setText(getScore(stock_name, stock_code));
+            // 차트에 코스피와 종목 데이터를 넣어준다
 
-        standard_chart = new MyChart();
-        chartlist = new ArrayList<FormatChart>();
-        pricelist = myexcel.readhistory(stock_code+".xls","CLOSE", 60,false);
-        pricelist = myexcel.arrangeRev_string(pricelist);
-        chart_data1 = myexcel.oa_standardization(pricelist);
-        standard_chart.buildChart_float(chart_data1,stock_code,context.getColor(R.color.Red));
+            standard_chart = new MyChart();
+            chartlist = new ArrayList<FormatChart>();
+            pricelist = myexcel.read_ohlcv(stock_code , "CLOSE", 60, false);
+            //pricelist = myexcel.arrangeRev_string(pricelist);
+            chart_data1 = myexcel.oa_standardization(pricelist);
+            chartlist = standard_chart.adddata_float(chart_data1, stock_code, context.getColor(R.color.Red));
 
-        if(chart_data2.size() == 0) {
-            // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
-            pricelist = myexcel.readhistory("069500" + ".xls", "CLOSE", 60,false);
-            pricelist = myexcel.arrangeRev_string(pricelist);
-            chart_data2 = myexcel.oa_standardization(pricelist);
+            if (chart_data2.size() == 0) {
+                // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
+                pricelist = myexcel.read_ohlcv("069500", "CLOSE", 60, false);
+                //pricelist = myexcel.arrangeRev_string(pricelist);
+                chart_data2 = myexcel.oa_standardization(pricelist);
+            }
+            chartlist = standard_chart.adddata_float(chart_data2, "KODEX 200", context.getColor(R.color.White));
+            //standard_chart.setYMinmax(-3, 3);
+
+            standard_chart.multi_chart(lineChart, chartlist, "표준화차트", false);
+            //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
         }
-        chartlist = standard_chart.buildChart_float(chart_data2,"KODEX 200",context.getColor(R.color.White));
-        standard_chart.setYMinmax(-3, 3);
-
-        standard_chart.multi_chart(lineChart,chartlist,"표준화차트",false);
-        //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
     }
+
     @Override
     public int getItemViewType(int position) {
         return position;
@@ -223,6 +225,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             tvStockinfo.invalidate();
         }
     }
+
 
 
 }

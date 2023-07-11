@@ -4,7 +4,6 @@ package com.gomu.gomustock.ui.dashboard;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -21,9 +20,8 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.stockengin.TAlib;
 import com.gomu.gomustock.graph.MyChart;
-import com.gomu.gomustock.ui.format.FormatChart;
+import com.gomu.gomustock.stockengin.TAlib;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public class BoardSubActivity extends AppCompatActivity {
                     .into(pergragh);
 
             MyExcel myexcel = new MyExcel();
-
+/*
             // bband 결과값에는 price chart data가 포함되지 않았다
             // 아래처럼 별도로 하나 만들어서 추가해준다.
             List<Float> price_data = new ArrayList<Float>();
@@ -96,7 +94,7 @@ public class BoardSubActivity extends AppCompatActivity {
             bbnandChart = findViewById(R.id.bband_chart);
             List<List<Float>> bb_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> bband_chartdata = new ArrayList<FormatChart>();
-            bb_chart_list = mytalib.bbands_test(stock_code, 60);
+            bb_chart_list = mytalib.bbands(stock_code);
             bband_chart.buildChart_float(price_data, stock_code, Color.RED); // price chart data는 별도로 추가해준다
             bband_chart.buildChart_float(bb_chart_list.get(0), "upper", Color.GRAY);
             bband_chart.buildChart_float(bb_chart_list.get(1), "middle", Color.LTGRAY);
@@ -129,15 +127,15 @@ public class BoardSubActivity extends AppCompatActivity {
             //macd_chart.setYMinmax(0, 0);
             macd_chart.multi_chart(macdChart, macd_chartdata, "MACD", false);
 
-            /*
-            // adx test
-            MyChart adx_chart = new MyChart();
-            adxChart = findViewById(R.id.adx_chart);
-            List<Float> adx_chartdata = new ArrayList<>();
-            adx_chartdata = mytalib.adx_test(stock_code, 60);
-            rsi_chart.single_float(adxChart,adx_chartdata,"ADX",false );
 
-             */
+            // adx test
+            //MyChart adx_chart = new MyChart();
+            //adxChart = findViewById(R.id.adx_chart);
+            //List<Float> adx_chartdata = new ArrayList<>();
+            //adx_chartdata = mytalib.adx_test(stock_code, 60);
+            //rsi_chart.single_float(adxChart,adx_chartdata,"ADX",false );
+
+
             MyChart adx_chart = new MyChart();
             adxChart = findViewById(R.id.adx_chart);
             List<Float> adx_chartdata = new ArrayList<>();
@@ -155,7 +153,7 @@ public class BoardSubActivity extends AppCompatActivity {
             stock_chartdata = stoch_chart.buildChart_float(stoch_chart_list.get(1), "slow-D", Color.LTGRAY);
             //stoch_chart.setYMinmax(0, 0);
             stoch_chart.multi_chart(stochChart, stock_chartdata, "스토케스틱", false);
-
+*/
             mytext.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

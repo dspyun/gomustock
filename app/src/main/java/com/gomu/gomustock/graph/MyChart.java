@@ -37,7 +37,7 @@ public class MyChart {
         //mycontext = chart;
     }
 
-    public List<FormatChart> buildChart_int(List<Integer> data1, String name, int color) {
+    public List<FormatChart> adddata_int(List<Integer> data1, String name, int color) {
 
         FormatChart onechart = new FormatChart();
         onechart.intEntry(data1); // entry에 data를 넣는다.
@@ -48,7 +48,7 @@ public class MyChart {
         return chartlist;
     }
 
-    public List<FormatChart> buildChart_float(List<Float> data1, String name, int color) {
+    public List<FormatChart> adddata_float(List<Float> data1, String name, int color) {
 
         FormatChart onechart = new FormatChart();
         onechart.floatEntry(data1); // entry에 data를 넣는다.

@@ -1,13 +1,9 @@
 package com.gomu.gomustock.ui.simulation;
 
-import static android.content.ContentValues.TAG;
-
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Color;
-import android.os.Looper;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,22 +26,25 @@ import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.BBandTest;
+import com.gomu.gomustock.stockengin.Balance;
+import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
-    private List<BuyStockDBData> buyList;
+
+    List<String> simadaper_stock = new ArrayList<>();
     private static Activity context;
 
     public SparseBooleanArray selectedItems = new SparseBooleanArray();
     // 직전에 클릭됐던 Item의 position
     private int prePosition = -1;
-    private BackgroundThread priceupdate_thread = new BackgroundThread();
+
     private boolean stop_flag = false;
     private Dialog dialog_buy; // 커스텀 다이얼로그
     private Dialog dialog_sell; // 커스텀 다이얼로그
@@ -56,41 +55,53 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     TableLayout simul_buysell_item;
     LineChart simulChart;
     StockDic stockdic = new StockDic();
-    public SimulAdapter(Activity context, List<BuyStockDBData> dataList)
+    List<BBandTest> bbandtestlist = new ArrayList<>();
+    BackgroundThread priceupdate_thread = new BackgroundThread();
+    public SimulAdapter(Activity context, List<String> inputsimstock)
     {
+
         this.context = context;
-        this.buyList = dataList;
+        simadaper_stock = inputsimstock;
+        loadbbtestlist();
         stop_flag = true;
         priceupdate_thread.start();
-        // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
-        // openapi가 아니고 웹크롤링으로 구현필요
-        // BackgroundThread thread = new BackgroundThread();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        priceupdate_thread.interrupt();//스레드 종료
-        super.finalize();
+
+    public void loadbbtestlist() {
+        for(int i =0;i<simadaper_stock.size();i++) {
+            String code = simadaper_stock.get(i);
+            //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
+            //mymagic01.makeBackdata();
+            PriceBox pricebox = new PriceBox(code);
+            List<Float> closeprice = pricebox.getClose();
+            BBandTest bbtest = new BBandTest(code,closeprice);
+            bbandtestlist.add(bbtest);
+        }
     }
+
     public void refresh( ) {
-        notifyDataSetChanged();
+
+        for(int i =0;i<simadaper_stock.size();i++) {
+            notifyItemChanged(i);
+        }
+        //notifyDataSetChanged();
     }
     public void reload_curprice( ) {
-        //priceupdate_thread.start();
         stop_flag=true;
+        priceupdate_thread.start();
     }
-    public boolean checksamefile(String stock_code) {
-        int size = buyList.size();
-        for(int i=0;i<size;i++) {
-            if(stock_code.equals(buyList.get(i).stock_code)) return true;
-        }
-        return false;
+
+    public void putBBandTestList(List<BBandTest> input_bbtestlist) {
+        bbandtestlist = input_bbtestlist;
     }
-    public  List<BuyStockDBData> getRecyclerList() {
-        return buyList;
+    public void putStocklist(List<String> stocklist) {
+        simadaper_stock = stocklist;
     }
-    public void putBuyList(List<BuyStockDBData> input_buylist) {
-        buyList = input_buylist;
+    @Override
+    public int getItemCount()
+    {
+        return simadaper_stock.size();
     }
     public void loadCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
@@ -100,23 +111,27 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         MyWeb myweb = new MyWeb();
         String price="";
         // TODO Auto-generated method stub
-        for (int i = 0; i < buyList.size(); i++) {
+
+        for (int i = 0; i < bbandtestlist.size(); i++) {
             //System.out.println(Integer.toString(i) + "번째 종목번호 " + buyList.get(i).stock_no);
             //if(buyList.get(i).stock_code.equals("069500")) continue;
-            price = myweb.getCurrentStockPrice(buyList.get(i).stock_code);
+            price = myweb.getCurrentStockPrice(bbandtestlist.get(i).getStock_code());
             String stokprice = price.replaceAll(",", "");
             int int_price = Integer.parseInt(stokprice);
-            buyList.get(i).cur_price = int_price;
+            bbandtestlist.get(i).putCurPrice(int_price);
         }
     }
+
     class BackgroundThread extends Thread {
         public void run() {
             //여기서는 Toast를 비롯한 UI작업을 실행못함
             while(stop_flag) {
                 try {
-                    Thread.sleep(1000); // 1분에 한번씩 update
+                    // bbandtest를 마치고 adapter가 보여진 후,
+                    // 현재가를 가져오도록 충분히 시간을 준다
+                    Thread.sleep(3000);
                     loadCurrentPrice();
-                    updatePortfolioPrice();
+                    updateCurPrice();
                     stop_flag = false;
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
@@ -126,16 +141,17 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         }
     }
 
-    public void updatePortfolioPrice() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
-
+    public void updateCurPrice() {
         context.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10);
                     //Toast.makeText(context, "test thread", Toast.LENGTH_SHORT).show();
-                    notifyDataSetChanged();
+                    //notifyDataSetChanged();
+                    for(int i =0;i<simadaper_stock.size();i++) {
+                        notifyItemChanged(i);
+                    }
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -161,61 +177,64 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
         return new ViewHolder(view);
     }
-
+    MyChart simul_chart = new MyChart();
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
+        //int position = holder.getAdapterPosition();
+
         int finger_position = position;//holder.getAdapterPosition();
-        BuyStockDBData buydata = buyList.get(position);
-        String stock_code = buydata.stock_code;
-        int now_price = buyList.get(position).cur_price;
+        BBandTest bbtest = bbandtestlist.get(position);
+        String stock_code = bbtest.getStock_code();
 
         MyChart simul_chart = new MyChart();
-        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        List<FormatChart> datalist = new ArrayList<FormatChart>();
+        List<Float> pricelist = new ArrayList<>();
+        pricelist = bbtest.getClosePirce();
+        //pricelist = bbtest.trim(pricelist,120);
+        simul_chart.adddata_float(pricelist,stock_code,context.getColor(R.color.Red));
 
-        // price history를 읽어서 차트빌더에 넣는다.
-        List<String> pricelist_str = new ArrayList<>();
-        pricelist_str = myexcel.readhistory(stock_code+".xls","CLOSE", 60,false);
-        pricelist_str = myexcel.arrangeRev_string(pricelist_str);
-        List<Integer> pricelist = myexcel.string2int(pricelist_str, 1);
-        simul_chart.buildChart_int(pricelist,stock_code,context.getColor(R.color.Red));
-        int maxprice = Collections.max(pricelist);
+        List<Float> buyscore = bbtest.chartdata_buyscore();
+        //buyscore = bbtest.trim(buyscore,120);
+        datalist = simul_chart.adddata_float(buyscore, stock_code, context.getColor(R.color.Blue));
+        simul_chart.multi_chart(simulChart, datalist, "1년차트", false);
 
-        // simulation 후 생성된 buy sell data를 읽어서
-        // buy sell list로 변환 후 price value에 맞게 scaling을 하고
-        // 차트 빌더에 집어 넣는다. 그리고 차트를 그린다.
-        BSManager mybsmanager = new BSManager(context,stock_code );
-        List<Integer> buyhistory = mybsmanager.getBuyQuantityList();
-        int size = buyhistory.size();
-        for(int i =0;i<size;i++) {
-            int scale_data = buyhistory.get(i);
-            scale_data = (int)(maxprice + maxprice*0.01*scale_data);
-            buyhistory.set(i,scale_data);
-        }
-        if(pricelist.size() > 0 && buyhistory.size() > 0) {
-            // 리스트에 stock이 추가되면 buyhistory가 없다.
-            // 이 때는 그냥 넘어간다
-            chartlist = simul_chart.buildChart_int(buyhistory, stock_code, context.getColor(R.color.Blue));
-            simul_chart.multi_chart(simulChart, chartlist, "표준화차트", false);
-        }
 
-        // bsmanager에서 last buy stock info를 읽어와서 돈계산 후, 텍스트로 보여준다.
-        BuyStockDBData currentstockinfo = new BuyStockDBData();
-        currentstockinfo =mybsmanager.CurrentStockInfo();
-        PortfolioData data= estim_buystock(currentstockinfo, now_price);
+        /*
+        List<String> close_str = new ArrayList<>();
+        List<Float> CLOSEDATA = new ArrayList<>();
+        String simstock_code = sim_stock.get(position);
+        close_str = myexcel.read_ohlcv(simstock_code, "CLOSE", -1, false);
+        CLOSEDATA = myexcel.string2float(close_str,1);
+        simul_chart.single_float(simulChart,CLOSEDATA,"close",false);
 
-        String stock_info = data.stock_name + " " + Integer.toString(data.hold_quantity)+"주"
-                + "\n" + "현재가 " +Integer.toString(data.cur_price);
+         */
+
+        Balance balance = new Balance(stock_code,0);
+        float profitrate = balance.getProfitRate();
+        int returnmoney = balance.getSellPrice();
+        int averprice = balance.getAVERPrice();
+        int total_buy_price = balance.getTotalBuyCost();
+        int hold_quantity = balance.getHoldQuantity();
+        int estimprice = balance.getEstimPrice();
+
         String simul_info =
-                "매수액 " + Integer.toString(data.buy_price) + "\n" +
-                "평가액 " + Integer.toString(data.estim_price) + "\n"+
-                "수익률 " + String.format("%.2f",data.profit_rate) + "%" + "\n" +
-                "평단가 " + Integer.toString(data.ave_price);
-        holder.tvStockinfo.setText(stock_info);
+                "투자액 " + Integer.toString(total_buy_price) + "\n" +
+                "회수액 " + Integer.toString(returnmoney) + "\n"+
+                "잔량 " + Integer.toString(hold_quantity) + ", 평단가 " +  Integer.toString(averprice)+"\n" +
+                "수익률 " + String.format("%.2f",profitrate) + "%" + "\n" +
+                "평가액 " + Integer.toString(estimprice) + "\n";
         holder.tvSimulinfo.setText(simul_info);
 
-        holder.onBind(data, position, selectedItems);
+        StockDic stockdic = new StockDic();
+        String stock_name = stockdic.getStockname(stock_code);
+        String head_info =
+                stock_name + "(" + stock_code +"}"+"\n"+
+                "현재가 " + bbtest.getCurPrice();
+        holder.tvHeadinfo.setText(head_info);
+
+        holder.onBind(position, selectedItems);
         // 일단 default로 + 아이콘을 뿌려준다.
 
         holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
@@ -223,7 +242,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             public void onViewHolderItemClick() {
 
                 String bool;
-
+                /*
                 for(int i =0;i<buyList.size();i++)  {
                     selectedItems.delete(i);
                 }
@@ -232,7 +251,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 if (prePosition != -1) notifyItemChanged(prePosition);
                 notifyItemChanged(position);
                 //System.out.println("event position is " + Integer.toString(position));
-
+                 */
             }
         });
     }
@@ -265,11 +284,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         return screen_info;
     }
 
-    @Override
-    public int getItemCount()
-    {
-        return buyList.size();
-    }
+
 
     public void showDialog_buy(){
         dialog_buy.show(); // 다이얼로그 띄우기
@@ -292,7 +307,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 BuyStockDBData onebuy = new BuyStockDBData();
                 onebuy.stock_name = name;
                 onebuy.stock_code = stock_code;
-                buyList.add(onebuy);
+                //buyList.add(onebuy);
 
                 //SBuyStock buystock = new SBuyStock();
                 //buystock.insert2db(onebuy);
@@ -315,9 +330,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         OnViewHolderItemClickListener onViewHolderItemClickListener;
-        TextView tvStockinfo,tvSimulinfo;
+        TextView tvHeadinfo,tvSimulinfo;
         LinearLayout simul_list_item;
-
 
         public ViewHolder(View view)
         {
@@ -326,12 +340,11 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             // recycler resource 초기화
             simulChart = (LineChart)view.findViewById(R.id.simul_chart);
             //tvStockinfo = view.findViewById(R.id.textView2);
-            tvStockinfo = view.findViewById(R.id.stock_info);
+            tvHeadinfo = view.findViewById(R.id.stock_info);
             tvSimulinfo = view.findViewById(R.id.simul_info);
-            tvStockinfo.setBackgroundColor(Color.DKGRAY);
+            tvHeadinfo.setBackgroundColor(Color.DKGRAY);
 
             //portfolio_item = view.findViewById(R.id.portfolio_item);
-
             buybt = view.findViewById(R.id.sim_buy_stock);
             sellbt = view.findViewById(R.id.sim_sell_stock);
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
@@ -370,9 +383,9 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         }
         void addItem(BuyStockDBData data) {
             // 외부에서 item을 추가시킬 함수입니다.
-            buyList.add(data);
+            // buyList.add(data);
         }
-        public void onBind(PortfolioData data, int position, SparseBooleanArray selectedItems) {
+        public void onBind(int position, SparseBooleanArray selectedItems) {
             //System.out.println("position is " + Integer.toString(position));
             simul_buysell_item.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
             //changeVisibility(selectedItems.get(position));
@@ -423,10 +436,12 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         int estim_price=0;
 
         if(first_cache ==0) return "";
-
+        /*
         for(int i=0;i<buyList.size();i++) {
             estim_price += buyList.get(i).cur_price*buyList.get(i).buy_quantity;
         }
+
+         */
         int total_cache =0;
         total_cache = first_cache + remain_cache + estim_price;
 
@@ -444,11 +459,4 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         //bt_tuja = context.findViewById(R.id.sim_account_info);
         bt_tuja.setText(show_myaccount());
     }
-    public  List<BuyStockDBData> getBuylist() {
-        return buyList;
-    }
-    public void putbuyList(List<BuyStockDBData> input_buylist) {
-        buyList = input_buylist;
-    }
-
 }

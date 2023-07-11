@@ -103,6 +103,51 @@ public class MyExcel extends MyStat{
             //is1.close();
         }
     }
+    public List<FormatTestData> read_testdata(String code, boolean header) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String filename = code+"_testset";
+        String PathFile = STOCKDIR+filename+".xls";;
+        List<FormatTestData> testdatalist = new ArrayList<FormatTestData>();
+        FormatTestData testdata = new FormatTestData();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int start = 0;
+                    if(header != TRUE) start = 1;
+                    int size = sheet.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
+                        // formatOA class의 구조로 저장된다
+                        // 종가는 6번째 컬럼의 값
+                        testdata = new FormatTestData();
+                        testdata.date = sheet.getCell(0, i).getContents();
+                        testdata.price = sheet.getCell(1, i).getContents();
+                        testdata.buy_quantity = sheet.getCell(2, i).getContents();
+                        testdata.sell_quantity = sheet.getCell(3, i).getContents();
+                        testdatalist.add(testdata);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        } finally {
+            //wb.close();
+            //is.close();
+        }
+
+        return testdatalist;
+    }
 
     public List<String> readColumn(String excelfile, int col) {
 
@@ -138,47 +183,6 @@ public class MyExcel extends MyStat{
             //is.close();
         }
         return mArrayBuffer;
-    }
-
-    public int getMaxRow() {
-        return rowTotal;
-    }
-    public int getMaxColumn() {
-        return colTotal;
-    }
-
-    public String readCell( int col1, int line1) {
-        InputStream is=null;
-        Workbook wb=null;
-        String contents1=null;
-        int line, col;
-        String PathFile = ExcelFile;
-
-        line = line1; col=col1;
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    contents1 = sheet.getCell(col, line).getContents();
-                    //colTotal = sheet.getColumns();    // 전체 컬럼
-                    //rowTotal = sheet.getColumn(0).length; // 라인은 첫째 컬럼 최대치를 기준으론 한다.
-                    //return contents1;
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
-        return contents1;
     }
 
 
@@ -282,6 +286,56 @@ public class MyExcel extends MyStat{
         return column;
     }
 
+    public void write_ohlcv( String filename, List<FormatOHLCV> src_csvlist) {
+
+        List<FormatOHLCV> csvlist = new ArrayList<>();
+        csvlist = src_csvlist;
+
+        WritableSheet writablesheet;
+        String PathFile = STOCKDIR+filename+".xls";;
+        java.io.File file1 = new java.io.File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet1", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+
+                if(writablesheet != null) {
+                    int size = csvlist.size();
+                    for(int row =0;row<size;row++) {
+                        writablesheet.addCell(new Label(0, row, csvlist.get(row).date));
+                        writablesheet.addCell(new Label(1, row, csvlist.get(row).open));
+                        writablesheet.addCell(new Label(2, row, csvlist.get(row).high));
+                        writablesheet.addCell(new Label(3, row, csvlist.get(row).low));
+                        writablesheet.addCell(new Label(4, row, csvlist.get(row).close));
+                        writablesheet.addCell(new Label(5, row, csvlist.get(row).adjclose));
+                        writablesheet.addCell(new Label(6, row, csvlist.get(row).volume));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+
+
     public List<String> oa_readItem(String filename, String tag, boolean header) {
 
         int column = getTagColumn(tag);
@@ -325,7 +379,7 @@ public class MyExcel extends MyStat{
     }
 
 
-    public List<String> readhistory(String filename, String tag, int days, boolean header) {
+    public List<String> read_ohlcv(String stock_code, String tag, int days, boolean header) {
 
         // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
         int column = getTagColumn(tag);
@@ -333,7 +387,7 @@ public class MyExcel extends MyStat{
         Workbook wb=null;
         int maxcol;
 
-        String PathFile = STOCKDIR+filename;;
+        String PathFile = STOCKDIR+stock_code+".xls";;
         List<String> pricebuffer = new ArrayList<String>();
 
         try {
@@ -343,13 +397,19 @@ public class MyExcel extends MyStat{
                 Sheet sheet = wb.getSheet(0);   // 시트 불러오기
                 if(sheet != null) {
                     // line1, col1에서 contents를 읽는다.
-                    int start = 0;
-                    if(header != TRUE) start = 1;
-                    // -1 : data를 max로 읽으려면 헤더때문에 -1을 해줘야 한다
-                    maxcol = sheet.getColumn(column).length-1;
+                    int start = 0, end;
+                    if(header != true) start = 1;
+                    maxcol = sheet.getColumn(column).length;
                     // days가 maxcol을 넘어가거나 -1보다 작으면 maxcol로 읽는다
-                    if(days >= maxcol || days <= -1) days = maxcol;
-                    for(int i=start;i<days+start;i++) {
+                    if(days >= maxcol || days <= -1) {
+                        start = 1;
+                        end = maxcol-1;
+                    }
+                    else {
+                        start = maxcol-days;
+                        end = maxcol;
+                    }
+                    for(int i=start;i<end;i++) {
                         // formatOA class의 구조로 저장된다
                         // 종가는 6번째 컬럼의 값
                         pricebuffer.add(sheet.getCell(column, i).getContents());
@@ -619,8 +679,9 @@ public class MyExcel extends MyStat{
     public void write_testdata(String code, List<String> date ,List<String> price,List<Integer> buy, List<Integer> sell) {
 
         String filename = code+"_testset";
-        WritableSheet writablesheet;
         String PathFile = STOCKDIR+filename+".xls";;
+        WritableSheet writablesheet;
+
         java.io.File file1 = new java.io.File(PathFile);
         try {
             // 오픈한 파일은 엑셀파일로 바꾸고
@@ -636,11 +697,11 @@ public class MyExcel extends MyStat{
                 if(writablesheet != null) {
                     // header 때문에 1부터 시작해야 한다
                     int size = buy.size();
-                    for(int row =0;row < size ;row++) {
-                        writablesheet.addCell(new Label(0, row, date.get(row)));
-                        writablesheet.addCell(new Label(1, row, price.get(row)));
-                        writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row))));
-                        writablesheet.addCell(new Label(3, row, String.valueOf(sell.get(row))));
+                    for(int row =1;row < size+1 ;row++) {
+                        writablesheet.addCell(new Label(0, row, date.get(row-1)));
+                        writablesheet.addCell(new Label(1, row, price.get(row-1)));
+                        writablesheet.addCell(new Label(2, row, String.valueOf(buy.get(row-1))));
+                        writablesheet.addCell(new Label(3, row, String.valueOf(sell.get(row-1))));
                     }
                 }
             }
@@ -659,6 +720,7 @@ public class MyExcel extends MyStat{
 
         }
     }
+
 
 
     public List<FormatTestData> removeHeader(List<FormatTestData> input) {
