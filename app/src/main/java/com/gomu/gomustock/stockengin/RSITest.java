@@ -12,9 +12,16 @@ public class RSITest {
     int ONEYEAR = -1;
     String STOCK_CODE;
     List<Float>  CLOSEDATA = new ArrayList<>();
-
-    public RSITest(List<Float> input) {
-        CLOSEDATA = input;
+    int DAYS;
+    public RSITest(List<Float> close, int days) {
+        DAYS = days;
+        int size = close.size();
+        if(days == -1) CLOSEDATA = close;
+        else {
+            for (int i = 0; i < days; i++) {
+                CLOSEDATA.add(close.get(size - days + i));
+            }
+        }
     }
 
     public List<Float> test_line() {

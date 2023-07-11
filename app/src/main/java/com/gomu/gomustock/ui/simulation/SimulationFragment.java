@@ -184,7 +184,7 @@ public class SimulationFragment extends Fragment {
                     //mymagic01.makeBackdata();
                     PriceBox pricebox = new PriceBox(code);
                     List<Float> closeprice = pricebox.getClose();
-                    BBandTest bbtest = new BBandTest(code,closeprice);
+                    BBandTest bbtest = new BBandTest(code,closeprice, 60);
                     bbandtestlist.add(bbtest);
                 }
                 simul_adapter.putBBandTestList(bbandtestlist);
@@ -516,7 +516,7 @@ public class SimulationFragment extends Fragment {
             //mymagic01.makeBackdata();
             PriceBox pricebox = new PriceBox(code);
             List<Float> closeprice = pricebox.getClose();
-            BBandTest bbtest = new BBandTest(code,closeprice);
+            BBandTest bbtest = new BBandTest(code,closeprice, 60);
             bbandtestlist.add(bbtest);
         }
 

@@ -42,8 +42,11 @@ public class YFDownload {
             String path = "https://query1.finance.yahoo.com/v7/finance/download/"+STOCK_CODE_ENC+
                     "?period1="+oneyearbefore+"&period2="+today+"&interval=1d&events=history&includeAdjustedClose=true";
 
+            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529392&period2=1689065392&interval=1d&events=history&includeAdjustedClose=true
+            //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529546&period2=1689065546&interval=1d&events=history&includeAdjustedClose=true
+
             Connection connection = Jsoup.connect(path);
-            //connection.timeout(5000);
+            connection.timeout(5000);
             Connection.Response resultImageResponse = connection.ignoreContentType(true).execute();
             csvdata = resultImageResponse.parse().body().text();
         } catch (IOException e) {
@@ -84,7 +87,7 @@ public class YFDownload {
     }
 
     public String encodingURL(String stock_code) {
-        String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI" };
+        String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI","^SOX" };
         boolean isExist = Arrays.stream(index_table).anyMatch(stock_code::equals);
         if(isExist) return URLEncoder.encode(stock_code);
         else return stock_code+".KS";

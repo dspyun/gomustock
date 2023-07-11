@@ -1,8 +1,13 @@
 package com.gomu.gomustock.ui.notifications;
 
+import static android.content.ContentValues.TAG;
+
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +22,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.github.mikephil.charting.charts.LineChart;
+import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentNotificationsBinding;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.network.YFDownload;
+import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatSector;
 
 import java.util.ArrayList;
@@ -29,34 +37,32 @@ import java.util.List;
 
 public class NotificationsFragment extends Fragment {
 
+    View root;
     private NotificationsViewModel notificationsViewModel;
     private FragmentNotificationsBinding binding;
     ImageView infochart11, infochart12, infochart21, infochart22;
-    MyWeb myweb;
-    TextView textView;
+    TextView tvDownload, tvUpdate,tvSignal,tvDummy;
+    LineChart kospi, snp500,nasdaq, dow, sox;
+    MyExcel myexcel = new MyExcel();
+    List<Float> kospi_index = new ArrayList<>();
+    List<Float> nasdaq_index = new ArrayList<>();
+    List<Float> snp500_index = new ArrayList<>();
+    List<Float> dow_index = new ArrayList<>();
+    List<String> price_str = new ArrayList<>();
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         notificationsViewModel =
                 new ViewModelProvider(this).get(NotificationsViewModel.class);
 
         binding = FragmentNotificationsBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        root = binding.getRoot();
 
-        myweb= new MyWeb();
-        //kr_zumimage = binding.ivMyzum;
-        infochart11 = root.findViewById(R.id.chart11);
-        infochart12 = root.findViewById(R.id.chart12);
-        infochart21 = binding.chart21;
-        infochart22 = binding.chart22;
-        textView = root.findViewById(R.id.info_board);
-        //textView= binding.textNotifications;
+        initResource();
 
-        String str = "차트분석&평가, 예측알고리즘, 네이버 종목고르기\n";
-        str += "속도가속도 기법, 종목분석&평가 \n";
-        str += "시장의 돈쏠림을 알 수 있게 \n";
-        str += "섹터별 기관/외국인 매수매도 차트? 네이버활용";
-        textView.setText(str);
-        //mythread();
+        if(myexcel.file_check("^KS11.xls")) {
+            show_chart();
+        }
+
 
         FormatSector mysector = new FormatSector();
         mysector.init();
@@ -74,50 +80,19 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
-
-        String kr_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/mobile/world/day/NQcv1_end_up.png?1687375767000";
-        Glide.with(context).load(kr_imageUrl)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(infochart12);
-        infochart12.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        String imageUrl_01 = "https://ssl.pstatic.net/imgfinance/chart/mobile/world/day/.IXIC_end_up.png?1687335359000";
-                Glide.with(context).load(imageUrl_01)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(infochart11);
-        infochart11.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        infochart11.setOnClickListener(new View.OnClickListener() {
+        tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                String kr_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/mobile/world/day/.IXIC_end_up.png?1687335359000";
-                Glide.with(context).load(kr_imageUrl)
-                        .skipMemoryCache(true)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .into(infochart11);
-                infochart11.setScaleType(ImageView.ScaleType.FIT_XY);
-                //Toast.makeText(context, "update imageview", Toast.LENGTH_SHORT).show();
-
-                 */
-                dl_SectroInfo();
+                dl_yahoofinance_price();
+            }
+        });
+        tvUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                show_chart();
             }
         });
 
-        infochart12.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String kr_imageUrl = "https://ssl.pstatic.net/imgfinance/chart/mobile/world/day/NQcv1_end_up.png?1687375767000";
-                Glide.with(context).load(kr_imageUrl)
-                        .skipMemoryCache(true)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .into(infochart12);
-                infochart12.setScaleType(ImageView.ScaleType.FIT_XY);
-                //Toast.makeText(context, "update imageview", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         notificationsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -127,6 +102,107 @@ public class NotificationsFragment extends Fragment {
         });
         return root;
     }
+    public void initResource() {
+        tvDownload= root.findViewById(R.id.tv_noti_dl);
+        tvUpdate = root.findViewById(R.id.tv_noti_update);
+        tvSignal = root.findViewById(R.id.tv_noti_signal);
+        tvDummy = root.findViewById(R.id.tv_noti_dummy);
+    }
+
+    void dl_yahoofinance_price() {
+        MyWeb myweb = new MyWeb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                new YFDownload("^KS11");
+                new YFDownload("^GSPC");
+                new YFDownload("^IXIC");
+                new YFDownload("^DJI");
+                new YFDownload("^SOX");
+                notice_ok();
+            }
+        }).start();
+    }
+
+    void notice_ok() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1L); // 잠시라도 정지해야 함
+                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
+                    tvDownload.setTextColor(Color.YELLOW);
+                } catch (Exception e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
+            }
+        });
+    }
+
+    public void show_chart() {
+        List<Float> kospi_std = new ArrayList<>();
+        List<Float> nasdaq_std = new ArrayList<>();
+        List<Float> snp500_std = new ArrayList<>();
+        List<Float> dow_std = new ArrayList<>();
+        List<Float> sox_std = new ArrayList<>();
+
+        kospi = (LineChart)root.findViewById(R.id.kospi);
+        List<String> price_str = myexcel.read_ohlcv("^KS11" , "CLOSE", 60, false);
+        kospi_index = myexcel.string2float(price_str,1);
+        MyChart kospi_chart = new MyChart();
+        kospi_chart.single_float(kospi,kospi_index,"코스피", false);
+        kospi_std = myexcel.standardization_lib(kospi_index);
+
+        snp500 = (LineChart)root.findViewById(R.id.snp500);
+        List<String> price_str1 = myexcel.read_ohlcv("^GSPC" , "CLOSE", 60, false);
+        snp500_index = myexcel.string2float(price_str1,1);
+        MyChart snp500_chart = new MyChart();
+        snp500_chart.single_float(snp500,snp500_index,"나스닥", false);
+        snp500_std = myexcel.standardization_lib(snp500_index);
+
+        /*
+        nasdaq = (LineChart)root.findViewById(R.id.nasdaq);
+        List<String> price_str2 = myexcel.read_ohlcv("^IXIC" , "CLOSE", 60, false);
+        nasdaq_index = myexcel.string2float(price_str2,1);
+        MyChart nasdaq_chart = new MyChart();
+        nasdaq_chart.single_float(nasdaq,nasdaq_index,"SNP500", false);
+        nasdaq_std = myexcel.standardization_lib(nasdaq_index);
+        */
+
+        dow = (LineChart)root.findViewById(R.id.dow);
+        List<String> price_str3 = myexcel.read_ohlcv("^DJI" , "CLOSE", 60, false);
+        dow_index = myexcel.string2float(price_str3,1);
+        MyChart dow_chart = new MyChart();
+        dow_chart.single_float(dow,dow_index,"다우", false);
+        dow_std = myexcel.standardization_lib(dow_index);
+
+
+        List<Float> sox_index = new ArrayList<>();
+        sox = (LineChart)root.findViewById(R.id.nasdaq);
+        List<String> price_str4 = myexcel.read_ohlcv("^SOX" , "CLOSE", 60, false);
+        sox_index = myexcel.string2float(price_str4,1);
+        MyChart sox_chart = new MyChart();
+        sox_chart.single_float(sox,sox_index,"반도체", false);
+        sox_std = myexcel.standardization_lib(sox_index);
+
+
+        LineChart composit = (LineChart)root.findViewById(R.id.composit);
+        int size = snp500_std.size();
+        List<Float> comp = new ArrayList<>();
+        for(int i =0;i<size;i++) {
+            comp.add((dow_std.get(i) + sox_std.get(i) + snp500_std.get(i))/3);
+        }
+        MyChart comp_chart = new MyChart();
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        comp_chart.adddata_float(comp,"합성",context.getColor(R.color.White));
+        chartlist = comp_chart.adddata_float(kospi_std,"코스피",context.getColor(R.color.Red));
+        comp_chart.multi_chart(composit,chartlist,"합성", false);
+    }
+
     public void dl_SectroInfo() {
         MyWeb myweb = new MyWeb();
         new Thread(new Runnable() {

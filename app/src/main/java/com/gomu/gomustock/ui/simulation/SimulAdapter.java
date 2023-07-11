@@ -59,23 +59,22 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     BackgroundThread priceupdate_thread = new BackgroundThread();
     public SimulAdapter(Activity context, List<String> inputsimstock)
     {
-
         this.context = context;
         simadaper_stock = inputsimstock;
-        loadbbtestlist();
+        loadbbtestlist(60);
         stop_flag = true;
         priceupdate_thread.start();
     }
 
 
-    public void loadbbtestlist() {
+    public void loadbbtestlist(int days) {
         for(int i =0;i<simadaper_stock.size();i++) {
             String code = simadaper_stock.get(i);
             //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
             //mymagic01.makeBackdata();
             PriceBox pricebox = new PriceBox(code);
             List<Float> closeprice = pricebox.getClose();
-            BBandTest bbtest = new BBandTest(code,closeprice);
+            BBandTest bbtest = new BBandTest(code,closeprice,days);
             bbandtestlist.add(bbtest);
         }
     }

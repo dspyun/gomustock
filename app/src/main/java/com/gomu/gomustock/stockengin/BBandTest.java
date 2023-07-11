@@ -23,9 +23,9 @@ public class BBandTest {
 
     int CUR_PRICE;
     public List<Float> getClosePirce() {
-        List<String> close_str = new ArrayList<>();
-        close_str = myexcel.read_ohlcv(STOCK_CODE, "CLOSE", ONEYEAR, false);
-        CLOSEDATA = myexcel.string2float(close_str,1);
+        //List<String> close_str = new ArrayList<>();
+        //close_str = myexcel.read_ohlcv(STOCK_CODE, "CLOSE", ONEYEAR, false);
+        //CLOSEDATA = myexcel.string2float(close_str,1);
         return CLOSEDATA;
     }
     public List<Float> getUpperLine() {
@@ -46,16 +46,25 @@ public class BBandTest {
         CUR_PRICE = cur_price;
     }
 
-    public BBandTest (String stock_code, List<Float> close) {
-        CLOSEDATA = close;
+    int DAYS;
+    public BBandTest (String stock_code, List<Float> close, int days) {
+
+        int size = close.size();
+        if(days == -1) CLOSEDATA = close;
+        else {
+            for (int i = 0; i < days; i++) {
+                CLOSEDATA.add(close.get(size - days + i));
+            }
+        }
+        DAYS = days;
         STOCK_CODE = stock_code;
         loadTestData();
-        rsitest = new RSITest(close);
+        rsitest = new RSITest(close, days);
         testNsave(true);
     }
 
     void loadTestData() {
-        List<List<Float>> bband_result = mytalib.bbands(CLOSEDATA,60);
+        List<List<Float>> bband_result = mytalib.bbands(CLOSEDATA,DAYS);
         UPPERLINE = bband_result.get(0);
         MIDDLELINE = bband_result.get(1);
         LOWLINE = bband_result.get(2);

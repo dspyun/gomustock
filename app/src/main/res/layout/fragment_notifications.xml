@@ -14,90 +14,142 @@
 
         <TableRow>
             <Button
-                android:id="@+id/bt_dl"
+                android:id="@+id/tv_noti_dl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="정보DL"
                 android:layout_weight = "1"/>
             <Button
-                android:id="@+id/bt_update"
+                android:id="@+id/tv_noti_update"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Update"
                 android:layout_weight = "1"/>
             <Button
-                android:id="@+id/bt_signal"
+                android:id="@+id/tv_noti_signal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Signal"
                 android:layout_weight = "1"/>
             <Button
-                android:id="@+id/bt_dummy"
+                android:id="@+id/tv_noti_dummy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="dummy"
                 android:layout_weight = "1"/>
         </TableRow>
     </TableLayout>
-    <TextView
-        android:id="@+id/info_board"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp" />
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/kospi"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/nasdaq"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+    </LinearLayout>
+
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center">
         <TableRow>
-            <ImageView
-                android:id="@+id/chart11"
-                android:layout_width="193dp"
-                android:layout_height="150dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:layout_weight = "1"/>
-            <ImageView
-                android:id="@+id/chart12"
-                android:layout_width="193dp"
-                android:layout_height="150dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:layout_weight = "1"/>
-        </TableRow>
-        <TableRow>
             <TextView
                 android:id="@+id/text11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="나스닥"
+                android:text="코스피"
                 android:gravity="center_horizontal"
                 android:layout_weight = "1"/>
             <TextView
                 android:id="@+id/text12"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="나스닥선물"
+                android:text="나스닥"
                 android:gravity="center_horizontal"
                 android:layout_weight = "1"/>
         </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/snp500"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/dow"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
         <TableRow>
-        <ImageView
-            android:id="@+id/chart21"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_weight = "1"/>
-        <ImageView
-            android:id="@+id/chart22"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_weight = "1"/>
+            <TextView
+                android:id="@+id/text21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SP500"
+                android:gravity="center_horizontal"
+                android:layout_weight = "1"/>
+            <TextView
+                android:id="@+id/text22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="다우"
+                android:gravity="center_horizontal"
+                android:layout_weight = "1"/>
         </TableRow>
     </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/composit"
+            android:layout_width="400dp"
+            android:layout_height="200dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+    </LinearLayout>
+
     <ListView
         android:id="@+id/sector_listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:listitem="@layout/noti_list_sector"/>
-
 
 </LinearLayout>
