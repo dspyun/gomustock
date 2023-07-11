@@ -103,6 +103,16 @@ public class MyStat {
         return result;
     }
 
+    public List<Float> trim_float(List<Float> input, int count) {
+        List<Float> result = new ArrayList<Float>();
+        int size = input.size();
+        int start = size-count;
+        for(int i=0;i< count;i++) {
+            result.add(input.get(start+i));
+        }
+        return result;
+    }
+
     public List<Float> oa_standardization(List<String> rawdata) {
 
         List<Float> closeprice = new ArrayList<Float>();

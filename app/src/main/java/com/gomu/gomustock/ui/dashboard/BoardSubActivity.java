@@ -4,6 +4,7 @@ package com.gomu.gomustock.ui.dashboard;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -19,9 +20,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
+import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.stockengin.TAlib;
+import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.util.ArrayList;
@@ -79,27 +83,25 @@ public class BoardSubActivity extends AppCompatActivity {
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(pergragh);
 
-            MyExcel myexcel = new MyExcel();
-/*
+            MyStat mystat = new MyStat();
+            PriceBox pricebox = new PriceBox(stock_code);
+            List<Float> closeprice = mystat.trim_float(pricebox.getClose(), 60);
+            List<Float> highprice = mystat.trim_float(pricebox.getHigh(), 60);
+            List<Float> lowprice = mystat.trim_float(pricebox.getLow(),60);
             // bband 결과값에는 price chart data가 포함되지 않았다
             // 아래처럼 별도로 하나 만들어서 추가해준다.
-            List<Float> price_data = new ArrayList<Float>();
-            List<String> temp = new ArrayList<>();
-            temp = myexcel.readhistory(stock_code + ".xls","CLOSE", 60,false);
-            temp = myexcel.arrangeRev_string(temp);
-            price_data = myexcel.string2float(temp, 1);
-
 
             MyChart bband_chart = new MyChart();
+
             bbnandChart = findViewById(R.id.bband_chart);
             List<List<Float>> bb_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> bband_chartdata = new ArrayList<FormatChart>();
-            bb_chart_list = mytalib.bbands(stock_code);
-            bband_chart.buildChart_float(price_data, stock_code, Color.RED); // price chart data는 별도로 추가해준다
-            bband_chart.buildChart_float(bb_chart_list.get(0), "upper", Color.GRAY);
-            bband_chart.buildChart_float(bb_chart_list.get(1), "middle", Color.LTGRAY);
-            bband_chart.buildChart_float(bb_chart_list.get(2), "lower", Color.GRAY);
-            bband_chartdata = bband_chart.buildChart_float(bb_chart_list.get(3), "test", Color.BLUE);
+            bb_chart_list = mytalib.bbands(closeprice,60);
+            bband_chart.adddata_float(closeprice, stock_code, Color.RED); // price chart data는 별도로 추가해준다
+            bband_chart.adddata_float(bb_chart_list.get(0), "upper", Color.GRAY);
+            bband_chart.adddata_float(bb_chart_list.get(1), "middle", Color.LTGRAY);
+            bband_chart.adddata_float(bb_chart_list.get(2), "lower", Color.GRAY);
+            bband_chartdata = bband_chart.adddata_float(mytalib.scaled_percentb(), "test", Color.BLUE);
             //bband_chart.setYMinmax(0, 0);
             bband_chart.multi_chart(bbnandChart, bband_chartdata, "볼린저밴드", false);
             //lineChart.invalidate();
@@ -109,21 +111,20 @@ public class BoardSubActivity extends AppCompatActivity {
             rsiChart = findViewById(R.id.rsi_chart);
             List<List<Float>> rsi_chartlist = new ArrayList<List<Float>>();
             List<FormatChart> rsi_chartdata = new ArrayList<FormatChart>();
-            rsi_chartlist = mytalib.rsi_test(stock_code, 60);
-            rsi_chart.buildChart_float(rsi_chartlist.get(0), "RSI", Color.YELLOW);
-            rsi_chartdata = rsi_chart.buildChart_float(rsi_chartlist.get(1), "Interval", Color.WHITE);
+            rsi_chartlist = mytalib.rsi(closeprice, 60);
+            rsi_chart.adddata_float(rsi_chartlist.get(0), "RSI", Color.YELLOW);
+            rsi_chartdata = rsi_chart.adddata_float(rsi_chartlist.get(1), "Interval", Color.WHITE);
             rsi_chart.multi_chart(rsiChart,rsi_chartdata,"RSI",false );
-
 
             // macd test
             MyChart macd_chart = new MyChart();
             macdChart = findViewById(R.id.macd_chart);
             List<List<Float>> macd_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> macd_chartdata = new ArrayList<FormatChart>();
-            macd_chart_list = mytalib.macd_test(stock_code, 60);
-            macd_chart.buildChart_float(macd_chart_list.get(0), "fast", Color.YELLOW);
-            macd_chart.buildChart_float(macd_chart_list.get(1), "slow", Color.WHITE);
-            macd_chartdata = macd_chart.buildChart_float(macd_chart_list.get(2), "signal", Color.RED);
+            macd_chart_list = mytalib.macd(closeprice,60);
+            macd_chart.adddata_float(macd_chart_list.get(0), "fast", Color.YELLOW);
+            macd_chart.adddata_float(macd_chart_list.get(1), "slow", Color.WHITE);
+            macd_chartdata = macd_chart.adddata_float(macd_chart_list.get(2), "signal", Color.RED);
             //macd_chart.setYMinmax(0, 0);
             macd_chart.multi_chart(macdChart, macd_chartdata, "MACD", false);
 
@@ -132,28 +133,26 @@ public class BoardSubActivity extends AppCompatActivity {
             //MyChart adx_chart = new MyChart();
             //adxChart = findViewById(R.id.adx_chart);
             //List<Float> adx_chartdata = new ArrayList<>();
-            //adx_chartdata = mytalib.adx_test(stock_code, 60);
+            //adx_chartdata = mytalib.adx(stock_code, 60);
             //rsi_chart.single_float(adxChart,adx_chartdata,"ADX",false );
-
 
             MyChart adx_chart = new MyChart();
             adxChart = findViewById(R.id.adx_chart);
             List<Float> adx_chartdata = new ArrayList<>();
-            adx_chartdata = mytalib.mom_test(stock_code, 60);
+            adx_chartdata = mytalib.mom(closeprice, 60);
             rsi_chart.single_float(adxChart,adx_chartdata,"MOM",false );
-
 
             // stoch test
             MyChart stoch_chart = new MyChart();
             stochChart = findViewById(R.id.stoch_chart);
             List<List<Float>> stoch_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> stock_chartdata = new ArrayList<FormatChart>();
-            stoch_chart_list = mytalib.stoch_test(stock_code, 60);
-            stoch_chart.buildChart_float(stoch_chart_list.get(0), "slow-K", Color.GRAY);
-            stock_chartdata = stoch_chart.buildChart_float(stoch_chart_list.get(1), "slow-D", Color.LTGRAY);
+            stoch_chart_list = mytalib.stoch(closeprice,highprice,lowprice,60);
+            stoch_chart.adddata_float(stoch_chart_list.get(0), "slow-K", Color.GRAY);
+            stock_chartdata = stoch_chart.adddata_float(stoch_chart_list.get(1), "slow-D", Color.LTGRAY);
             //stoch_chart.setYMinmax(0, 0);
             stoch_chart.multi_chart(stochChart, stock_chartdata, "스토케스틱", false);
-*/
+
             mytext.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

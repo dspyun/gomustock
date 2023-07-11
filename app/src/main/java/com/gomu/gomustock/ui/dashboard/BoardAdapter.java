@@ -137,8 +137,9 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position)
+    public void onBindViewHolder(final ViewHolder holder, int pposition)
     {
+        int position = holder.getAdapterPosition();
         finger_position = position;
         //final BoardData data = dataList.get(position);
         String stock_code = recycler_list.get(position);

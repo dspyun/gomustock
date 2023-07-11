@@ -26,16 +26,16 @@ public class BBandTest {
         List<String> close_str = new ArrayList<>();
         close_str = myexcel.read_ohlcv(STOCK_CODE, "CLOSE", ONEYEAR, false);
         CLOSEDATA = myexcel.string2float(close_str,1);
-        return   CLOSEDATA;
+        return CLOSEDATA;
     }
     public List<Float> getUpperLine() {
-        return    UPPERLINE;
+        return  UPPERLINE;
     }
     public List<Float> getMiddleLine() {
-        return    MIDDLELINE;
+        return  MIDDLELINE;
     }
     public List<Float> getLowLine() {
-        return    LOWLINE;
+        return LOWLINE;
     }
     public String getStock_code() { return STOCK_CODE; }
 
@@ -55,7 +55,7 @@ public class BBandTest {
     }
 
     void loadTestData() {
-        List<List<Float>> bband_result = mytalib.bbands(CLOSEDATA);
+        List<List<Float>> bband_result = mytalib.bbands(CLOSEDATA,60);
         UPPERLINE = bband_result.get(0);
         MIDDLELINE = bband_result.get(1);
         LOWLINE = bband_result.get(2);

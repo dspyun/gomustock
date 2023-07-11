@@ -179,12 +179,12 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     }
     MyChart simul_chart = new MyChart();
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int pposition) {
 
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
-        //int position = holder.getAdapterPosition();
+        int position = holder.getAdapterPosition();
+        int finger_position = position;
 
-        int finger_position = position;//holder.getAdapterPosition();
         BBandTest bbtest = bbandtestlist.get(position);
         String stock_code = bbtest.getStock_code();
 
@@ -199,17 +199,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         //buyscore = bbtest.trim(buyscore,120);
         datalist = simul_chart.adddata_float(buyscore, stock_code, context.getColor(R.color.Blue));
         simul_chart.multi_chart(simulChart, datalist, "1년차트", false);
-
-
-        /*
-        List<String> close_str = new ArrayList<>();
-        List<Float> CLOSEDATA = new ArrayList<>();
-        String simstock_code = sim_stock.get(position);
-        close_str = myexcel.read_ohlcv(simstock_code, "CLOSE", -1, false);
-        CLOSEDATA = myexcel.string2float(close_str,1);
-        simul_chart.single_float(simulChart,CLOSEDATA,"close",false);
-
-         */
 
         Balance balance = new Balance(stock_code,0);
         float profitrate = balance.getProfitRate();
