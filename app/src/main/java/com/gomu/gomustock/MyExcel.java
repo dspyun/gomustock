@@ -411,7 +411,6 @@ public class MyExcel extends MyStat{
                     }
                     for(int i=start;i<end;i++) {
                         // formatOA class의 구조로 저장된다
-                        // 종가는 6번째 컬럼의 값
                         pricebuffer.add(sheet.getCell(column, i).getContents());
                     }
                 }
@@ -429,11 +428,52 @@ public class MyExcel extends MyStat{
 
         return pricebuffer;
     }
+    public List<FormatOHLCV> readall_ohlcv(String stock_code) {
+
+        // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
+
+        String PathFile = STOCKDIR+stock_code+".xls";;
+        List<FormatOHLCV> ohlcvlist = new ArrayList<FormatOHLCV>();
+
+
+        try {
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatOHLCV oneohlcv = new FormatOHLCV();
+                        // formatOA class의 구조로 저장된다
+                        oneohlcv.date = sheet.getCell(0, i).getContents();
+                        oneohlcv.open = sheet.getCell(1, i).getContents();
+                        oneohlcv.high = sheet.getCell(2, i).getContents();
+                        oneohlcv.low = sheet.getCell(3, i).getContents();
+                        oneohlcv.close = sheet.getCell(4, i).getContents();
+                        oneohlcv.adjclose = sheet.getCell(5, i).getContents();
+                        oneohlcv.volume = sheet.getCell(6, i).getContents();
+                        ohlcvlist.add(oneohlcv);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+
+        return ohlcvlist;
+    }
 
 
     public List<List<String>> readStockDic() {
         List<String> STOCK_NO = new ArrayList<String>();
         List<String> STOCK_NAME = new ArrayList<String>();
+        List<String> MARKET = new ArrayList<String>();
         List<List<String>> diclist = new ArrayList<List<String>>();
         InputStream is=null;
         Workbook wb=null;
@@ -451,6 +491,7 @@ public class MyExcel extends MyStat{
                     for (int i = 1; i <= size-1; i++) {
                         STOCK_NO.add(sheet.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet.getCell(3, i).getContents());
+                        MARKET.add(sheet.getCell(6, i).getContents());
                     }
                 }
                 Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
@@ -460,6 +501,7 @@ public class MyExcel extends MyStat{
                     for (int i = 1; i <= size1-1; i++) {
                         STOCK_NO.add(sheet1.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet1.getCell(3, i).getContents());
+                        MARKET.add(sheet.getCell(6, i).getContents());
                     }
                 }
             }
@@ -472,11 +514,9 @@ public class MyExcel extends MyStat{
         }
         diclist.add(STOCK_NO);
         diclist.add(STOCK_NAME);
+        diclist.add(MARKET);
         return diclist;
     }
-
-    private List<String> STOCK_NAME = new ArrayList<>();
-    private List<String> STOCK_NO = new ArrayList<>();
 
     /*
     public String find_stockno(String name) {

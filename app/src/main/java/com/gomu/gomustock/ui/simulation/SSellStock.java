@@ -2,7 +2,7 @@ package com.gomu.gomustock.ui.simulation;
 
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.SellStockDBData;

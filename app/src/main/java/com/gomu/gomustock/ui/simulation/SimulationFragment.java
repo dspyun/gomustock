@@ -29,7 +29,7 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.PriceBox;
 
@@ -480,36 +480,6 @@ public class SimulationFragment extends Fragment {
         SCache mycache = new SCache();
         mycache.initialize();
 
-
-        // manager가 data를 생성해내고
-        // balance가 data를 계산한다
-        // 계산된 data는 차트가 보여준다
-        for(int i=0;i<sim_stock.size();i++) {
-
-            /*
-            sim_bsmanager = new BSManager(context,sim_stock.get(i));
-            sim_bsmanager.loadExcel2BuySellList(); // 과거>현재 순의 시험데이터를 DB로 넣는다.
-            lastbuy = sim_bsmanager.CurrentStockInfo(); // 과거>현재 순으로  정렬된 데이터.
-            lastbuylist.add(lastbuy);
-
-             */
-            // 포트폴리오 정보와 가격 히스토리를 가지고
-            // 수익변화차트 데이터를 만든다
-            /*
-            String stock_code = lastbuy.stock_code;
-            MyBalance onebalance = new MyBalance(stock_code);
-            onebalance.prepareDataset(sim_bsmanager.getBuystockList(), sim_bsmanager.getSellstockList());
-            onebalance.makeBalancedata();
-            balancelist.add(onebalance);
-
-             */
-        }
-        //cacheChart(balancelist);
-        //stockChart(balancelist);
-
-        // 계좌 정보 보여주기
-        //top_board(view);
-
         for(int i =0;i<sim_stock.size();i++) {
             String code = sim_stock.get(i);
             //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
@@ -519,7 +489,6 @@ public class SimulationFragment extends Fragment {
             BBandTest bbtest = new BBandTest(code,closeprice, 60);
             bbandtestlist.add(bbtest);
         }
-
 
         // recycler view 준비
         recyclerView = view.findViewById(R.id.sim_recycler_view);

@@ -34,7 +34,7 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.MyScore;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
@@ -133,9 +133,8 @@ public class DashboardFragment extends Fragment {
                 MyWeb myweb = new MyWeb();
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 dl_getStockinfo(recyclerlist);
-                //myweb.dl_NaverPriceByday(recyclerlist,240);
-                dl_yahoofinance_price(recyclerlist);
                 dl_AgencyForeigne(recyclerlist);
+                dl_yahoofinance_price(recyclerlist);
             }
         });
 
@@ -326,7 +325,6 @@ public class DashboardFragment extends Fragment {
 
 
     void dl_yahoofinance_price(List<String> stocklist) {
-        MyWeb myweb = new MyWeb();
         new Thread(new Runnable() {
             @Override
             public void run() {

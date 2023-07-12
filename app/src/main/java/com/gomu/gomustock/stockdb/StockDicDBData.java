@@ -19,7 +19,8 @@ public class StockDicDBData {
 
     @ColumnInfo(name = "종목명")
     public String stock_name;
-
+    @ColumnInfo(name = "시장")
+    public String market;
     public int getId()
     {
         return id;

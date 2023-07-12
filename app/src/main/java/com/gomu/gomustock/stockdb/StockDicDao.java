@@ -29,9 +29,11 @@ public interface StockDicDao {
     @Update
     void update(StockDicDBData dicdbData);
 
+    // name이 들어가 있는 row를(onedic 객체) 찾아서 읽어온다.
     @Query("SELECT * FROM stockdic_table WHERE 종목명 LIKE :name")
     StockDicDBData getStockcode(String name);
 
+    // code가 들어가 있는 row를(onedic 객체) 찾아서 읽어온다.
     @Query("SELECT * FROM stockdic_table WHERE 종목코드 LIKE :code")
     StockDicDBData getStockname(String code);
 

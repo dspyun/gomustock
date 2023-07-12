@@ -25,7 +25,7 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.Balance;
 import com.gomu.gomustock.stockengin.PriceBox;

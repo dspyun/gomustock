@@ -1,7 +1,6 @@
 package com.gomu.gomustock.ui.home;
 
 import static android.content.ContentValues.TAG;
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -30,7 +29,7 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.PortfolioData;
 import com.gomu.gomustock.ui.simulation.OnViewHolderItemClickListener;
 

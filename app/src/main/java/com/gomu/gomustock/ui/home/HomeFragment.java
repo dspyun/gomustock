@@ -38,7 +38,7 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockdb.SellStockDBData;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.MyBalance;
 import com.gomu.gomustock.ui.format.FormatChart;
 
@@ -75,13 +75,14 @@ public class HomeFragment extends Fragment {
     List<MyBalance> balancelist = new ArrayList<>();
 
     public MyOpenApi myopenapi = new MyOpenApi();
+    StockDic stockdic = new StockDic();
+
     public MyExcel myexcel = new MyExcel();
     private List<Integer> chartcolor = new ArrayList<>();
     Dialog dialog_buy; // 커스텀 다이얼로그
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
 
-    StockDic stockdic = new StockDic();
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =

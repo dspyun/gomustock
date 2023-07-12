@@ -6,7 +6,7 @@ import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.stockdb.SellStockDB;
 import com.gomu.gomustock.stockdb.SellStockDBData;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatTestData;
 
 import java.util.ArrayList;

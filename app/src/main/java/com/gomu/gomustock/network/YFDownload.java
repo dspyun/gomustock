@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
 
 import org.jsoup.Connection;
@@ -22,8 +23,10 @@ public class YFDownload {
     private String STOCKDIR = Environment.getExternalStorageDirectory().getPath() + "/gomustock/";;
 
     public YFDownload (String stock_code)  {
+        StockDic stockdic = new StockDic();
         STOCK_CODE = stock_code;
-        STOCK_CODE_ENC = encodingURL(stock_code);
+        String market = stockdic.getMarket(stock_code);
+        STOCK_CODE_ENC = encodingURL(stock_code, market);
         download();
     }
 
@@ -39,14 +42,21 @@ public class YFDownload {
             String today = Long.toString(mytoday);
             String oneyearbefore = Long.toString(oneyearago);
 
-            String path = "https://query1.finance.yahoo.com/v7/finance/download/"+STOCK_CODE_ENC+
-                    "?period1="+oneyearbefore+"&period2="+today+"&interval=1d&events=history&includeAdjustedClose=true";
 
+            String path = "https://query1.finance.yahoo.com/v7/finance/download/" + STOCK_CODE_ENC +
+                    "?period1=" + oneyearbefore + "&period2=" + today + "&interval=1d&events=history&includeAdjustedClose=true";
+
+            if(stock_code.equals("247540")) {
+                int i = 0;
+                int j = 0;
+                //https://query1.finance.yahoo.com/v7/finance/download/247540.KQ?period1=1657586267&period2=1689122267&interval=1d&events=history&includeAdjustedClose=true
+                //https://query1.finance.yahoo.com/v7/finance/download/000660.KS?period1=1657589689&period2=1689125689&interval=1d&events=history&includeAdjustedClose=true
+            }
             //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529392&period2=1689065392&interval=1d&events=history&includeAdjustedClose=true
             //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529546&period2=1689065546&interval=1d&events=history&includeAdjustedClose=true
 
             Connection connection = Jsoup.connect(path);
-            connection.timeout(5000);
+            connection.timeout(3000);
             Connection.Response resultImageResponse = connection.ignoreContentType(true).execute();
             csvdata = resultImageResponse.parse().body().text();
         } catch (IOException e) {
@@ -86,10 +96,18 @@ public class YFDownload {
         return ohlcvlist;
     }
 
-    public String encodingURL(String stock_code) {
+    public String encodingURL(String stock_code, String market) {
         String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI","^SOX" };
         boolean isExist = Arrays.stream(index_table).anyMatch(stock_code::equals);
-        if(isExist) return URLEncoder.encode(stock_code);
-        else return stock_code+".KS";
+        if(isExist) {
+            // 지수테이블에 포함되어 있는 경우
+            return URLEncoder.encode(stock_code);
+        }
+        else {
+            if(stock_code.equals("069500")) return stock_code+".KS";
+            // 코스피이면 KS를 붙이고, 코스닥이면 KQ를 붙인다
+            if(market.equals("KOSPI")) return stock_code+".KS";
+            else return stock_code+".KQ"; // KONEX, KOSDAQ, KOSDAQ GLOBAL은 모두 KQ를 달아준다
+        }
     }
 }

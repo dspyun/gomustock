@@ -16,7 +16,8 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
-import com.gomu.gomustock.stockdb.StockDic;
+import com.gomu.gomustock.stockengin.StockDic;
+import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatScore;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -32,9 +33,9 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
     private List<Float> chart_data1 = new ArrayList<Float>();;
     private List<Float> chart_data2 =new ArrayList<Float>();;
-    MyChart standard_chart = new MyChart();
+    //MyChart standard_chart = new MyChart();
     public List<String> pricelist = new ArrayList<String>();
-
+    public List<Float> pricelist_f = new ArrayList<>();
     int finger_position=0;
     List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
     List<FormatStockInfo> scoreinfo = new ArrayList<FormatStockInfo>();
@@ -42,12 +43,15 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     MyExcel myexcel = new MyExcel();
     List<FormatChart> chartlist = new ArrayList<FormatChart>();
     public List<FormatScore> scorebox = new ArrayList<>();
+    public List<PriceBox> priceboxlist = new ArrayList<PriceBox>();
     List<String> recycler_list = new ArrayList<>();
     StockDic stockdic = new StockDic();
     public BoardAdapter(Activity context)
     {
         this.context = context;
         loadRecyclerList();
+        makePriceBox();
+        int i =0;
     }
 
     public void refresh( ) {
@@ -128,6 +132,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         }
         return result;
     }
+    public void makePriceBox() {
+        int size = recycler_list.size();
+        for(int i =0;i<size;i++) {
+            PriceBox onebox = new PriceBox(recycler_list.get(i));
+            priceboxlist.add(onebox);
+        }
+    }
 
     @Override
     public ViewHolder onCreateViewHolder( ViewGroup parent, int viewType)
@@ -135,44 +146,47 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.board_list_row, parent, false);
         return new ViewHolder(view);
     }
-
+    MyChart standard_chart = new MyChart();
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int pposition)
+    public void onBindViewHolder(final ViewHolder holder, int position)
     {
-        int position = holder.getAdapterPosition();
+        //int position = holder.getAdapterPosition();
         finger_position = position;
         //final BoardData data = dataList.get(position);
         String stock_code = recycler_list.get(position);
 
-        //if(stock_code.equals("069500")) return;
-        // information text view에 종목번호를 넣는다
+        String stock_name = stockdic.getStockname(stock_code);
+        //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
+        holder.tvStockinfo.setText(getStockInfo(stock_code));
+        holder.tvscoreboard.setText(getScore(stock_name, stock_code));
+        // 차트에 코스피와 종목 데이터를 넣어준다
 
-        if(myexcel.file_check(stock_code+".xls") && myexcel.file_check("069500"+".xls") ) {
-            String stock_name = stockdic.getStockname(stock_code);
-            //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
-            holder.tvStockinfo.setText(getStockInfo(stock_code));
-            holder.tvscoreboard.setText(getScore(stock_name, stock_code));
-            // 차트에 코스피와 종목 데이터를 넣어준다
 
-            standard_chart = new MyChart();
-            chartlist = new ArrayList<FormatChart>();
-            pricelist = myexcel.read_ohlcv(stock_code , "CLOSE", 60, false);
-            //pricelist = myexcel.arrangeRev_string(pricelist);
-            chart_data1 = myexcel.oa_standardization(pricelist);
-            chartlist = standard_chart.adddata_float(chart_data1, stock_code, context.getColor(R.color.Red));
-
-            if (chart_data2.size() == 0) {
-                // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
-                pricelist = myexcel.read_ohlcv("069500", "CLOSE", 60, false);
-                //pricelist = myexcel.arrangeRev_string(pricelist);
-                chart_data2 = myexcel.oa_standardization(pricelist);
+        standard_chart.clearbuffer();
+        chartlist = new ArrayList<FormatChart>();
+        int size = priceboxlist.size();
+        for(int i =0;i<size;i++) {
+            if(priceboxlist.get(i).getStockCode().equals(stock_code)) {
+                if(priceboxlist.get(i).checkEmpty()) return;
+                chart_data1 = priceboxlist.get(i).getStdClose(60);
+                break;
             }
-            chartlist = standard_chart.adddata_float(chart_data2, "KODEX 200", context.getColor(R.color.White));
-            //standard_chart.setYMinmax(-3, 3);
-
-            standard_chart.multi_chart(lineChart, chartlist, "표준화차트", false);
-            //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
         }
+        pricelist = myexcel.read_ohlcv(stock_code , "CLOSE", 60, false);
+        chart_data1 = myexcel.oa_standardization(pricelist);
+        chartlist = standard_chart.adddata_float(chart_data1, stock_code, context.getColor(R.color.Red));
+
+        if (chart_data2.size() == 0) {
+            // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
+            pricelist = myexcel.read_ohlcv("069500", "CLOSE", 60, false);
+            //pricelist = myexcel.arrangeRev_string(pricelist);
+            chart_data2 = myexcel.oa_standardization(pricelist);
+        }
+        chartlist = standard_chart.adddata_float(chart_data2, "KODEX 200", context.getColor(R.color.White));
+
+        //standard_chart.setYMinmax(-3, 3);
+        standard_chart.multi_chart(lineChart, chartlist, "표준화차트", false);
+        //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
     }
 
     @Override
@@ -226,7 +240,5 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             tvStockinfo.invalidate();
         }
     }
-
-
 
 }
