@@ -23,6 +23,28 @@ public class PriceBox {
         loadExcelData();
     }
 
+    void loadExcelData() {
+        List<FormatOHLCV> ohlcvlist = new ArrayList<>();
+        MyExcel myexcel = new MyExcel();
+        ohlcvlist = myexcel.readall_ohlcv(STOCK_CODE);
+        int size = ohlcvlist.size();
+        FormatOHLCV preoneohlcv = new FormatOHLCV();
+        for(int i=0;i<size;i++) {
+            FormatOHLCV oneohlcv = ohlcvlist.get(i);
+            if(nullcheck(oneohlcv)) oneohlcv = preoneohlcv;
+
+            CLOSEPRICE.add(Float.parseFloat(oneohlcv.close));
+            DATE.add(oneohlcv.date);
+            HIGHPRICE.add(Float.parseFloat(oneohlcv.high));
+            LOWPRICE.add(Float.parseFloat(oneohlcv.low));
+            preoneohlcv = oneohlcv;
+        }
+    }
+    boolean nullcheck(FormatOHLCV data) {
+        if(data.close.equals("null")) return true;
+        return false;
+    }
+
     public List<Float> getHigh() {
         return HIGHPRICE;
     }
@@ -58,26 +80,6 @@ public class PriceBox {
         return flag;
     }
 
-    void loadExcelData() {
-        List<FormatOHLCV> ohlcvlist = new ArrayList<>();
-        MyExcel myexcel = new MyExcel();
-        ohlcvlist = myexcel.readall_ohlcv(STOCK_CODE);
-        int size = ohlcvlist.size();
-        FormatOHLCV preoneohlcv = new FormatOHLCV();
-        for(int i=0;i<size;i++) {
-            FormatOHLCV oneohlcv = ohlcvlist.get(i);
-            if(nullcheck(oneohlcv)) oneohlcv = preoneohlcv;
 
-            CLOSEPRICE.add(Float.parseFloat(oneohlcv.close));
-            DATE.add(oneohlcv.date);
-            HIGHPRICE.add(Float.parseFloat(oneohlcv.high));
-            LOWPRICE.add(Float.parseFloat(oneohlcv.low));
-            preoneohlcv = oneohlcv;
-        }
-    }
-    boolean nullcheck(FormatOHLCV data) {
-        if(data.close.equals("null")) return true;
-        return false;
-    }
 
 }

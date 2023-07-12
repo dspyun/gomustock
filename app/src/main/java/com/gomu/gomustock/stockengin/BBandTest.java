@@ -10,7 +10,7 @@ public class BBandTest {
 
     TAlib mytalib = new TAlib();
     MyExcel myexcel = new MyExcel();
-    String STOCK_CODE;
+    String STOCK_CODE, STOCK_NAME;
     List<Float>  CLOSEDATA = new ArrayList<>();
     RSITest rsitest;
     int ONEYEAR = -1;
@@ -38,14 +38,14 @@ public class BBandTest {
         return LOWLINE;
     }
     public String getStock_code() { return STOCK_CODE; }
-
+    public String getStock_name() { return STOCK_NAME; }
     public int getCurPrice() {
         return CUR_PRICE;
     }
     public void putCurPrice(int cur_price) {
         CUR_PRICE = cur_price;
     }
-
+    float PRICEMAX;
     int DAYS;
     public BBandTest (String stock_code, List<Float> close, int days) {
 
@@ -58,9 +58,12 @@ public class BBandTest {
         }
         DAYS = days;
         STOCK_CODE = stock_code;
+        StockDic stockdic = new StockDic();
+        STOCK_NAME = stockdic.getStockname(stock_code);
         loadTestData();
         rsitest = new RSITest(close, days);
         testNsave(true);
+        PRICEMAX = Collections.max(CLOSEDATA);
     }
 
     void loadTestData() {
@@ -73,14 +76,13 @@ public class BBandTest {
 
     // 백분율 스케일링된 percentb로 스코어링을 한 결과를
     // 차트에 보여주기 위해서 다시 maxprice 스케일링을 한다
-    public List<Float> chartdata_buyscore() {
+    public List<Float> getBuyPoint() {
         List<Integer> testresult = new ArrayList<>();
         List<Float> chartvalue = new ArrayList<>();
         testresult = BUYSCORE;
         int size = testresult.size();
-        float pricemax = Collections.max(CLOSEDATA);
         for(int i =0;i<size;i++) {
-            float value = (float)(pricemax + pricemax*0.01*testresult.get(i));
+            float value = (float)(PRICEMAX + PRICEMAX*0.01*testresult.get(i));
             chartvalue.add(i,value);
         }
         return chartvalue;

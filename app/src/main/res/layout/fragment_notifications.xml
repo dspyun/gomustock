@@ -47,7 +47,7 @@
         android:layout_marginTop="8dp">
 
         <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/kospi"
+            android:id="@+id/sox"
             android:layout_width="200dp"
             android:layout_height="150dp"
             android:layout_rowSpan="2"
@@ -64,27 +64,6 @@
             android:layout_row="0" />
     </LinearLayout>
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
-        <TableRow>
-            <TextView
-                android:id="@+id/text11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="코스피"
-                android:gravity="center_horizontal"
-                android:layout_weight = "1"/>
-            <TextView
-                android:id="@+id/text12"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="나스닥"
-                android:gravity="center_horizontal"
-                android:layout_weight = "1"/>
-        </TableRow>
-    </TableLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -109,27 +88,6 @@
             android:layout_row="0" />
     </LinearLayout>
 
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
-        <TableRow>
-            <TextView
-                android:id="@+id/text21"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SP500"
-                android:gravity="center_horizontal"
-                android:layout_weight = "1"/>
-            <TextView
-                android:id="@+id/text22"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="다우"
-                android:gravity="center_horizontal"
-                android:layout_weight = "1"/>
-        </TableRow>
-    </TableLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -137,9 +95,17 @@
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
         <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/kospi"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+        <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/composit"
-            android:layout_width="400dp"
-            android:layout_height="200dp"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
             android:layout_rowSpan="2"
             android:layout_column="0"
             android:layout_gravity = "fill_horizontal"

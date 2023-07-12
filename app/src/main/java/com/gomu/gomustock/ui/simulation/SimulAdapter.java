@@ -25,12 +25,11 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.Balance;
 import com.gomu.gomustock.stockengin.PriceBox;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatChart;
-import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,15 +56,17 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     StockDic stockdic = new StockDic();
     List<BBandTest> bbandtestlist = new ArrayList<>();
     BackgroundThread priceupdate_thread = new BackgroundThread();
+    List<Balance> balancelist = new ArrayList<Balance>();
+
     public SimulAdapter(Activity context, List<String> inputsimstock)
     {
         this.context = context;
         simadaper_stock = inputsimstock;
-        loadbbtestlist(60);
+        bbandtestlist.clear();
+        //loadbbtestlist(60);
         stop_flag = true;
         priceupdate_thread.start();
     }
-
 
     public void loadbbtestlist(int days) {
         for(int i =0;i<simadaper_stock.size();i++) {
@@ -80,11 +81,12 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     }
 
     public void refresh( ) {
-
+        /*
         for(int i =0;i<simadaper_stock.size();i++) {
             notifyItemChanged(i);
         }
-        //notifyDataSetChanged();
+         */
+        notifyDataSetChanged();
     }
     public void reload_curprice( ) {
         stop_flag=true;
@@ -94,6 +96,10 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     public void putBBandTestList(List<BBandTest> input_bbtestlist) {
         bbandtestlist = input_bbtestlist;
     }
+
+    public void putChartdata(List<Balance> input_balancelist) {
+        balancelist = input_balancelist;
+    }
     public void putStocklist(List<String> stocklist) {
         simadaper_stock = stocklist;
     }
@@ -102,6 +108,13 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     {
         return simadaper_stock.size();
     }
+
+    // 이거 반드시 있어야 함. 아니면 리스트뷰가 마구 섞여 버리는 현상 발생
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public void loadCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
         // buy list에 넣는다
@@ -147,10 +160,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 try {
                     Thread.sleep(10);
                     //Toast.makeText(context, "test thread", Toast.LENGTH_SHORT).show();
-                    //notifyDataSetChanged();
-                    for(int i =0;i<simadaper_stock.size();i++) {
-                        notifyItemChanged(i);
-                    }
+                    refresh();
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -176,30 +186,36 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
         return new ViewHolder(view);
     }
-    MyChart simul_chart = new MyChart();
+
+
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int pposition) {
 
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
         int position = holder.getAdapterPosition();
         int finger_position = position;
+       // String stock_code = simadaper_stock.get(position);
+       // String stock_name = stockdic.getStockname(stock_code);
+
+        List<FormatChart> chartdatalist = new ArrayList<FormatChart>();
+        List<Float> pricelist = new ArrayList<>();
+        List<Float> buypoint = new ArrayList<>();
+        MyChart simul_chart = new MyChart();
 
         BBandTest bbtest = bbandtestlist.get(position);
         String stock_code = bbtest.getStock_code();
-
-        MyChart simul_chart = new MyChart();
-        List<FormatChart> datalist = new ArrayList<FormatChart>();
-        List<Float> pricelist = new ArrayList<>();
+        String stock_name = bbtest.getStock_name();
         pricelist = bbtest.getClosePirce();
-        //pricelist = bbtest.trim(pricelist,120);
-        simul_chart.adddata_float(pricelist,stock_code,context.getColor(R.color.Red));
 
-        List<Float> buyscore = bbtest.chartdata_buyscore();
-        //buyscore = bbtest.trim(buyscore,120);
-        datalist = simul_chart.adddata_float(buyscore, stock_code, context.getColor(R.color.Blue));
-        simul_chart.multi_chart(simulChart, datalist, "1년차트", false);
+        if(pricelist.size() <= 1) return;
+        simul_chart.adddata_float(pricelist,stock_name,context.getColor(R.color.Red));
 
-        Balance balance = new Balance(stock_code,0);
+        buypoint = bbtest.getBuyPoint();
+        chartdatalist = simul_chart.adddata_float(buypoint, stock_code, context.getColor(R.color.Blue));
+        simul_chart.multi_chart(simulChart, chartdatalist, Integer.toString(position) + " chart", false);
+
+        Balance balance = balancelist.get(position);
         float profitrate = balance.getProfitRate();
         int returnmoney = balance.getSellPrice();
         int averprice = balance.getAVERPrice();
@@ -215,8 +231,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                 "평가액 " + Integer.toString(estimprice) + "\n";
         holder.tvSimulinfo.setText(simul_info);
 
-        StockDic stockdic = new StockDic();
-        String stock_name = stockdic.getStockname(stock_code);
         String head_info =
                 stock_name + "(" + stock_code +"}"+"\n"+
                 "현재가 " + bbtest.getCurPrice();
@@ -242,34 +256,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
                  */
             }
         });
-    }
-
-    public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
-        String stock_name; // 종목명
-        int estim_profit, estim_price; // 평가손익
-        int hold_quantity,unit_price,ave_price;
-        double profit_rate;
-        PortfolioData screen_info = new PortfolioData();
-
-        unit_price = buystock.getPrice();
-        hold_quantity = buystock.getQuantity();
-
-        estim_profit = (cur_price - unit_price) * hold_quantity;
-        estim_price = cur_price * hold_quantity;
-        profit_rate = ((cur_price*1.0)/(unit_price*1.0)-1)*100;
-        ave_price = unit_price;
-
-        screen_info.transaction_type = "buy";
-        screen_info.stock_name = buystock.stock_name;
-        screen_info.estim_profit = estim_profit;
-        screen_info.estim_price = estim_price;
-        screen_info.cur_price = cur_price;
-        screen_info.hold_quantity = hold_quantity;
-        screen_info.profit_rate = profit_rate;
-        screen_info.buy_price = unit_price*hold_quantity;
-        screen_info.ave_price = ave_price;
-        //Toast.makeText(context, Double.toString(profit_rate), Toast.LENGTH_SHORT).show();
-        return screen_info;
     }
 
 

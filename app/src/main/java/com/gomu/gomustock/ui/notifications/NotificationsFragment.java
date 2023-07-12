@@ -150,57 +150,56 @@ public class NotificationsFragment extends Fragment {
         List<Float> dow_std = new ArrayList<>();
         List<Float> sox_std = new ArrayList<>();
 
+        int test_period = 120;
+        List<Float> sox_index = new ArrayList<>();
+        sox = (LineChart)root.findViewById(R.id.sox);
+        List<String> price_str4 = myexcel.read_ohlcv("^SOX" , "CLOSE", test_period, false);
+        sox_index = myexcel.string2float(price_str4,1);
+        MyChart sox_chart = new MyChart();
+        sox_chart.single_float(sox,sox_index,"필라델피아반도체", false);
+        sox_std = myexcel.standardization_lib(sox_index);
+
+        snp500 = (LineChart)root.findViewById(R.id.snp500);
+        List<String> price_str1 = myexcel.read_ohlcv("^GSPC" , "CLOSE", test_period, false);
+        snp500_index = myexcel.string2float(price_str1,1);
+        MyChart snp500_chart = new MyChart();
+        snp500_chart.single_float(snp500,snp500_index,"나스닥 IT 헬스", false);
+        snp500_std = myexcel.standardization_lib(snp500_index);
+
+
+        nasdaq = (LineChart)root.findViewById(R.id.nasdaq);
+        List<String> price_str2 = myexcel.read_ohlcv("^IXIC" , "CLOSE", test_period, false);
+        nasdaq_index = myexcel.string2float(price_str2,1);
+        MyChart nasdaq_chart = new MyChart();
+        nasdaq_chart.single_float(nasdaq,nasdaq_index,"SNP500 공업 금융", false);
+        nasdaq_std = myexcel.standardization_lib(nasdaq_index);
+
+        dow = (LineChart)root.findViewById(R.id.dow);
+        List<String> price_str3 = myexcel.read_ohlcv("^DJI" , "CLOSE", test_period, false);
+        dow_index = myexcel.string2float(price_str3,1);
+        MyChart dow_chart = new MyChart();
+        dow_chart.single_float(dow,dow_index,"다우 소재 산업재", false);
+        dow_std = myexcel.standardization_lib(dow_index);
+
+
         kospi = (LineChart)root.findViewById(R.id.kospi);
-        List<String> price_str = myexcel.read_ohlcv("^KS11" , "CLOSE", 60, false);
+        List<String> price_str = myexcel.read_ohlcv("^KS11" , "CLOSE", test_period, false);
         kospi_index = myexcel.string2float(price_str,1);
         MyChart kospi_chart = new MyChart();
         kospi_chart.single_float(kospi,kospi_index,"코스피", false);
         kospi_std = myexcel.standardization_lib(kospi_index);
 
-        snp500 = (LineChart)root.findViewById(R.id.snp500);
-        List<String> price_str1 = myexcel.read_ohlcv("^GSPC" , "CLOSE", 60, false);
-        snp500_index = myexcel.string2float(price_str1,1);
-        MyChart snp500_chart = new MyChart();
-        snp500_chart.single_float(snp500,snp500_index,"나스닥", false);
-        snp500_std = myexcel.standardization_lib(snp500_index);
-
-        /*
-        nasdaq = (LineChart)root.findViewById(R.id.nasdaq);
-        List<String> price_str2 = myexcel.read_ohlcv("^IXIC" , "CLOSE", 60, false);
-        nasdaq_index = myexcel.string2float(price_str2,1);
-        MyChart nasdaq_chart = new MyChart();
-        nasdaq_chart.single_float(nasdaq,nasdaq_index,"SNP500", false);
-        nasdaq_std = myexcel.standardization_lib(nasdaq_index);
-        */
-
-        dow = (LineChart)root.findViewById(R.id.dow);
-        List<String> price_str3 = myexcel.read_ohlcv("^DJI" , "CLOSE", 60, false);
-        dow_index = myexcel.string2float(price_str3,1);
-        MyChart dow_chart = new MyChart();
-        dow_chart.single_float(dow,dow_index,"다우", false);
-        dow_std = myexcel.standardization_lib(dow_index);
-
-
-        List<Float> sox_index = new ArrayList<>();
-        sox = (LineChart)root.findViewById(R.id.nasdaq);
-        List<String> price_str4 = myexcel.read_ohlcv("^SOX" , "CLOSE", 60, false);
-        sox_index = myexcel.string2float(price_str4,1);
-        MyChart sox_chart = new MyChart();
-        sox_chart.single_float(sox,sox_index,"반도체", false);
-        sox_std = myexcel.standardization_lib(sox_index);
-
-
         LineChart composit = (LineChart)root.findViewById(R.id.composit);
         int size = snp500_std.size();
         List<Float> comp = new ArrayList<>();
         for(int i =0;i<size;i++) {
-            comp.add((dow_std.get(i) + sox_std.get(i) + snp500_std.get(i))/3);
+            comp.add((nasdaq_std.get(i) + dow_std.get(i) + sox_std.get(i) + snp500_std.get(i))/4);
         }
         MyChart comp_chart = new MyChart();
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
-        comp_chart.adddata_float(comp,"합성",context.getColor(R.color.White));
+        comp_chart.adddata_float(comp,"미국4합성",context.getColor(R.color.White));
         chartlist = comp_chart.adddata_float(kospi_std,"코스피",context.getColor(R.color.Red));
-        comp_chart.multi_chart(composit,chartlist,"합성", false);
+        comp_chart.multi_chart(composit,chartlist,"코스피vs합성", false);
     }
 
     public void dl_SectroInfo() {

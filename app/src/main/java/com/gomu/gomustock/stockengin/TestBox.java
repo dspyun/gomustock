@@ -14,16 +14,25 @@ public class TestBox {
     List<Float> CLOSE = new ArrayList<>();
     List<Integer> BUY = new ArrayList<>();
     List<Integer> SELL = new ArrayList<>();
-    List<FormatTestData> TESTDATA = new ArrayList<>();
+
 
     public TestBox(String stock_code) {
         STOCK_CODE = stock_code;
         MyExcel myexcel = new MyExcel();
-        TESTDATA = myexcel.read_testdata(STOCK_CODE,false);
-        loadDate();
-        loadClose();
-        loadBuy();
-        loadSell();
+        FormatTestData preonetest = new FormatTestData();
+        List<FormatTestData> TESTDATA = new ArrayList<>();
+        TESTDATA = myexcel.readall_testdata(STOCK_CODE,false);
+        int size = TESTDATA.size();
+        for(int i=0;i<size;i++) {
+            FormatTestData onetest = TESTDATA.get(i);
+            if(nullcheck(onetest)) onetest = preonetest;
+
+            DATE.add(TESTDATA.get(i).date);
+            CLOSE.add(Float.parseFloat(TESTDATA.get(i).price));
+            BUY.add(Integer.parseInt(TESTDATA.get(i).buy_quantity));
+            SELL.add(Integer.parseInt(TESTDATA.get(i).sell_quantity));
+            preonetest = onetest;
+        }
     }
 
     public List<Float> getClose() {
@@ -39,37 +48,8 @@ public class TestBox {
         return SELL;
     }
 
-    void loadDate() {
-        int size = TESTDATA.size();
-        for(int i =0;i<size;i++) {
-            DATE.add(TESTDATA.get(i).date);
-        }
-    }
-
-    void loadClose() {
-        int size = TESTDATA.size();
-        String close;
-        for(int i =0;i<size;i++) {
-            close = TESTDATA.get(i).price;
-            CLOSE.add(Float.parseFloat(close));
-        }
-    }
-
-    void loadBuy() {
-        int size = TESTDATA.size();
-        String buy;
-        for(int i =0;i<size;i++) {
-            buy = TESTDATA.get(i).buy_quantity;
-            BUY.add(Integer.parseInt(buy));
-        }
-    }
-    void loadSell() {
-        int size = TESTDATA.size();
-        String sell;
-        for(int i =0;i<size;i++) {
-            sell = TESTDATA.get(i).sell_quantity;
-            SELL.add(Integer.parseInt(sell));
-        }
-        int j = 0;
+    boolean nullcheck(FormatTestData data) {
+        if(data.price.equals("null")) return true;
+        return false;
     }
 }

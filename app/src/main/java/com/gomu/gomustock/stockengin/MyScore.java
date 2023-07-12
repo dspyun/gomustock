@@ -142,12 +142,12 @@ public class MyScore {
     public int scoring_bband(String stock_code) {
         List<String> itemdata = new ArrayList<>();
         int score = 0;
-/*
+        PriceBox box1 = new PriceBox(stock_code);
         // 스코어링할 종목가격을 불러온다
-        MyBBandTest bbandtest = new MyBBandTest(stock_code);
-        RSITest rsitest = new RSITest(stock_code);
-        float bband_score = bbandtest.TodayScore(60);
-        float rsi_score = rsitest.TodayScore(60);
+        BBandTest bbandtest = new BBandTest(stock_code,box1.getClose(),60);
+        RSITest rsitest = new RSITest(stock_code,box1.getClose(),60);
+        float bband_score = bbandtest.TodayScore();
+        float rsi_score = rsitest.TodayScore();
 
         if(bband_score<=30 && bband_score > 20
                 && rsi_score<=50 && rsi_score > 40) {
@@ -159,7 +159,7 @@ public class MyScore {
                 && rsi_score<=30 ) {
             score = 3;
         }
-*/
+
         return score;
     }
 

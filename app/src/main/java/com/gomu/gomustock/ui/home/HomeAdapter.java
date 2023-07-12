@@ -31,7 +31,6 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.PortfolioData;
-import com.gomu.gomustock.ui.simulation.OnViewHolderItemClickListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

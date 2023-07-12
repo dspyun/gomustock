@@ -29,6 +29,7 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockengin.Balance;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.PriceBox;
@@ -220,10 +221,6 @@ public class SimulationFragment extends Fragment {
                 //simul_adapter.reload_curprice();
                 //simul_adapter.putStocklist(sim_stock);
                 //simul_adapter.refresh();
-
-                for(int i =0;i<sim_stock.size();i++) {
-                    simul_adapter.notifyItemChanged(i);
-                }
             }
         });
     }
@@ -480,24 +477,30 @@ public class SimulationFragment extends Fragment {
         SCache mycache = new SCache();
         mycache.initialize();
 
+        List<Balance> balancelist = new ArrayList<Balance>();
         for(int i =0;i<sim_stock.size();i++) {
             String code = sim_stock.get(i);
             //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
             //mymagic01.makeBackdata();
             PriceBox pricebox = new PriceBox(code);
-            List<Float> closeprice = pricebox.getClose();
+            List<Float> closeprice = new ArrayList<>();
+            closeprice = pricebox.getClose();
             BBandTest bbtest = new BBandTest(code,closeprice, 60);
             bbandtestlist.add(bbtest);
+            Balance balance = new Balance(code,0);
+            balancelist.add(balance);
         }
 
         // recycler view 준비
         recyclerView = view.findViewById(R.id.sim_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setItemAnimator(null);
+        //recyclerView.setItemViewCacheSize(10);
         //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
         simul_adapter = new SimulAdapter(getActivity(), sim_stock);
-        //simul_adapter.putBBandTestList(bbandtestlist);
         recyclerView.setAdapter(simul_adapter);
-        simul_adapter.putStocklist(sim_stock);
+        simul_adapter.putBBandTestList(bbandtestlist);
+        simul_adapter.putChartdata(balancelist);
 
         if(stop_flag!= true) {
             stop_flag=true;

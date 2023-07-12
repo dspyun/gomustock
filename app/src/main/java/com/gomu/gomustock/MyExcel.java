@@ -103,7 +103,7 @@ public class MyExcel extends MyStat{
             //is1.close();
         }
     }
-    public List<FormatTestData> read_testdata(String code, boolean header) {
+    public List<FormatTestData> readall_testdata(String code, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;

@@ -24,6 +24,17 @@ public class RSITest {
         }
     }
 
+    public RSITest(String stock_code,List<Float> close, int days) {
+        DAYS = days;
+        int size = close.size();
+        if(days == -1) CLOSEDATA = close;
+        else {
+            for (int i = 0; i < days; i++) {
+                CLOSEDATA.add(close.get(size - days + i));
+            }
+        }
+    }
+
     public List<Float> test_line() {
         int days = CLOSEDATA.size();
         List<List<Float>> signal = mytalib.rsi(CLOSEDATA, days);

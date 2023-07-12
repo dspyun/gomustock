@@ -20,6 +20,7 @@ public class Balance {
 
     public Balance(String stock_code, float cur_price) {
         STOCK_CODE = stock_code;
+        // 엑셀에서 test data를 읽고 box에 정리한다
         TESTBOX = new TestBox(stock_code);
         makeBuyhistory();
         makeSellhistory();
@@ -32,7 +33,6 @@ public class Balance {
     public List<Float> getSellline() {
         return SELLLINE;
     }
-
 
     void makeBuyhistory() {
         int size = TESTBOX.getBuy().size();

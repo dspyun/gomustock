@@ -125,6 +125,7 @@ public class MyChart {
 
         linedata.addDataSet(lineDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
         */
+        linechart.setTouchEnabled(false);
         setdescription(linechart,true,description,  Color.YELLOW);
 
         linechart.setData(linedata); // 차트에 위의 DataSet 을 넣는다.
@@ -163,6 +164,7 @@ public class MyChart {
 
         linedata.addDataSet(lineDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
 
+        linechart.setTouchEnabled(false);
         linechart.setData(linedata); // 차트에 위의 DataSet 을 넣는다.
         setyRAxis(linechart,false,false);
         setxAaxis(linechart, false, false);
