@@ -20,13 +20,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GomuStock">
         <activity
+            android:name=".ui.dashboard.BoardChartActivity"
+            android:exported="false"
+            android:label="@string/title_activity_board_chart"
+            android:theme="@style/Theme.GomuStock" />
+        <activity
+            android:name=".ui.dashboard.BoardInfoActivity"
+            android:exported="false"
+            android:label="@string/title_activity_board_info"
+            android:theme="@style/Theme.GomuStock" />
+        <activity
             android:name=".mytest"
-            android:exported="false" />
-        <activity
-            android:name=".ui.dashboard.BoardSubActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.home.SubActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -380,7 +380,6 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
 
-
                 simul_buysell_item.getLayoutParams().height = (int) animation.getAnimatedValue();
                 simul_buysell_item.requestLayout();
                 // imageView가 실제로 사라지게하는 부분

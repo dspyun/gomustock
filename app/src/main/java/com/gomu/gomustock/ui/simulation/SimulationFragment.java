@@ -29,10 +29,10 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockengin.Balance;
-import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.BBandTest;
+import com.gomu.gomustock.stockengin.Balance;
 import com.gomu.gomustock.stockengin.PriceBox;
+import com.gomu.gomustock.stockengin.StockDic;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -95,7 +95,7 @@ public class SimulationFragment extends Fragment {
     private boolean stop_flag = false;
     private int DelaySecond=1;
     private List<String> sim_stock = new ArrayList<>();
-    Dialog dialog_buy; // 커스텀 다이얼로그
+    Dialog dialog_listmanagery; // 커스텀 다이얼로그
     private List<Integer> chartcolor = new ArrayList<>();
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
@@ -125,9 +125,9 @@ public class SimulationFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_simulation, container, false);
 
-        dialog_buy = new Dialog(getActivity());       // Dialog 초기화
-        dialog_buy.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
-        dialog_buy.setContentView(R.layout.dialog_buy);
+        dialog_listmanagery = new Dialog(getActivity());       // Dialog 초기화
+        dialog_listmanagery.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+        dialog_listmanagery.setContentView(R.layout.dialog_buy);
 
         SimulationView(view);
         return view;
@@ -206,7 +206,7 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                showDialog_buy();
+                listmanager_dialog();
                 //app_restart();
             }
         });
@@ -253,17 +253,17 @@ public class SimulationFragment extends Fragment {
         return flag;
     }
 
-    public void showDialog_buy(){
+    public void listmanager_dialog(){
 
-        dialog_buy.show(); // 다이얼로그 띄우기
-        dialog_buy.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
+        dialog_listmanagery.show(); // 다이얼로그 띄우기
+        dialog_listmanagery.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 // 원하는 기능 구현
 
                 // dialog 화면에서 입력된 정보를 읽어온다
-                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
+                EditText stock_name = dialog_listmanagery.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
 
                 String stock_no = stockdic.getStockcode(name);
@@ -274,40 +274,41 @@ public class SimulationFragment extends Fragment {
 
                 if(!myexcel.file_check(stock_no+".xls")) {
                     sim_stock.add(stock_no);
-                    dl_NaverPriceByday(sim_stock, 240);
+                    //dl_NaverPriceByday(sim_stock, 240);
+                    dl_yahoofinance_price(sim_stock);
                 }
 
-                // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
-                List<BuyStockDBData> simulist = new ArrayList<>();
-                BuyStockDBData onebuy = new BuyStockDBData();
-                onebuy.stock_code = stock_no;
-                onebuy.stock_name = name;
-                //simulist = simul_adapter.getRecyclerList();
-                simulist.add(onebuy);
-                //simul_adapter.putBuyList(simulist);
-
-                //SBuyStock buystock = new SBuyStock();
-                //buystock.insert2db(onebuy);
-
-                List<String> filelist = new ArrayList<>();
-                filelist = myexcel.readSimullist();
-                if(!filelist.contains(stock_no)) {
-                    // 중복된 파일이 없으면 추가해준다.
-                    // file이 없으면 size()가 0이다. 0이어도 add, 아니어도 add한다.
-                    filelist.add(stock_no);
-                    myexcel.writeSimullist(filelist);
-                }
+                addSimulFile(stock_no);
+                // list를 update하며 안된다
+                // 정보가 없으니까...정보불러오기 끝나고 simul 버튼 누른 후 update 시키는 것으로
+                // simul_adapter.putStocklist(sim_stock);
 
                 simul_adapter.refresh();
-                dialog_buy.dismiss(); // 다이얼로그 닫기
+                dialog_listmanagery.dismiss(); // 다이얼로그 닫기
             }
         });
         //  버튼
-        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
+        dialog_listmanagery.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 원하는 기능 구현
-                dialog_buy.dismiss(); // 다이얼로그 닫기
+                EditText stock_name = dialog_listmanagery.findViewById(R.id.stock_name);
+                String name = stock_name.getText().toString();
+
+                String stock_no = stockdic.getStockcode(name);
+                if(stock_no.equals("")) {
+                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                delSimulFile(stock_no);
+
+                // 지우는 것은 price 파일을 불러올 필요없으니
+                // 리스트에서 바로 삭제한다
+                int index = sim_stock.indexOf(stock_no);
+                sim_stock.remove(index);
+                simul_adapter.putStocklist(sim_stock);
+                simul_adapter.refresh();
+                dialog_listmanagery.dismiss(); // 다이얼로그 닫기
             }
         });
     }
@@ -402,6 +403,24 @@ public class SimulationFragment extends Fragment {
                 myweb.dl_fogninfo(buylist);
             }
         }).start();
+    }
+    public void delSimulFile(String stockcode) {
+        List<String> filelist = new ArrayList<>();
+        filelist = myexcel.readSimullist();
+        int index = filelist.indexOf(stockcode);
+        filelist.remove(index);
+        myexcel.writeSimullist(filelist);
+    }
+
+    public void addSimulFile(String stockcode) {
+        List<String> filelist = new ArrayList<>();
+        filelist = myexcel.readSimullist();
+        if(!filelist.contains(stockcode)) {
+            // 중복된 파일이 없으면 추가해준다.
+            // file이 없으면 size()가 0이다. 0이어도 add, 아니어도 add한다.
+            filelist.add(stockcode);
+            myexcel.writeSimullist(filelist);
+        }
     }
 
     class BackgroundThread extends Thread {

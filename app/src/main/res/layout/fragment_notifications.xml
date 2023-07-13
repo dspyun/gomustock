@@ -111,11 +111,12 @@
             android:layout_gravity = "fill_horizontal"
             android:layout_row="0" />
     </LinearLayout>
-
-    <ListView
-        android:id="@+id/sector_listview"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/short_news"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/noti_list_sector"/>
+        android:layout_column="1"
+        android:layout_gravity = "fill_horizontal"
+        android:layout_row="1" />
 
 </LinearLayout>

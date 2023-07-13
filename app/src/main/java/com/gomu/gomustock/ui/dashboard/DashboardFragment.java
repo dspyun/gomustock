@@ -1,14 +1,11 @@
 package com.gomu.gomustock.ui.dashboard;
 
-import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,8 +31,8 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
-import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.MyScore;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.text.SimpleDateFormat;
@@ -109,7 +106,7 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 전체화면으로 보여준다
-                Intent intent = new Intent(getActivity(), BoardSubActivity.class);
+                Intent intent = new Intent(getActivity(), BoardChartActivity.class);
                 BoardSubOption suboption = new BoardSubOption("popup","oversea");
                 intent.putExtra("class",suboption);
                 startActivity(intent);
@@ -119,7 +116,7 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 전체화면으로 보여준다
-                Intent intent = new Intent(getActivity(), BoardSubActivity.class);
+                Intent intent = new Intent(getActivity(), BoardChartActivity.class);
                 BoardSubOption suboption = new BoardSubOption("popup","domestic");
                 intent.putExtra("class",suboption);
                 startActivity(intent);
@@ -337,7 +334,6 @@ public class DashboardFragment extends Fragment {
         }).start();
     }
     void notice_ok() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
         getActivity().runOnUiThread(new Runnable() {
             @Override

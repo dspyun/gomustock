@@ -1,7 +1,6 @@
 package com.gomu.gomustock.ui.notifications;
 
 import static android.content.ContentValues.TAG;
-
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.graphics.Color;
@@ -11,9 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,7 +26,6 @@ import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.ui.format.FormatChart;
-import com.gomu.gomustock.ui.format.FormatSector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,15 +35,15 @@ public class NotificationsFragment extends Fragment {
     View root;
     private NotificationsViewModel notificationsViewModel;
     private FragmentNotificationsBinding binding;
-    ImageView infochart11, infochart12, infochart21, infochart22;
-    TextView tvDownload, tvUpdate,tvSignal,tvDummy;
+    TextView tvDownload, tvUpdate,tvSignal,tvDummy,tvNews;
     LineChart kospi, snp500,nasdaq, dow, sox;
     MyExcel myexcel = new MyExcel();
     List<Float> kospi_index = new ArrayList<>();
     List<Float> nasdaq_index = new ArrayList<>();
     List<Float> snp500_index = new ArrayList<>();
     List<Float> dow_index = new ArrayList<>();
-    List<String> price_str = new ArrayList<>();
+
+    String SHORT_NEWS="";
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         notificationsViewModel =
@@ -58,37 +53,22 @@ public class NotificationsFragment extends Fragment {
         root = binding.getRoot();
 
         initResource();
-
+        dl_shortnews();
         if(myexcel.file_check("^KS11.xls")) {
             show_chart();
         }
-
-
-        FormatSector mysector = new FormatSector();
-        mysector.init();
-        List<FormatSector> sectorlist = new ArrayList<>();
-        sectorlist.add(mysector);
-
-        ListView sector_list = (ListView) root.findViewById(R.id.sector_listview);
-        NotiSectorAdapter adapter = new NotiSectorAdapter(getActivity(),sectorlist);
-        sector_list.setAdapter(adapter);
-
-        sector_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Toast.makeText(getContext(),mid[position],Toast.LENGTH_SHORT).show();
-            }
-        });
 
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dl_yahoofinance_price();
+                show_chart();
             }
         });
         tvUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dl_shortnews();
                 show_chart();
             }
         });
@@ -107,6 +87,7 @@ public class NotificationsFragment extends Fragment {
         tvUpdate = root.findViewById(R.id.tv_noti_update);
         tvSignal = root.findViewById(R.id.tv_noti_signal);
         tvDummy = root.findViewById(R.id.tv_noti_dummy);
+        tvNews = root.findViewById(R.id.short_news);
     }
 
     void dl_yahoofinance_price() {
@@ -135,6 +116,7 @@ public class NotificationsFragment extends Fragment {
                     Thread.sleep(1L); // 잠시라도 정지해야 함
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
                     tvDownload.setTextColor(Color.YELLOW);
+                    tvNews.setText(SHORT_NEWS);
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -202,16 +184,18 @@ public class NotificationsFragment extends Fragment {
         comp_chart.multi_chart(composit,chartlist,"코스피vs합성", false);
     }
 
-    public void dl_SectroInfo() {
+    public void dl_shortnews() {
         MyWeb myweb = new MyWeb();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
-                myweb.getSectorInfo();
+                SHORT_NEWS = myweb.getNaverNews();
+                notice_ok();
             }
         }).start();
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

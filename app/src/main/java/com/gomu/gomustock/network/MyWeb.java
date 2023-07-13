@@ -398,4 +398,71 @@ public class MyWeb {
         };
         return sectorlist;
     }
+
+
+    public String getNaverNews() {
+
+        String news_string="";
+
+        try {
+            String URL = "https://finance.naver.com/";
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements newsclass = doc.select(".section_strategy");
+            Elements lilist = newsclass.select("li");
+            for(int i=0;i<6;i++)  {
+                news_string += lilist.get(i).text() + "\n";
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return news_string;
+    }
+
+    public String getNaverStockNews(String stock_code) {
+
+        String news_string="";
+
+        try {
+            String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements newsclass = doc.select(".news_section");
+            Elements alist = newsclass.select("a");
+            int size = alist.size();
+            for(int i=0;i<size;i++)  {
+                news_string += alist.get(i).text() + "\n";
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return news_string;
+    }
+    public String getNaverCompanyInfo(String stock_code) {
+
+        String company_string="";
+        String ranking="";
+        try {
+            String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements compinfo = doc.select(".tab_con1");
+            Elements trlist = compinfo.select("tr");
+            ranking = trlist.get(0).select("td").text() + " ";
+            ranking += trlist.get(1).select("td").text()+"\n";
+
+            Elements newsclass = doc.select(".summary_info");
+            Elements plist = newsclass.select("p");
+            int size = plist.size();
+            for(int i=0;i<size;i++)  {
+                company_string += plist.get(i).text() + "\n";
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return ranking + company_string;
+    }
 }

@@ -13,11 +13,14 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
-import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.PriceBox;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatScore;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -211,27 +214,48 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             super(view);
             // 차트 두 개를 겹쳐보이게 할 수 있다
             // 일단 첫번째 차트는 감추고
-            lineChart = (LineChart)view.findViewById(R.id.stock_chart);
+            lineChart = view.findViewById(R.id.stock_chart);
             //tvStockinfo = view.findViewById(R.id.textView2);
             tvStockinfo = view.findViewById(R.id.bd_stockinfo);
             tvscoreboard = view.findViewById(R.id.scoreboard);
             tvscoreboard.setBackgroundColor(Color.DKGRAY);
+            lineChart.setClickable(true);
 
             tvStockinfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    int position = getAdapterPosition();
+                    MyExcel myexcel = new MyExcel();
+                    String stock_code = recycler_list.get(position);
+                    String stock_name = stockdic.getStockname(stock_code);
+                    //System.out.println("boardview " + stock_code + " " + stock_name + "finger " + String.valueOf(finger_position));
+
+                    String stock_info = web_stockinfo.get(position).toString();
+                    BoardSubOption suboption = new BoardSubOption("inform",stock_code, stock_name, stock_info);
+
+                    Intent intent = new Intent(context, BoardInfoActivity.class);
+                    intent.putExtra("class",suboption);
+                    context.startActivity(intent);
+                }
+            });
+
+            lineChart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     MyExcel myexcel = new MyExcel();
                     String stock_code = recycler_list.get(position);
                     String stock_name = stockdic.getStockname(stock_code);
-                    System.out.println("boardview " + stock_code + " " + stock_name + "finger " + String.valueOf(finger_position));
+                    //System.out.println("boardview " + stock_code + " " + stock_name + "finger " + String.valueOf(finger_position));
 
                     String stock_info = web_stockinfo.get(position).toString();
                     BoardSubOption suboption = new BoardSubOption("inform",stock_code, stock_name, stock_info);
 
-                    Intent intent = new Intent(context, BoardSubActivity.class);
+                    Intent intent = new Intent(context, BoardChartActivity.class);
                     intent.putExtra("class",suboption);
                     context.startActivity(intent);
+
                 }
             });
         }

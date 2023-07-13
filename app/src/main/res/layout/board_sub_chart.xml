@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.dashboard.BoardChartActivity">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="193dp"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                android:textSize="14sp" />
+            <ImageView
+                android:id="@+id/per_graph"
+                android:layout_width="193dp"
+                android:layout_height="150dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_weight = "1"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="150dp">
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/fogn_chart"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_weight = "1"/>
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/agency_chart"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_weight = "1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+            <TextView
+                android:id="@+id/fogn_title"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:text="외국인 동향"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/agency_title"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:text="기관 동향"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/bband_chart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/rsi_chart"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/macd_chart"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/adx_chart"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/stoch_chart"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"/>
+    </LinearLayout>
+</ScrollView>

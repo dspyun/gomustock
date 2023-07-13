@@ -37,9 +37,8 @@ import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDB;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
-import com.gomu.gomustock.stockdb.SellStockDBData;
-import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.stockengin.MyBalance;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatChart;
 
 import java.text.SimpleDateFormat;
@@ -170,6 +169,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+                /*
                 Intent intent = new Intent(context, SubActivity.class);
                 List<BuyStockDBData> mybuylist = hbsmanager.getBuyListAll();
                 List<SellStockDBData> myselllist = hbsmanager.getSellListAll();
@@ -177,6 +177,7 @@ public class HomeFragment extends Fragment {
 
                 intent.putExtra("class",mysuboption);
                 startActivity(intent);
+                 */
             }
         });
         binding.dummy.setOnClickListener(new View.OnClickListener()

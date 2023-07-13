@@ -1,6 +1,5 @@
 package com.gomu.gomustock.ui.dashboard;
 
-
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.content.Intent;
@@ -31,7 +30,7 @@ import com.gomu.gomustock.ui.format.FormatStockInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoardSubActivity extends AppCompatActivity {
+public class BoardChartActivity extends AppCompatActivity {
     BoardSubOption suboption;
     FormatStockInfo basic_info = new FormatStockInfo();
 
@@ -62,7 +61,7 @@ public class BoardSubActivity extends AppCompatActivity {
             //mytree.treemap(webView, suboption.getRegion());;
 
         } else {
-            setContentView(R.layout.board_sub_info);
+            setContentView(R.layout.board_sub_chart);
 
             fognChart = findViewById(R.id.fogn_chart);
             agencyChart = findViewById(R.id.agency_chart);
@@ -226,6 +225,4 @@ public class BoardSubActivity extends AppCompatActivity {
 
         fogn_chart.barchart_float(agencyChart,chart_data,"기관",false );
     }
-
 }
-
