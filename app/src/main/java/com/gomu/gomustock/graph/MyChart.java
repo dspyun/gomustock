@@ -130,11 +130,13 @@ public class MyChart {
 
         linechart.setData(linedata); // 차트에 위의 DataSet 을 넣는다.
         setyRAxis(linechart,false,false);
-        setxAaxis(linechart, false, false);
+        setxAaxis(linechart, true, false);
         //setyLAxis(barChart,false,false);
         YAxis yLAxis = linechart.getAxisLeft();
+        //XAxis xBAxis = linechart.getXAxis();
         setlegend(linechart,false);
         yLAxis.setTextColor(Color.YELLOW);
+        //xBAxis.setTextColor(Color.YELLOW);
         linechart.invalidate(); // 차트 업데이트
 
     }

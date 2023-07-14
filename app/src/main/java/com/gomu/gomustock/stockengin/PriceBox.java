@@ -54,6 +54,14 @@ public class PriceBox {
     public List<Float> getClose() {
         return CLOSEPRICE;
     }
+    public List<Float> getClose(int days) {
+        List<Float>closeprice=new ArrayList<>();
+        int size = CLOSEPRICE.size()-1;
+        for(int i =0;i<days;i++) {
+            closeprice.add(CLOSEPRICE.get(size-days+i));
+        }
+        return closeprice;
+    }
     public List<Float> getStdClose(int days) {
         MyExcel myexcel = new MyExcel();
         List<Float>closeprice=new ArrayList<>();

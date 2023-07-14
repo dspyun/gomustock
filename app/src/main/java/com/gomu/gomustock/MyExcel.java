@@ -5,20 +5,16 @@ import static java.lang.Boolean.TRUE;
 
 import android.os.Environment;
 
-import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 import com.gomu.gomustock.ui.format.FormatTestData;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,49 +56,16 @@ public class MyExcel extends MyStat{
 
     public MyExcel(String filename) {
         ExcelFile=filename;
-        init_maxline();
-        column00 = readColumn(filename,0);
-        column01 = readColumn(filename,1);
-        column02 = readColumn(filename,2);
-
     }
 
     public MyExcel() {
         //initInfo = readInitFile();
-
     }
 
-    @Override
-    protected void finalize() {
 
-    }
 
-      /* sheet의 최대 라인수를 읽어서 전역변수에 저장한다. */
 
-    public void init_maxline () {
-        InputStream is1 = null;
-        Workbook wb1 = null;
-        int first_col=0;
-        String PathFile = ExcelFile;
 
-        try {
-            is1 = new FileInputStream(PathFile);
-            wb1 = Workbook.getWorkbook(is1);
-            Sheet sheet = wb1.getSheet(0);   // 시트 불러오기
-
-            colTotal = sheet.getColumns();    // 전체 컬럼
-            rowTotal = sheet.getColumn(first_col).length; // 라인은 첫째 컬럼 최대치를 기준으론 한다.
-            wb1.close();
-            is1.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb1.close();
-            //is1.close();
-        }
-    }
     public List<FormatTestData> readall_testdata(String code, boolean header) {
         InputStream is=null;
         Workbook wb=null;
@@ -148,43 +111,6 @@ public class MyExcel extends MyStat{
 
         return testdatalist;
     }
-
-    public List<String> readColumn(String excelfile, int col) {
-
-        InputStream is=null;
-        Workbook wb=null;
-        String contents=null;
-        String PathFile = excelfile;
-        List<String> mArrayBuffer = new ArrayList<String>();
-
-        try {
-            is =  new FileInputStream(PathFile);
-            wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    // 현재 컬럼의 내용을 추가한다.
-                    int size = sheet.getColumn(col).length;
-                    for(int i=0; i < size-1; i++) {
-                        contents = sheet.getCell(col, i).getContents();
-                        mArrayBuffer.add(contents);
-                    }
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        } finally {
-            //wb.close();
-            //is.close();
-        }
-        return mArrayBuffer;
-    }
-
 
 
     public void writeprice( String filename, List<FormatOHLCV> history) {
@@ -518,23 +444,6 @@ public class MyExcel extends MyStat{
         return diclist;
     }
 
-    /*
-    public String find_stockno(String name) {
-        if(STOCK_NAME.isEmpty()) readStockDic();
-
-        int index = STOCK_NAME.indexOf(name);
-        if(index == -1) return "";
-        return STOCK_NO.get(index);
-    }
-
-    public String find_stockname(String number) {
-        if(STOCK_NAME.isEmpty()) readStockDic();
-
-        int index = STOCK_NO.indexOf(number);
-        if(index == -1) return "";
-        return STOCK_NAME.get(index);
-    }
-    */
 
     public Boolean file_check(String filename) {
 
@@ -557,32 +466,6 @@ public class MyExcel extends MyStat{
         return return_flag;
     }
 
-    public List<String> ReadCsv(String filename) {
-            //반환용 리스트
-        String PathFile = STOCKDIR+filename;;
-        java.io.File file = new java.io.File(PathFile);
-        List<String> kospiarray = new ArrayList<String>();
-
-        try {
-            int ch;
-            //BufferedReader reader = new BufferedReader(new FileReader(PathFile));
-            FileInputStream fis = new FileInputStream(file);
-            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-            BufferedReader reader = new BufferedReader(isr);
-            //BufferedReader reader = Files.newBufferedReader(Paths.get(PathFile));
-            String line;
-
-            for(int i=0;(line = reader.readLine()) != null;i++) {
-                kospiarray.add(line);
-            }
-            line += "";
-        }catch(FileNotFoundException e){
-            e.printStackTrace();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return kospiarray;
-    }
 
     public List<FormatTestData> readtestset(String filename, boolean header) {
         InputStream is=null;
@@ -761,16 +644,6 @@ public class MyExcel extends MyStat{
         }
     }
 
-
-
-    public List<FormatTestData> removeHeader(List<FormatTestData> input) {
-        List<FormatTestData> temp = new ArrayList<FormatTestData>();
-        int size = input.size();
-        for(int i = 0;i< size-1; i++ ) {
-            temp.add(input.get(i+1));
-        }
-        return temp;
-    }
 
     public void writestockinfo(List<FormatStockInfo> information) {
 
@@ -976,22 +849,6 @@ public class MyExcel extends MyStat{
 
         }
     }
-    public int checkExcelfile(List<BuyStockDBData> stock_list) {
-        for(int i =0;i<stock_list.size();i++) {
-            String PathFile = STOCKDIR + stock_list.get(i).stock_code+".xls";
-            File file = new File(PathFile);
-            // 1. check if the file exists or not
-            boolean isExists = file.exists();
-
-            if(isExists) {
-                System.out.println("I find the existFile.txt");
-            } else {
-                System.out.println(stock_list.get(i).stock_code + " file does not exist.");
-                return -1;
-            }
-        }
-        return 1;
-    }
 
 
     public void writeSimullist(List<String> stocklist) {
@@ -1062,6 +919,44 @@ public class MyExcel extends MyStat{
             e.printStackTrace();
         }
         return stocklist;
+    }
+
+    public List<FormatMyStock> readMyStockList() {
+
+        String temp=null;
+
+        String PathFile = STOCKDIR+"mystock"+".xls";;
+        List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
+
+
+        try {
+            InputStream is =  new FileInputStream(PathFile);
+            Workbook wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatMyStock mystock = new FormatMyStock();
+                        mystock.stock_code = sheet.getCell(0, i).getContents();
+                        mystock.stock_name = sheet.getCell(1, i).getContents();
+                        temp = sheet.getCell(2, i).getContents();
+                        mystock.quantity = Integer.parseInt(temp);
+                        temp = sheet.getCell(3, i).getContents();
+                        mystock.buy_price = Integer.parseInt(temp);
+                        mystocklist.add(mystock);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return mystocklist;
     }
 }
 

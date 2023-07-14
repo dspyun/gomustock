@@ -24,12 +24,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockengin.StockDic;
+import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.text.SimpleDateFormat;
@@ -38,7 +41,7 @@ import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
-    private List<BuyStockDBData> buyList;
+    private List<FormatMyStock> mystocklist;
     private static Activity context;
     public String open_api_data="empty";
 
@@ -56,13 +59,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     String latestOpenday="";
     StockDic stockdic = new StockDic();
     ImageView btexpand,btpricerefresh;
+    LineChart homeChart;
 
     TableLayout home_buysell_item;
-    public HomeAdapter(Activity context, List<BuyStockDBData> dataList)
+    public HomeAdapter(Activity context, List<FormatMyStock> input_mystocklist)
     {
         this.context = context;
-        this.buyList = dataList;
-        recycler_size = buyList.size();
+        this.mystocklist = input_mystocklist;
         stop_flag = true;
         update_thread.start();
     }
@@ -71,19 +74,22 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         this.context = context;
         recycler_size = recycler_size;
         stop_flag = true;
-        //myexcel.find_stockname("069500");
         update_thread.start();
         // getCurrentPrice();
         // 1시간마다 어제 주가를 불러온다(이건 의미 없으나 일단 구현)
         // openapi가 아니고 웹크롤링으로 구현필요
         // BackgroundThread thread = new BackgroundThread();
     }
-
     @Override
-    protected void finalize() throws Throwable {
-        update_thread.interrupt();//스레드 종료
-        super.finalize();
+    public int getItemViewType(int position) {
+        return position;
     }
+    @Override
+    public int getItemCount()
+    {
+        return mystocklist.size();
+    }
+
     public void refresh( ) {
         notifyDataSetChanged();
     }
@@ -93,21 +99,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public void setOpenday(String openday) {
         latestOpenday = openday;
     }
-    public void putBuylist(List<BuyStockDBData> new_buylist) {
-        buyList = new_buylist;
-    }
-    public int getCurrentPrice(String stock_code) {
-        int size = buyList.size();
-        int price = 0;
-        for(int i =0;i<size;i++) {
-            if(buyList.get(i).stock_code.equals(stock_code)) {
-                price = buyList.get(i).cur_price;
-                if(price != -1) return price;
-                else price = 0;
-            }
-        }
-        return 0;
-    }
+
+
     public void loadCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
         // buy list에 넣는다
@@ -116,12 +109,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         MyWeb myweb = new MyWeb();
         String price="";
         // TODO Auto-generated method stub
-        for (int i = 0; i < buyList.size(); i++) {
+        for (int i = 0; i < mystocklist.size(); i++) {
             //System.out.println(Integer.toString(i) + "번째 종목번호 " + buyList.get(i).stock_no);
-            price = myweb.getCurrentStockPrice(buyList.get(i).stock_code);
+            price = myweb.getCurrentStockPrice(mystocklist.get(i).stock_code);
             String stokprice = price.replaceAll(",", "");
             int int_price = Integer.parseInt(stokprice);
-            buyList.get(i).cur_price = int_price;
+            mystocklist.get(i).cur_price = int_price;
         }
     }
 
@@ -132,7 +125,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 try {
                     Thread.sleep(10); // 1분에 한번씩 update
                     loadCurrentPrice();
-                    updatePortfolioPrice();
+                    notice_ok();
                     stop_flag = false;
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
@@ -142,19 +135,18 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         }
     }
 
-    public void updatePortfolioPrice() {
+    public void notice_ok() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
         context.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10);
                     //Toast.makeText(context, "test thread", Toast.LENGTH_SHORT).show();
-                    notifyDataSetChanged();
+                    refresh();
                 } catch (InterruptedException e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
                 }
             }
         });
@@ -183,32 +175,53 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
         finger_position = position;//holder.getAdapterPosition();
-        BuyStockDBData buydata = buyList.get(position);
+        FormatMyStock mystock = mystocklist.get(position);
 
-        int now_price = buyList.get(position).cur_price;
-        PortfolioData data = estim_buystock(buydata, now_price);
+        int now_price = mystocklist.get(position).cur_price;
 
-        holder.tv_name.setText(data.stock_name);
-        holder.tv_estim_profit.setText(Integer.toString(data.estim_profit));
-        holder.tv_estim_price.setText(Integer.toString(data.estim_price));
-        holder.tv_cur_price.setText(Integer.toString(data.cur_price));
-        holder.tv_hold_quantity.setText(Integer.toString(data.hold_quantity));
-        holder.tv_profit_rate.setText(String.format("%.2f",data.profit_rate) + "%");
-        holder.tv_buy_price.setText(Integer.toString(data.buy_price));
-        holder.tv_ave_price.setText(Integer.toString(data.ave_price));
+        String stock_name = mystock.stock_name;
+        String stock_code =  mystock.stock_code;
+        MyChart home_chart = new MyChart();
+        home_chart.single_float(homeChart,mystock.chartdata,stock_name,false );
+;
+        //int returnmoney = balance.getSellPrice();
+        int total_buy_price = mystock.buy_price;
+        int hold_quantity = mystock.quantity;
+        float averprice = total_buy_price/hold_quantity;
+        float estimprice = hold_quantity*mystock.cur_price;
+        float profitrate = (estimprice/total_buy_price)*100-100;
+
+        String simul_info =
+                "투자액 " + Integer.toString(total_buy_price/10000) + "만원\n" +
+                "잔량 " + Integer.toString(hold_quantity) + "\n" +
+                "평단가 " + Float.toString(averprice)+"\n" +
+                "평가액 " + String.format("%.0f",estimprice/10000) + "만원\n" +
+                "수익률 " + String.format("%.2f",profitrate) + "%" + "\n" +
+                "수익액 " + String.format("%.0f",(estimprice-total_buy_price)/10000) + "만원\n";
+
+        holder.tvbody_info.setText(simul_info);
+
+        String head_info =
+                stock_name + "(" + stock_code +"}"+"\n"+
+                        "현재가 " + mystock.cur_price;
+        holder.tvhead_info.setText(head_info);
+
+
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
         // expandable list를 펼쳐준다
         holder.onBind(position, selectedItems);
 
         // expandable list에서 call이 되는 click listener
         // 리사이클러뷰의 리스트를 클릭하면 call된다
+        // 일단 막는다. 230714
+        /*
         holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
             @Override
             public void onViewHolderItemClick() {
 
                 String bool;
 
-                for(int i =0;i<buyList.size();i++)  {
+                for(int i =0;i<mystocklist.size();i++)  {
                     selectedItems.delete(i);
                 }
                 selectedItems.put(position, true);
@@ -216,52 +229,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 if (prePosition != -1) notifyItemChanged(prePosition);
                 notifyItemChanged(position);
                 //System.out.println("event position is " + Integer.toString(position));
-
             }
         });
+        */
 
-    }
-
-    public PortfolioData estim_buystock(BuyStockDBData buystock, int cur_price) {
-        String stock_name; // 종목명
-        int estim_profit, estim_price; // 평가손익
-        int hold_quantity,unit_price,ave_price;
-        double profit_rate;
-        PortfolioData screen_info = new PortfolioData();
-
-        unit_price = buystock.getPrice();
-        hold_quantity = buystock.getQuantity();
-
-        estim_profit = (cur_price - unit_price) * hold_quantity;
-        estim_price = cur_price * hold_quantity;
-        profit_rate = ((cur_price*1.0)/(unit_price*1.0)-1)*100;
-        ave_price = unit_price;
-
-        screen_info.transaction_type = "buy";
-        screen_info.stock_name = buystock.stock_name;
-        screen_info.estim_profit = estim_profit;
-        screen_info.estim_price = estim_price;
-        screen_info.cur_price = cur_price;
-        screen_info.hold_quantity = hold_quantity;
-        screen_info.profit_rate = profit_rate;
-        screen_info.buy_price = unit_price*hold_quantity;
-        screen_info.ave_price = ave_price;
-        //Toast.makeText(context, Double.toString(profit_rate), Toast.LENGTH_SHORT).show();
-        return screen_info;
-    }
-
-    @Override
-    public int getItemCount()
-    {
-        //return recycler_size;
-        return buyList.size();
     }
 
     public void showDialog_buy(){
         EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
-        stock_name.setText(buyList.get(finger_position).stock_name);
+        stock_name.setText(mystocklist.get(finger_position).stock_name);
         EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
-        stock_price.setText(Integer.toString(buyList.get(finger_position).cur_price));
+        stock_price.setText(Integer.toString(mystocklist.get(finger_position).cur_price));
         EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
         stock_quantity.setText("1");
 
@@ -288,7 +266,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 }
                 //dl_NaverPriceByday(stock_no,60);
 
-
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
@@ -297,23 +274,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                     return; // 오늘이 오픈일이 아니면 매도매수 안됨
                 }
 
-                // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
-                BuyStockDBData onebuy = new BuyStockDBData();
-                onebuy.stock_code = stock_no;
-                onebuy.stock_name = name;
-                onebuy.buy_date = mybuydate;
-                onebuy.buy_quantity = Integer.parseInt(quantity);
-                onebuy.buy_price = Integer.parseInt(price);
-                buyList.add(onebuy);
-
-                BuyStock buystock = new BuyStock();
-                buystock.insert2db(onebuy);
-
-                Cache mycache = new Cache();
-                int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price)*-1;
-                mycache.update_cache(buymoney);
-
-                notifyDataSetChanged();
+                refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
@@ -323,64 +284,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             public void onClick(View view) {
                 // 원하는 기능 구현
                 dialog_buy.dismiss(); // 다이얼로그 닫기
-            }
-        });
-    }
-
-    public void showDialog_sell(){
-        EditText stock_name = dialog_sell.findViewById(R.id.stock_name);
-        stock_name.setText(buyList.get(finger_position).stock_name);
-        EditText stock_price = dialog_sell.findViewById(R.id.sell_price);
-        stock_price.setText(Integer.toString(buyList.get(finger_position).cur_price));
-        EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
-        stock_quantity.setText("1");
-
-        dialog_sell.show(); // 다이얼로그 띄우기
-        dialog_sell.findViewById(R.id.sellBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 원하는 기능 구현
-
-                EditText stock_name = dialog_sell.findViewById(R.id.stock_name);
-                String name = stock_name.getText().toString();
-                EditText stock_price = dialog_sell.findViewById(R.id.sell_price);
-                String price = stock_price.getText().toString();
-                EditText stock_quantity = dialog_sell.findViewById(R.id.sell_quantity);
-                String quantity = stock_quantity.getText().toString();
-
-                String stock_no = stockdic.getStockcode(name);
-                if(stock_no.equals("")) {
-                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Date buydate = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                String mybuydate = format.format(buydate);
-                if(!latestOpenday.equals(mybuydate)) {
-                    Toast.makeText(context, "오늘은 거래날짜가 아닙니다",Toast.LENGTH_SHORT).show();
-                    return; // 오늘이 오픈일이 아니면 매도매수 안됨
-                }
-
-
-                // db의 0번째에 매수데이터를 넣는다. 0번째가 가장 최신 데이터
-                SellStock sellstock = new SellStock();
-                sellstock.insert2db(name,stock_no,Integer.parseInt(quantity),Integer.parseInt(price),mybuydate);
-
-                Cache mycache = new Cache();
-                int buymoney = Integer.parseInt(quantity)*Integer.parseInt(price);
-                mycache.update_cache(buymoney);
-
-                notifyDataSetChanged();
-                dialog_sell.dismiss(); // 다이얼로그 닫기
-            }
-        });
-        //  버튼
-        dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 원하는 기능 구현
-                dialog_sell.dismiss(); // 다이얼로그 닫기
             }
         });
     }
@@ -389,8 +292,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         OnViewHolderItemClickListener onViewHolderItemClickListener;
-        TextView tv_name,tv_estim_profit,tv_estim_price,tv_cur_price;
-        TextView tv_hold_quantity,tv_profit_rate,tv_buy_price,tv_ave_price;
+        TextView tv_name,tv_buy_price;
+        TextView tvhead_info,tvbody_info;
 
         Button buybt, sellbt;
         //private View portfolio_list_view;
@@ -401,22 +304,16 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         {
             super(view);
 
+            homeChart = view.findViewById(R.id.home_chart);
             tv_name = view.findViewById(R.id.stock_name);
-            tv_estim_profit = view.findViewById(R.id.estim_profit);
-            tv_estim_price = view.findViewById(R.id.estim_price);
-            tv_cur_price = view.findViewById(R.id.cur_price);
-            tv_hold_quantity = view.findViewById(R.id.hold_quantity);
-            tv_profit_rate = view.findViewById(R.id.profit_rate);
             tv_buy_price = view.findViewById(R.id.buy_price);
-            tv_ave_price = view.findViewById(R.id.ave_price);
             bt_tuja = view.findViewById(R.id.account_tuja);
-            bt_tuja = context.findViewById(R.id.account_tuja);
+            bt_tuja = view.findViewById(R.id.account_tuja);
 
-            btexpand = view.findViewById(R.id.button_expanable);
-            buybt = view.findViewById(R.id.buy_stock);
-            sellbt = view.findViewById(R.id.sell_stock);
+            tvhead_info = view.findViewById(R.id.home_info_header);
+            tvbody_info = view.findViewById(R.id.home_info_body);
+
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
-
             home_list_item = view.findViewById(R.id.home_list_layout);
             home_buysell_item =  view.findViewById(R.id.home_buysell_layout);
 
@@ -426,6 +323,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                     onViewHolderItemClickListener.onViewHolderItemClick();
                 }
             });
+            /*
             buybt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -434,22 +332,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                     //onViewHolderItemClickListener.onViewHolderItemClick();
                 }
             });
-            sellbt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(context, "go to sell", Toast.LENGTH_SHORT).show();
-                    showDialog_sell();
-                    //onViewHolderItemClickListener.onViewHolderItemClick();
-                }
-            });
+            */
+
         }
         public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener onViewHolderItemClickListener)
         {
             this.onViewHolderItemClickListener = onViewHolderItemClickListener;
-        }
-        void addItem(BuyStockDBData data) {
-            // 외부에서 item을 추가시킬 함수입니다.
-            buyList.add(data);
         }
 
         public void onBind(int position, SparseBooleanArray selectedItems) {
@@ -495,8 +383,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         int estim_price=0;
 
         if(first_cache ==0) return "";
-        for(int i=0;i<buyList.size();i++) {
-            estim_price += buyList.get(i).cur_price*buyList.get(i).buy_quantity;
+        for(int i=0;i<mystocklist.size();i++) {
+            estim_price += mystocklist.get(i).cur_price*mystocklist.get(i).quantity;
         }
         int total_cache =0;
         total_cache = first_cache + remain_cache + estim_price;
@@ -515,31 +403,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         bt_tuja.setText(show_myaccount());
         bt_tuja = context.findViewById(R.id.account_tuja);
     }
-    public void app_restart() {
 
-        Intent intent = context.getIntent();
-        context.overridePendingTransition(0, 0);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        context.finish();
-
-        context.overridePendingTransition(0, 0);
-        context.startActivity(intent);
-    }
-
-    public void dl_NaverPriceByday(String stock_code, int day) {
-        MyWeb myweb = new MyWeb();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myweb.getNaverpriceByday(stock_code, day);
-                //myweb.getNaverpriceByday("069500", day); // kodex 200 상품
-            }
-        }).start();
-    }
-
-    public  List<BuyStockDBData> getBuylist() {
-        return buyList;
-    }
 
 }

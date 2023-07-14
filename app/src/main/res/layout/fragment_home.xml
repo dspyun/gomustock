@@ -123,98 +123,7 @@ tools:context=".ui.home.HomeFragment">
                 android:src="@drawable/stock_add_48px"/>
         </GridLayout>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="5"
-            android:orientation="horizontal"
-            android:rowCount="2">
-                <TextView
-                    android:id="@+id/stock_name_tag"
-                    android:text="종목명"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/estim_profit_tag"
-                    android:text="평가손익"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/estim_price_tag"
-                    android:text="평가금액"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/cur_price_tag"
-                    android:text="현재가"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
 
-                    android:textSize="14sp" />
-
-                <ImageView
-                    android:id="@+id/refresh_price"
-                    android:layout_width="@dimen/grid_imagewidth"
-                    android:layout_height="40dp"
-                    android:layout_column="4"
-                    android:layout_rowSpan="2"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:src="@drawable/sync_48px"/>
-
-                <TextView
-                    android:id="@+id/quantity_tag"
-                    android:text="보유수량"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/profit_rate_tag"
-                    android:text="수익률%"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/buy_price_tag"
-                    android:text="매입금액"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/ave_price_tag"
-                    android:text="평균단가"
-                    android:layout_width="@dimen/grid_width"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-
-        </GridLayout>
-    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -226,7 +135,7 @@ tools:context=".ui.home.HomeFragment">
         android:layout_marginTop="8dp"
         android:paddingBottom="70dp"
         android:clipToPadding="false"
-        tools:listitem="@layout/portfolio_list_row"/>
+        tools:listitem="@layout/home_list_row"/>
     </FrameLayout>
 
 </LinearLayout>

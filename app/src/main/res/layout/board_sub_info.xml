@@ -16,7 +16,7 @@
                 android:layout_width="193dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </LinearLayout>
         <LinearLayout
             android:orientation="vertical"
@@ -28,13 +28,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
             <TextView
                 android:id="@+id/bd_news_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 

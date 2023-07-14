@@ -155,21 +155,17 @@ public class MyWeb {
             doc = Jsoup.connect(URL).get();
             Elements elem = doc.select(".date");
             String[] str = elem.text().split(" ");
-
             Elements todaylist =doc.select(".new_totalinfo dl>dd");
-
             String juga = todaylist.get(3).text().split(" ")[1];
-
+            /*
             String DungRakrate = todaylist.get(3).text().split(" ")[6];
             String siga =  todaylist.get(5).text().split(" ")[1];
             String goga = todaylist.get(6).text().split(" ")[1];
             String zeoga = todaylist.get(8).text().split(" ")[1];
             String georaeryang = todaylist.get(10).text().split(" ")[1];
-
             String stype = todaylist.get(3).text().split(" ")[3]; //상한가,상승,보합,하한가,하락 구분
-
             String vsyesterday = todaylist.get(3).text().split(" ")[4];
-
+            */
             stockprice = juga;
             System.out.println(stockcode + " 주가 : "+juga);
 
