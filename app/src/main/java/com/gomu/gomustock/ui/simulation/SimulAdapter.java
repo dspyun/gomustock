@@ -81,11 +81,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     }
 
     public void refresh( ) {
-        /*
-        for(int i =0;i<simadaper_stock.size();i++) {
-            notifyItemChanged(i);
-        }
-         */
+
         notifyDataSetChanged();
     }
     public void reload_curprice( ) {

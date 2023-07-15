@@ -97,22 +97,24 @@ public class YFDownload {
     }
 
     public String encodingURL(String stock_code, String market) {
-        String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI","^SOX", "^KS200"};
-        String[] korea_index_table = {"069500", "429000", "102110","305540","210780","133690" };
+        String[] index_table = {"^KS11", "^GSPC", "^IXIC", "^DJI", "^SOX", "^KS200"};
+        String[] korea_index_table = {"069500", "429000", "102110", "305540", "210780", "133690"};
         boolean isExist = Arrays.stream(index_table).anyMatch(stock_code::equals);
         boolean ksisExist = Arrays.stream(korea_index_table).anyMatch(stock_code::equals);
-        if(checkKRStock(stock_code) || market.equals("KOSPI")) {
+        if (checkKRStock(stock_code)) {
             // 지수테이블에 포함되어 있는 경우
             // 코스피이면 KS를 붙이고, 코스닥이면 KQ를 붙인다
-            return stock_code+".KS";
-        }
-        else if(market.equals("KONEX") || market.equals("KOSDAQ GLOBAL") || market.equals("KOSDAQ")){
-            return stock_code+".KQ"; // KONEX, KOSDAQ, KOSDAQ GLOBAL은 모두 KQ를 달아준다
+            if (market.equals("KOSPI")) return stock_code + ".KS";
+            else if (market.equals("KONEX") || market.equals("KOSDAQ GLOBAL") || market.equals("KOSDAQ")) {
+                return stock_code + ".KQ"; // KONEX, KOSDAQ, KOSDAQ GLOBAL은 모두 KQ를 달아준다
+            }
         } else {
             // 지수테이블에 포함되어 있는 경우
             return URLEncoder.encode(stock_code);
         }
+        return "";
     }
+
     public boolean checkKRStock(String stock_code) {
         // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
         // 즉 한국주식이면 true, 외국주식이면 false 반환

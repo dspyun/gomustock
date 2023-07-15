@@ -165,7 +165,7 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                sim_stock = myexcel.readSimullist();
+                //sim_stock = myexcel.readSimullist();
                 // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
                 dl_yahoofinance_price(sim_stock);
             }
@@ -497,10 +497,9 @@ public class SimulationFragment extends Fragment {
         mycache.initialize();
 
         List<Balance> balancelist = new ArrayList<Balance>();
-        for(int i =0;i<sim_stock.size();i++) {
+        int size=sim_stock.size();
+        for(int i =0;i<size;i++) {
             String code = sim_stock.get(i);
-            //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
-            //mymagic01.makeBackdata();
             PriceBox pricebox = new PriceBox(code);
             List<Float> closeprice = new ArrayList<>();
             closeprice = pricebox.getClose();

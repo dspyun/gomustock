@@ -50,7 +50,7 @@ public class BBandTest {
     public BBandTest (String stock_code, List<Float> close, int days) {
 
         int size = close.size();
-        if(days == -1) CLOSEDATA = close;
+        if (days == -1) CLOSEDATA = close;
         else {
             for (int i = 0; i < days; i++) {
                 CLOSEDATA.add(close.get(size - days + i));
@@ -61,9 +61,10 @@ public class BBandTest {
         StockDic stockdic = new StockDic();
         STOCK_NAME = stockdic.getStockname(stock_code);
         loadTestData();
-        rsitest = new RSITest(close, days);
+        rsitest = new RSITest(CLOSEDATA, days);
         testNsave(true);
         PRICEMAX = Collections.max(CLOSEDATA);
+
     }
 
     void loadTestData() {
