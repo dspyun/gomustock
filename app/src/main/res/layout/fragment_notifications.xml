@@ -40,83 +40,24 @@
         </TableRow>
     </TableLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/sox"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_rowSpan="2"
-            android:layout_column="0"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="0" />
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/nasdaq"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_rowSpan="2"
-            android:layout_column="0"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="0" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/snp500"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_rowSpan="2"
-            android:layout_column="0"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="0" />
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/dow"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_rowSpan="2"
-            android:layout_column="0"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="0" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/kospi"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_rowSpan="2"
-            android:layout_column="0"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="0" />
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/composit"
-            android:layout_width="200dp"
-            android:layout_height="150dp"
-            android:layout_rowSpan="2"
-            android:layout_column="0"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="0" />
-    </LinearLayout>
     <TextView
         android:id="@+id/short_news"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_column="1"
-        android:layout_gravity = "fill_horizontal"
-        android:layout_row="1" />
+        android:layout_gravity = "fill_horizontal"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="10">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/noti_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingBottom="70dp"
+            android:clipToPadding="false"
+            tools:listitem="@layout/noti_list_row"/>
+    </FrameLayout>
 
 </LinearLayout>

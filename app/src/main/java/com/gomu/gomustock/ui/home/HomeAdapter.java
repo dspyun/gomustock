@@ -208,7 +208,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         holder.tvbody_info.setText(simul_info);
 
         String head_info =
-                stock_name + "(" + stock_code +"}"+"\n"+
+                Integer.toString(position) + " " +
+                stock_name + "(" + stock_code +"}"+" "+
                         "현재가 " + mystock.cur_price;
         holder.tvhead_info.setText(head_info);
 

@@ -101,7 +101,7 @@ public class YFDownload {
         String[] korea_index_table = {"069500", "429000", "102110","305540","210780","133690" };
         boolean isExist = Arrays.stream(index_table).anyMatch(stock_code::equals);
         boolean ksisExist = Arrays.stream(korea_index_table).anyMatch(stock_code::equals);
-        if(ksisExist || market.equals("KOSPI")) {
+        if(checkKRStock(stock_code) || market.equals("KOSPI")) {
             // 지수테이블에 포함되어 있는 경우
             // 코스피이면 KS를 붙이고, 코스닥이면 KQ를 붙인다
             return stock_code+".KS";
@@ -112,5 +112,11 @@ public class YFDownload {
             // 지수테이블에 포함되어 있는 경우
             return URLEncoder.encode(stock_code);
         }
+    }
+    public boolean checkKRStock(String stock_code) {
+        // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
+        // 즉 한국주식이면 true, 외국주식이면 false 반환
+        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        return isNumeric;
     }
 }

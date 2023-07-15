@@ -759,6 +759,57 @@ public class MyExcel extends MyStat{
         return mArrayBuffer;
     }
 
+
+    public List<FormatMyStock> readSectorinfo(boolean header) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile = STOCKDIR+"index_sector"+".xls";;
+        List<FormatMyStock> mArrayBuffer = new ArrayList<FormatMyStock>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                int size=0, start = 0;
+                if(header != TRUE) start = 1;
+
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    size = sheet.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
+                        FormatMyStock temp = new FormatMyStock();
+                        temp.stock_code = sheet.getCell(0, i).getContents();
+                        temp.stock_name = sheet.getCell(1, i).getContents();
+                        mArrayBuffer.add(temp);
+                    }
+                }
+
+                Sheet sheet1 = wb.getSheet(1);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    size = sheet1.getColumn(0).length;
+                    for(int i=start;i<size;i++) {
+                        FormatMyStock temp = new FormatMyStock();
+                        temp.stock_code = sheet1.getCell(0, i).getContents();
+                        temp.stock_name = sheet1.getCell(1, i).getContents();
+                        mArrayBuffer.add(temp);
+                    }
+                }
+
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return mArrayBuffer;
+    }
+
     public List<String> readFogninfo(String stock_code, String group, boolean header) {
         InputStream is=null;
         Workbook wb=null;

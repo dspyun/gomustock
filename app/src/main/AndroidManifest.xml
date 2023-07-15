@@ -29,9 +29,7 @@
             android:exported="false"
             android:label="@string/title_activity_board_info"
             android:theme="@style/Theme.GomuStock" />
-        <activity
-            android:name=".mytest"
-            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

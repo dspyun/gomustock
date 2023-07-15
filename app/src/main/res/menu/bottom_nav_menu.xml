@@ -15,6 +15,7 @@
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/area_chart_48px"
         android:title="@string/title_notifications"/>
+
     <item
         android:id="@+id/navigation_robotrade"
         android:icon="@drawable/robot_48px"

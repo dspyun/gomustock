@@ -23,10 +23,11 @@
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications"/>
 
+
     <fragment
         android:id="@+id/navigation_robotrade"
         android:name="com.gomu.gomustock.ui.simulation.SimulationFragment"
-        android:label="@string/title_simulation"
+        android:label="@string/title_robotrade"
         tools:layout="@layout/fragment_robotrade"/>
 
     <fragment
