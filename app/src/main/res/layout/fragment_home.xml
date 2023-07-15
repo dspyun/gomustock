@@ -6,45 +6,29 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:orientation="vertical"
 tools:context=".ui.home.HomeFragment">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
-
-       <Button
-            android:id="@+id/account_tuja"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_weight = "1"
-            android:text="투자계정"/>
-        <Button
-            android:id="@+id/account_bench"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_weight = "1"
-            android:text="벤치계정"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/tuja_chart"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_weight="1" />
-
-
         <!-- com.github.mikephil.charting.charts.CandleStickChart -->
         <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/tuja_detail_chart"
-            android:layout_width="match_parent"
+            android:id="@+id/home_moeny_chart"
+            android:layout_width="200dp"
             android:layout_height="150dp"
-            android:layout_weight="1" />
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
+
+        <TextView
+            android:id="@+id/home_money_info"
+            android:layout_width="wrap_content"
+            android:layout_height="130dp"
+            android:layout_column="1"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="1" />
 
     </LinearLayout>
 

@@ -13,9 +13,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
@@ -180,11 +177,11 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
         if (chart_data2.size() == 0) {
             // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
-            pricelist = myexcel.read_ohlcv("069500", "CLOSE", 60, false);
+            pricelist = myexcel.read_ohlcv("^KS200", "CLOSE", 60, false);
             //pricelist = myexcel.arrangeRev_string(pricelist);
             chart_data2 = myexcel.oa_standardization(pricelist);
         }
-        chartlist = standard_chart.adddata_float(chart_data2, "KODEX 200", context.getColor(R.color.White));
+        chartlist = standard_chart.adddata_float(chart_data2, "KOSPI200", context.getColor(R.color.White));
 
         //standard_chart.setYMinmax(-3, 3);
         standard_chart.multi_chart(lineChart, chartlist, "표준화차트", false);

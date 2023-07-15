@@ -427,7 +427,17 @@ public class MyExcel extends MyStat{
                     for (int i = 1; i <= size1-1; i++) {
                         STOCK_NO.add(sheet1.getCell(1, i).getContents());
                         STOCK_NAME.add(sheet1.getCell(3, i).getContents());
-                        MARKET.add(sheet.getCell(6, i).getContents());
+                        MARKET.add(sheet1.getCell(6, i).getContents());
+                    }
+                }
+                Sheet sheet2 = wb.getSheet(2);   // 시트 불러오기
+                if(sheet2 != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size1 = sheet2.getColumn(0).length;
+                    for (int i = 1; i <= size1-1; i++) {
+                        STOCK_NO.add(sheet2.getCell(1, i).getContents());
+                        STOCK_NAME.add(sheet2.getCell(3, i).getContents());
+                        MARKET.add(sheet2.getCell(6, i).getContents());
                     }
                 }
             }

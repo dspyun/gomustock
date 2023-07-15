@@ -29,8 +29,20 @@ public class MyWeb {
         target_stock = "005930";
     }
 
+    public boolean checkKRStock(String stock_code) {
+        // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
+        // 즉 한국주식이면 true, 외국주식이면 false 반환
+        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        return isNumeric;
+    }
     public FormatStockInfo getStockinfo(String stock_code) {
         FormatStockInfo result = new FormatStockInfo();
+
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            result.init();
+            return result;
+        }
         try {
 
             String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_main.asp?gicode=A"+stock_code;
@@ -83,9 +95,22 @@ public class MyWeb {
     }
 
     public List<List<String>> getAgencyFogn(String stock_code, String pageno) {
+        List<List<String>> result = new ArrayList<List<String>>();
 
         List<String> agent = new ArrayList<>();
         List<String> fogn = new ArrayList<>();
+
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            for(int i =0;i<20;i++) {
+                agent.add("");
+                fogn.add("");
+            }
+            result.add(agent);
+            result.add(fogn);
+            return result;
+        }
+
         try {
             String pagenumber;
             if(pageno.equals("0")) pagenumber="";
@@ -137,7 +162,7 @@ public class MyWeb {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        List<List<String>> result = new ArrayList<List<String>>();
+
         result.add(agent);
         result.add(fogn);
         return result;
@@ -150,7 +175,10 @@ public class MyWeb {
         //https://finance.naver.com/sise/sise_index.naver?code=KPI200
         String URL = "https://finance.naver.com/item/main.nhn?code=" + stockcode;
         Document doc;
-
+        if(!checkKRStock(stockcode)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            return stockprice="0";
+        }
         try {
             doc = Jsoup.connect(URL).get();
             Elements elem = doc.select(".date");

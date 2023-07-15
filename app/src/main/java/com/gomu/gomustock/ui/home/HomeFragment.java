@@ -25,9 +25,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
+import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.graph.MyTreeMap;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
@@ -47,20 +49,16 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
 
     private HomeAdapter home_adapter;
-    private List<Integer> chart_data1 = new ArrayList<Integer>();
-    private List<Integer> chart_data2 = new ArrayList<Integer>();
-    private List<Integer> chart1_data1 = new ArrayList<Integer>();
-    private List<Integer> chart1_data2 = new ArrayList<Integer>();
-
-    private HBSManager hbsmanager;
 
     Button tuja_bt, bench_bt;
 
     private boolean stop_flag = false;
-    private int DelaySecond=1;
+
     List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
     List<String> homestock_list = new ArrayList<>();
     TextView filedown, infodown, dummy, history;
+
+
     public MyExcel myexcel = new MyExcel();
     private List<Integer> chartcolor = new ArrayList<>();
     Dialog dialog_buy; // 커스텀 다이얼로그
@@ -118,7 +116,14 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+                LineChart homeChart = root.findViewById(R.id.home_moeny_chart);
+                MyChart home_chart = new MyChart();
 
+                TextView tvhome_money_info = root.findViewById(R.id.home_money_info);
+                String money_info = home_adapter.update_top_board();
+                tvhome_money_info.setText(money_info);
+                List<Float> total_line = home_adapter.getMoneyLine();
+                home_chart.single_float(homeChart,total_line,"moeny line",false );
             }
         });
 
@@ -318,16 +323,9 @@ public class HomeFragment extends Fragment {
     }
 
     public void top_board(View view) {
-        tuja_bt = view.findViewById(R.id.account_tuja);
-        bench_bt = view.findViewById(R.id.account_bench);
 
-        tuja_bt.setText("투자계정 총10,000\n"+"현9,000"+"평1,000");
-        tuja_bt.setBackgroundColor(context.getColor(R.color.MyBlack));
-        tuja_bt.setTextColor(context.getColor(R.color.MyGray));
 
-        bench_bt.setText("벤치계정 \n총1억"+"\n현금 : 1억"+"\n이자 : 500");
-        bench_bt.setBackgroundColor(context.getColor(R.color.MyBlack));
-        bench_bt.setTextColor(context.getColor(R.color.MyGray));
+
 
         filedown = view.findViewById(R.id.filedownload);
         infodown = view.findViewById(R.id.infodownload);

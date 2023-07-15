@@ -96,6 +96,7 @@ public class NotificationsFragment extends Fragment {
             @Override
             public void run() {
                 // TODO Auto-generated method stub
+                new YFDownload("^KS200");
                 new YFDownload("^KS11");
                 new YFDownload("^GSPC");
                 new YFDownload("^IXIC");
@@ -136,6 +137,7 @@ public class NotificationsFragment extends Fragment {
         List<Float> sox_index = new ArrayList<>();
         sox = (LineChart)root.findViewById(R.id.sox);
         List<String> price_str4 = myexcel.read_ohlcv("^SOX" , "CLOSE", test_period, false);
+        if(price_str4.size() <=0) return;
         sox_index = myexcel.string2float(price_str4,1);
         MyChart sox_chart = new MyChart();
         sox_chart.single_float(sox,sox_index,"필라델피아반도체", false);
@@ -143,6 +145,7 @@ public class NotificationsFragment extends Fragment {
 
         snp500 = (LineChart)root.findViewById(R.id.snp500);
         List<String> price_str1 = myexcel.read_ohlcv("^GSPC" , "CLOSE", test_period, false);
+        if(price_str1.size() <=0) return;
         snp500_index = myexcel.string2float(price_str1,1);
         MyChart snp500_chart = new MyChart();
         snp500_chart.single_float(snp500,snp500_index,"나스닥 IT 헬스", false);
@@ -151,6 +154,7 @@ public class NotificationsFragment extends Fragment {
 
         nasdaq = (LineChart)root.findViewById(R.id.nasdaq);
         List<String> price_str2 = myexcel.read_ohlcv("^IXIC" , "CLOSE", test_period, false);
+        if(price_str2.size() <=0) return;
         nasdaq_index = myexcel.string2float(price_str2,1);
         MyChart nasdaq_chart = new MyChart();
         nasdaq_chart.single_float(nasdaq,nasdaq_index,"SNP500 공업 금융", false);
@@ -158,6 +162,7 @@ public class NotificationsFragment extends Fragment {
 
         dow = (LineChart)root.findViewById(R.id.dow);
         List<String> price_str3 = myexcel.read_ohlcv("^DJI" , "CLOSE", test_period, false);
+        if(price_str3.size() <=0) return;
         dow_index = myexcel.string2float(price_str3,1);
         MyChart dow_chart = new MyChart();
         dow_chart.single_float(dow,dow_index,"다우 소재 산업재", false);
@@ -166,6 +171,7 @@ public class NotificationsFragment extends Fragment {
 
         kospi = (LineChart)root.findViewById(R.id.kospi);
         List<String> price_str = myexcel.read_ohlcv("^KS11" , "CLOSE", test_period, false);
+        if(price_str.size() <=0) return;
         kospi_index = myexcel.string2float(price_str,1);
         MyChart kospi_chart = new MyChart();
         kospi_chart.single_float(kospi,kospi_index,"코스피", false);

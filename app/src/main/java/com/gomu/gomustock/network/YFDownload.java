@@ -97,20 +97,20 @@ public class YFDownload {
     }
 
     public String encodingURL(String stock_code, String market) {
-        String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI","^SOX" };
+        String[] index_table = {"^KS11", "^GSPC", "^IXIC","^DJI","^SOX", "^KS200"};
         String[] korea_index_table = {"069500", "429000", "102110","305540","210780","133690" };
         boolean isExist = Arrays.stream(index_table).anyMatch(stock_code::equals);
         boolean ksisExist = Arrays.stream(korea_index_table).anyMatch(stock_code::equals);
-        if(isExist) {
-            // 지수테이블에 포함되어 있는 경우
-            return URLEncoder.encode(stock_code);
-        } else if(ksisExist || market.equals("KOSPI")) {
+        if(ksisExist || market.equals("KOSPI")) {
             // 지수테이블에 포함되어 있는 경우
             // 코스피이면 KS를 붙이고, 코스닥이면 KQ를 붙인다
             return stock_code+".KS";
         }
-        else {
+        else if(market.equals("KONEX") || market.equals("KOSDAQ GLOBAL") || market.equals("KOSDAQ")){
             return stock_code+".KQ"; // KONEX, KOSDAQ, KOSDAQ GLOBAL은 모두 KQ를 달아준다
+        } else {
+            // 지수테이블에 포함되어 있는 경우
+            return URLEncoder.encode(stock_code);
         }
     }
 }

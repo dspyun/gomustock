@@ -36,6 +36,7 @@ import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -60,8 +61,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     StockDic stockdic = new StockDic();
     ImageView btexpand,btpricerefresh;
     LineChart homeChart;
-
+    TextView tvhome_money_info;
     TableLayout home_buysell_item;
+    View view;
     public HomeAdapter(Activity context, List<FormatMyStock> input_mystocklist)
     {
         this.context = context;
@@ -136,7 +138,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     }
 
     public void notice_ok() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
         context.runOnUiThread(new Runnable() {
             @Override
@@ -155,7 +156,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     @Override
     public HomeAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_list_row, parent, false);
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_list_row, parent, false);
 
         dialog_buy = new Dialog(context);       // Dialog 초기화
         dialog_buy.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
@@ -167,9 +168,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
 //        bt_tuja.setText(show_myaccount(buyList));
 
-
         return new HomeAdapter.ViewHolder(view);
     }
+
     int finger_position;
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -183,18 +184,23 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         String stock_code =  mystock.stock_code;
         MyChart home_chart = new MyChart();
         home_chart.single_float(homeChart,mystock.chartdata,stock_name,false );
-;
+
+        float cur_price = mystock.cur_price;
+        if(cur_price<=0) {
+            int size = mystock.chartdata.size();
+            cur_price = mystock.chartdata.get(size-1);
+        }
         //int returnmoney = balance.getSellPrice();
-        int total_buy_price = mystock.buy_price;
+        float total_buy_price = mystock.buy_price;
         int hold_quantity = mystock.quantity;
         float averprice = total_buy_price/hold_quantity;
-        float estimprice = hold_quantity*mystock.cur_price;
+        float estimprice = hold_quantity*cur_price;
         float profitrate = (estimprice/total_buy_price)*100-100;
 
         String simul_info =
-                "투자액 " + Integer.toString(total_buy_price/10000) + "만원\n" +
+                "투자액 " + String.format("%.0f",total_buy_price/10000) + "만원\n" +
                 "잔량 " + Integer.toString(hold_quantity) + "\n" +
-                "평단가 " + Float.toString(averprice)+"\n" +
+                "평단가 " + String.format("%.0f",averprice)+"\n" +
                 "평가액 " + String.format("%.0f",estimprice/10000) + "만원\n" +
                 "수익률 " + String.format("%.2f",profitrate) + "%" + "\n" +
                 "수익액 " + String.format("%.0f",(estimprice-total_buy_price)/10000) + "만원\n";
@@ -206,15 +212,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                         "현재가 " + mystock.cur_price;
         holder.tvhead_info.setText(head_info);
 
-
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
         // expandable list를 펼쳐준다
         holder.onBind(position, selectedItems);
 
-        // expandable list에서 call이 되는 click listener
-        // 리사이클러뷰의 리스트를 클릭하면 call된다
-        // 일단 막는다. 230714
-        /*
         holder.setOnViewHolderItemClickListener(new OnViewHolderItemClickListener() {
             @Override
             public void onViewHolderItemClick() {
@@ -231,8 +232,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 //System.out.println("event position is " + Integer.toString(position));
             }
         });
-        */
-
     }
 
     public void showDialog_buy(){
@@ -295,6 +294,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         TextView tv_name,tv_buy_price;
         TextView tvhead_info,tvbody_info;
 
+
         Button buybt, sellbt;
         //private View portfolio_list_view;
         LinearLayout home_list_item;
@@ -304,11 +304,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         {
             super(view);
 
+            tvhome_money_info = view.findViewById(R.id.home_money_info);
+
             homeChart = view.findViewById(R.id.home_chart);
             tv_name = view.findViewById(R.id.stock_name);
             tv_buy_price = view.findViewById(R.id.buy_price);
-            bt_tuja = view.findViewById(R.id.account_tuja);
-            bt_tuja = view.findViewById(R.id.account_tuja);
 
             tvhead_info = view.findViewById(R.id.home_info_header);
             tvbody_info = view.findViewById(R.id.home_info_body);
@@ -398,11 +398,47 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         //Toast.makeText(context, account_info, Toast.LENGTH_SHORT).show();
         return account_info;
     }
-    public void updatebt() {
 
-        bt_tuja.setText(show_myaccount());
-        bt_tuja = context.findViewById(R.id.account_tuja);
+    public String update_top_board() {
+
+        float totol_invest_money=0, total_estim_money=0;
+        float profit_rate=0, total_earn_money=0;
+
+        int size = mystocklist.size();
+        for(int i =0;i<size;i++) {
+            totol_invest_money += mystocklist.get(i).buy_price;
+            total_estim_money += mystocklist.get(i).quantity*mystocklist.get(i).cur_price;;
+        }
+        profit_rate = (total_estim_money/totol_invest_money)*100-100;
+        total_earn_money = total_estim_money-totol_invest_money;
+        String total_money_info =
+                "투자액 = " + String.format("%.0f",totol_invest_money/10000) + "만원\n" +
+                "평가액 = " + String.format("%.0f",total_estim_money/10000) + "만원\n" +
+                "수익률 = " + String.format("%.2f", profit_rate) +"%\n" +
+                "수익액 = " + String.format("%.0f",total_earn_money/10000) + "만원\n";
+        return  total_money_info;
     }
 
-
+    public List<Float> getMoneyLine() {
+        List<Float> sumline = new ArrayList<>();
+        int days = mystocklist.get(0).chartdata.size();
+        for(int k=0;k<days;k++) {
+            sumline.add(0f);
+        }
+        int size = mystocklist.size();
+        for(int i =0;i<size;i++) {
+            List<Float> oneline = new ArrayList<>();
+            oneline = mystocklist.get(i).chartdata;
+            int quantity = mystocklist.get(i).quantity;
+            days = oneline.size();
+            for(int j =0;j<days;j++) {
+                float sum = sumline.get(j) + oneline.get(j)*quantity;
+                sumline.set(j,sum);
+            }
+        }
+        for(int k=0;k<days;k++) {
+            sumline.set(k,sumline.get(k)/10000);
+        }
+        return sumline;
+    }
 }
