@@ -56,7 +56,7 @@ public class YFDownload {
             //https://query1.finance.yahoo.com/v7/finance/download/%5EKS11?period1=1657529546&period2=1689065546&interval=1d&events=history&includeAdjustedClose=true
 
             Connection connection = Jsoup.connect(path);
-            connection.timeout(3000);
+            connection.timeout(1500);
             Connection.Response resultImageResponse = connection.ignoreContentType(true).execute();
             csvdata = resultImageResponse.parse().body().text();
         } catch (IOException e) {

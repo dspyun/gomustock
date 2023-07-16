@@ -403,35 +403,4 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         va.start();
     }
 
-    public String show_myaccount() {
-
-        SCache mycache = new SCache();
-        int first_cache = mycache.getFirstCache();
-        int remain_cache= mycache.getRemainCache();
-        int estim_price=0;
-
-        if(first_cache ==0) return "";
-        /*
-        for(int i=0;i<buyList.size();i++) {
-            estim_price += buyList.get(i).cur_price*buyList.get(i).buy_quantity;
-        }
-
-         */
-        int total_cache =0;
-        total_cache = first_cache + remain_cache + estim_price;
-
-        String total  = Integer.toString(total_cache);
-        String remain = Integer.toString(remain_cache);
-        String estim = Integer.toString(estim_price);
-        String profitrate = String.format("%.2f",100*(((float)total_cache-first_cache)/first_cache));
-        String account_info = "투자계정수익률 "+profitrate+"\n총 : "+total+"\n현금 : "+remain+"\n주식평가 : "+estim;
-
-        //Toast.makeText(context, account_info, Toast.LENGTH_SHORT).show();
-        return account_info;
-    }
-
-    public void updatebt() {
-        //bt_tuja = context.findViewById(R.id.sim_account_info);
-        bt_tuja.setText(show_myaccount());
-    }
 }

@@ -1,13 +1,10 @@
 package com.gomu.gomustock.ui.simulation;
 
-import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,24 +18,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
-import com.gomu.gomustock.stockdb.BuyStockDB;
-import com.gomu.gomustock.stockdb.BuyStockDBData;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.Balance;
 import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.stockengin.StockDic;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,7 +63,6 @@ public class SimulationFragment extends Fragment {
 
     private View view;
     private RecyclerView recyclerView;
-    private LineChart lineChart;
 
     private SimulAdapter simul_adapter;
     private List<Integer> chart_data1 = new ArrayList<Integer>();
@@ -81,7 +70,6 @@ public class SimulationFragment extends Fragment {
     private List<Integer> chart1_data1 = new ArrayList<Integer>();
     private List<Integer> chart1_data2 = new ArrayList<Integer>();
 
-    private BSManager sim_bsmanager;
 
     private String open_api_data="empty";
     private String yesterday_price="empty";
@@ -90,9 +78,8 @@ public class SimulationFragment extends Fragment {
     TextView noti_board;
     ImageView addnew_img;
 
-    private BackgroundThread update_thread = new BackgroundThread();
     private boolean stop_flag = false;
-    private int DelaySecond=1;
+
     private List<String> sim_stock = new ArrayList<>();
     Dialog dialog_listmanagery; // 커스텀 다이얼로그
     private List<Integer> chartcolor = new ArrayList<>();
@@ -137,17 +124,12 @@ public class SimulationFragment extends Fragment {
 
         init_resource(view);
         noti_board.setText(code2name(sim_stock));
-        if(sim_stock.size()==0) {
-            no_simulation();
+        if((sim_stock.size() > 0) && (checkTestFile(sim_stock))) {
+            simulation();
         } else {
-            if(!checkTestFile(sim_stock)) {
-                String info = "test파일이 없습니다\n"+"전력선택 버튼을 눌러주세요";
-                noti_board.setText(info);
-                no_simulation();
-            }
-            else {
-                simulation();
-            }
+            String info = "test파일이 없습니다\n"+"전력선택 버튼을 눌러주세요";
+            noti_board.setText(info);
+            no_simulation();
         }
 
         simselect_bt.setOnClickListener(new View.OnClickListener()
@@ -229,6 +211,7 @@ public class SimulationFragment extends Fragment {
     }
 
     public boolean checkTestFile(List<String> codelist) {
+        // 파일이 없으면 false, 있으면 true를 반환한다
         boolean flag=true;
         int size = codelist.size();
         for(int i =0;i<size;i++) {
@@ -317,19 +300,6 @@ public class SimulationFragment extends Fragment {
     }
 
 
-    public void dl_NaverPriceByday(List<String> stocklist, int day) {
-        MyWeb myweb = new MyWeb();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                for(int i=0;i<stocklist.size();i++) {
-                    myweb.getNaverpriceByday(stocklist.get(i),day);
-                }
-            }
-        }).start();
-    }
-
     void dl_yahoofinance_price(List<String> stocklist) {
         MyWeb myweb = new MyWeb();
         new Thread(new Runnable() {
@@ -360,51 +330,7 @@ public class SimulationFragment extends Fragment {
         });
     }
 
-    public void dl_PriceHistory1Y(List<String> itemlist) {
-        MyOpenApi myopenapi = new MyOpenApi();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myopenapi.getPriceHistory1Y(itemlist);
-            }
-        }).start();
-    }
 
-    public void dl_IndexHistory1Y(String index_name) {
-        MyOpenApi myopenapi = new MyOpenApi();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myopenapi.getIndexHistory1Y(index_name);
-            }
-        }).start();
-    }
-
-    public void dl_PriceNIndexhistory3M(List<String> itemlist) {
-        MyOpenApi myopenapi = new MyOpenApi();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myopenapi.dl_Pricehistory3M(itemlist);
-                myopenapi.dl_Indexhistory3M("코스피 200");
-            }
-        }).start();
-    }
-
-    public void dl_AgencyForeigne(List<String> buylist) {
-        MyWeb myweb = new MyWeb();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myweb.dl_fogninfo(buylist);
-            }
-        }).start();
-    }
     public void delSimulFile(String stockcode) {
         List<String> filelist = new ArrayList<>();
         filelist = myexcel.readSimullist();
@@ -424,44 +350,6 @@ public class SimulationFragment extends Fragment {
         }
     }
 
-    class BackgroundThread extends Thread {
-        public void run() {
-                try {
-                    Thread.sleep(1L); // 진입 시 잠시라도 정지해야 함
-                    // 60초*60분마다 한 번씩 웹크롤링으로 현재가 update
-                    updatePortfolioPrice();
-                    Thread.sleep(1000*DelaySecond); //  1초 대기
-                } catch (InterruptedException e) {
-                    System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
-                }
-                //여기서는 Toast를 비롯한 UI작업을 실행못함
-        }
-    }
-
-    public void updatePortfolioPrice() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1L); // 잠시라도 정지해야 함
-                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
-                    update_account();
-                } catch (Exception e) {
-                    System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
-                }
-            }
-        });
-    }
-
-    void update_account() {
-        simul_adapter.refresh();
-        DelaySecond = 60;
-    }
-
     public void init_resource(View view) {
 
         simselect_bt = view.findViewById(R.id.sim_selectitem);;
@@ -472,30 +360,7 @@ public class SimulationFragment extends Fragment {
         addnew_img = view.findViewById(R.id.sim_addnew);
     }
 
-    public List<String> ReadBuyList() {
-        BuyStockDB buystock_db;
-        List<BuyStockDBData> buystockList = new ArrayList<>();
-        List<String> buylist = new ArrayList<>();
-        buystock_db = BuyStockDB.getInstance(context);
-        buystockList = buystock_db.buystockDao().getAll();
-        // buy stock list에서 중복된 종목을 제거한다
-        Set<String> set = new HashSet<String>();
-        for(int i =0;i < buystockList.size();i++ ) {
-            set.add(buystockList.get(i).stock_code);
-        }
-        Iterator<String> iter = set.iterator();
-
-        // 중복 종목명이 제거된 결과를 buylist에 저장한다
-        while(iter.hasNext()) { //iter에 다음 읽을 데이터가 있다면
-            buylist.add(iter.next());
-        }
-        return buylist;
-    }
-
     public void simulation() {
-
-        SCache mycache = new SCache();
-        mycache.initialize();
 
         List<Balance> balancelist = new ArrayList<Balance>();
         int size=sim_stock.size();
@@ -521,31 +386,10 @@ public class SimulationFragment extends Fragment {
         simul_adapter.putBBandTestList(bbandtestlist);
         simul_adapter.putChartdata(balancelist);
 
-        if(stop_flag!= true) {
-            stop_flag=true;
-            DelaySecond =1;
-            //update_thread.start();
-        }
     }
 
     public void no_simulation() {
-        BuyStockDBData lastbuy = new BuyStockDBData();
 
-        sim_bsmanager = new BSManager(context,"");
 
-        if(lastbuy != null) {
-            // recycler view 준비
-            recyclerView = view.findViewById(R.id.sim_recycler_view);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            //lastbuylist.add(sim_bsmanager.getPortfolio_dummy());
-            simul_adapter = new SimulAdapter(getActivity(), sim_stock);
-            recyclerView.setAdapter(simul_adapter);
-        }
-
-        if(stop_flag!= true) {
-            stop_flag=true;
-            DelaySecond =1;
-            //update_thread.start();
-        }
     }
 }
