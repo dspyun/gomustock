@@ -88,7 +88,6 @@ public class SimulationFragment extends Fragment {
 
     TextView simselect_bt, simdl_bt, simtool_bt, simsim_bt;
     TextView noti_board;
-    ImageView refreshPrice;
     ImageView addnew_img;
 
     private BackgroundThread update_thread = new BackgroundThread();
@@ -165,7 +164,7 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                //sim_stock = myexcel.readSimullist();
+                sim_stock = myexcel.readSimullist();
                 // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
                 dl_yahoofinance_price(sim_stock);
             }
@@ -211,18 +210,6 @@ public class SimulationFragment extends Fragment {
             }
         });
 
-        refreshPrice= (ImageView) view.findViewById(R.id.sim_refresh_price);
-        refreshPrice.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                DelaySecond = 1;
-                //simul_adapter.reload_curprice();
-                //simul_adapter.putStocklist(sim_stock);
-                //simul_adapter.refresh();
-            }
-        });
     }
 
     public String code2name(List<String> codelist) {
@@ -263,22 +250,38 @@ public class SimulationFragment extends Fragment {
                 // 원하는 기능 구현
 
                 // dialog 화면에서 입력된 정보를 읽어온다
-                EditText stock_name = dialog_listmanagery.findViewById(R.id.stock_name);
-                String name = stock_name.getText().toString();
+                EditText NAME = dialog_listmanagery.findViewById(R.id.stock_name);
+                EditText CODE = dialog_listmanagery.findViewById(R.id.stock_code);
+                String name = NAME.getText().toString();
+                String code = CODE.getText().toString();
 
-                String stock_no = stockdic.getStockcode(name);
-                if(stock_no.equals("")) {
-                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
-                    return;
+                String stock_code="",stock_name="";
+                if(!name.equals("")) {
+                    stock_code = stockdic.getStockcode(name);
+                    stock_name = name;
+                    if (stock_code.equals("")){
+                        Toast.makeText(context, "종목코드 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                } else if(!code.equals("")) {
+                    stock_name = stockdic.getStockname(code);
+                    stock_code = code;
+                    if (stock_name.equals("")){
+                        Toast.makeText(context, "종목명 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
 
-                if(!myexcel.file_check(stock_no+".xls")) {
-                    sim_stock.add(stock_no);
-                    //dl_NaverPriceByday(sim_stock, 240);
-                    dl_yahoofinance_price(sim_stock);
+                // adapter list에 종목코드가 없으면 update사켜주고
+                List<String> adapterList = simul_adapter.getRecyclerList();
+                if(!adapterList.contains(stock_code)) {
+                    adapterList.add(stock_code);
+                    // 파일에도 추가해주고..info는 추가로 불러와야 함
+                    addSimulFile(stock_code);
+                    simul_adapter.putRecyclerList(adapterList);
                 }
 
-                addSimulFile(stock_no);
                 // list를 update하며 안된다
                 // 정보가 없으니까...정보불러오기 끝나고 simul 버튼 누른 후 update 시키는 것으로
                 // simul_adapter.putStocklist(sim_stock);
@@ -306,7 +309,7 @@ public class SimulationFragment extends Fragment {
                 // 리스트에서 바로 삭제한다
                 int index = sim_stock.indexOf(stock_no);
                 sim_stock.remove(index);
-                simul_adapter.putStocklist(sim_stock);
+                simul_adapter.putRecyclerList(sim_stock);
                 simul_adapter.refresh();
                 dialog_listmanagery.dismiss(); // 다이얼로그 닫기
             }
@@ -342,8 +345,6 @@ public class SimulationFragment extends Fragment {
     }
 
     public void notice_ok() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

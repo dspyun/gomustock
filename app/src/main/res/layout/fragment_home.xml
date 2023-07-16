@@ -37,12 +37,7 @@ tools:context=".ui.home.HomeFragment">
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="5"
-            android:orientation="horizontal"
-            android:rowCount="2">
+
             <TextView
                 android:id="@+id/filedownload"
                 android:layout_width="@dimen/grid_width"
@@ -50,7 +45,7 @@ tools:context=".ui.home.HomeFragment">
                 android:layout_weight="1"
                 android:gravity="center_vertical|right"
                 android:textColor="@color/LightGray"
-                android:text="파일\n다운로드"
+                android:text="주가\n다운로드"
                 android:textSize="14sp"
                 android:background="@xml/bg_custom_button"
                 android:clickable="true"
@@ -62,7 +57,7 @@ tools:context=".ui.home.HomeFragment">
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center_vertical|right"
-                android:text="정보\n다운로드"
+                android:text="자산총액\n차트보기"
                 android:textColor="@color/LightGray"
                 android:textSize="14sp"
                 android:background="@xml/bg_custom_button"
@@ -105,7 +100,7 @@ tools:context=".ui.home.HomeFragment">
                 android:layout_weight="1"
                 android:gravity="center"
                 android:src="@drawable/stock_add_48px"/>
-        </GridLayout>
+
     </LinearLayout>
 
     <FrameLayout

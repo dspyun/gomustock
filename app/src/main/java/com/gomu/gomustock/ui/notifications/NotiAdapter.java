@@ -28,6 +28,19 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
         this.sectorinfo = input_mystocklist;
     }
 
+    public void refresh() {
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemCount() {
+        return sectorinfo.size()/2;
+    }
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public ViewHolder(View view) {
@@ -72,12 +85,5 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
 
     }
     // Return the size of your dataset (invoked by the layout manager)
-    @Override
-    public int getItemCount() {
-        return sectorinfo.size()/2;
-    }
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
+
 }

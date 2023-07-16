@@ -28,29 +28,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="매수가격"
+                android:text="종목코드"
                 android:textSize="14sp" />
             <EditText
-                android:id="@+id/buy_price"
+                android:id="@+id/stock_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="14sp" />
         </TableRow>
-        <TableRow>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="매수량"
-                android:textSize="14sp" />
-            <EditText
-                android:id="@+id/buy_quantity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="14sp" />
-        </TableRow>
+
     </TableLayout>
 
     <LinearLayout
@@ -62,13 +49,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="취소" />
+            android:text="삭제" />
 
         <Button
             android:id="@+id/buyBtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="매수" />
+            android:text="추가" />
     </LinearLayout>
 </LinearLayout>

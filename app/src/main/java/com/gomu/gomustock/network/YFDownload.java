@@ -107,12 +107,16 @@ public class YFDownload {
             if (market.equals("KOSPI")) return stock_code + ".KS";
             else if (market.equals("KONEX") || market.equals("KOSDAQ GLOBAL") || market.equals("KOSDAQ")) {
                 return stock_code + ".KQ"; // KONEX, KOSDAQ, KOSDAQ GLOBAL은 모두 KQ를 달아준다
+            } else {
+                // 여기에 걸리는 것들은 ETF 상품들이다
+                // ETF상품은 table에서 KOSPI, KOSDAQ등으로 검샘되지 않는다
+                // 야후에서는 .KS를 붙이면 데이터 다운로드 가능하다
+                return stock_code + ".KS";
             }
         } else {
             // 지수테이블에 포함되어 있는 경우
             return URLEncoder.encode(stock_code);
         }
-        return "";
     }
 
     public boolean checkKRStock(String stock_code) {

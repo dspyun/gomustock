@@ -65,7 +65,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         bbandtestlist.clear();
         //loadbbtestlist(60);
         stop_flag = true;
-        priceupdate_thread.start();
+        //priceupdate_thread.start();
     }
 
     public void loadbbtestlist(int days) {
@@ -96,8 +96,11 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
     public void putChartdata(List<Balance> input_balancelist) {
         balancelist = input_balancelist;
     }
-    public void putStocklist(List<String> stocklist) {
+    public void putRecyclerList(List<String> stocklist) {
         simadaper_stock = stocklist;
+    }
+    public List<String> getRecyclerList() {
+        return simadaper_stock;
     }
     @Override
     public int getItemCount()
@@ -199,6 +202,8 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         List<Float> buypoint = new ArrayList<>();
         MyChart simul_chart = new MyChart();
 
+        int size = bbandtestlist.size();
+        if(size<=position) return;
         BBandTest bbtest = bbandtestlist.get(position);
         String stock_code = bbtest.getStock_code();
         String stock_name = bbtest.getStock_name();
@@ -209,7 +214,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
 
         buypoint = bbtest.getBuyPoint();
         chartdatalist = simul_chart.adddata_float(buypoint, stock_code, context.getColor(R.color.Blue));
-        simul_chart.multi_chart(simulChart, chartdatalist, Integer.toString(position) + " chart", false);
+        simul_chart.multi_chart(simulChart, chartdatalist, Integer.toString(position) + " " +stock_name, false);
 
         Balance balance = balancelist.get(position);
         float profitrate = balance.getProfitRate();
@@ -228,6 +233,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         holder.tvSimulinfo.setText(simul_info);
 
         String head_info =
+                Integer.toString(position) + " " +
                 stock_name + "(" + stock_code +"}"+"\n"+
                 "현재가 " + bbtest.getCurPrice();
         holder.tvHeadinfo.setText(head_info);

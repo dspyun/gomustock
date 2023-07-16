@@ -235,13 +235,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         });
     }
 
+
     public void showDialog_buy(){
         EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
         stock_name.setText(mystocklist.get(finger_position).stock_name);
-        EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
-        stock_price.setText(Integer.toString(mystocklist.get(finger_position).cur_price));
-        EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
-        stock_quantity.setText("1");
+        EditText stock_code = dialog_buy.findViewById(R.id.stock_code);
 
         dialog_buy.show(); // 다이얼로그 띄우기
 
@@ -254,10 +252,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 // dialog 화면에서 입력된 정보를 읽어온다
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
-                EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
-                String price = stock_price.getText().toString();
-                EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
-                String quantity = stock_quantity.getText().toString();
+
 
                 String stock_no = stockdic.getStockcode(name);
                 if(stock_no.equals("")) {
@@ -309,7 +304,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
             homeChart = view.findViewById(R.id.home_chart);
             tv_name = view.findViewById(R.id.stock_name);
-            tv_buy_price = view.findViewById(R.id.buy_price);
+
 
             tvhead_info = view.findViewById(R.id.home_info_header);
             tvbody_info = view.findViewById(R.id.home_info_body);

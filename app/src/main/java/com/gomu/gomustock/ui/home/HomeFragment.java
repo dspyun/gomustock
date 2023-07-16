@@ -178,10 +178,7 @@ public class HomeFragment extends Fragment {
                 // dialog 화면에서 입력된 정보를 읽어온다
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
-                EditText stock_price = dialog_buy.findViewById(R.id.buy_price);
-                String price = stock_price.getText().toString();
-                EditText stock_quantity = dialog_buy.findViewById(R.id.buy_quantity);
-                String quantity = stock_quantity.getText().toString();
+;
                 StockDic stockdic = new StockDic();
 
                 String stock_no = stockdic.getStockcode(name);

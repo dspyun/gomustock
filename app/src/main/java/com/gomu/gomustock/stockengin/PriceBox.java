@@ -15,7 +15,7 @@ public class PriceBox {
     List<Float> CLOSESTDPRICE = new ArrayList<>();
     List<Float> HIGHPRICE = new ArrayList<>();
     List<Float> LOWPRICE = new ArrayList<>();
-
+    MyExcel myexcel = new MyExcel();
     List<String> DATE = new ArrayList<>();
 
     public PriceBox(String stock_code) {
@@ -25,14 +25,12 @@ public class PriceBox {
 
     void loadExcelData() {
         List<FormatOHLCV> ohlcvlist = new ArrayList<>();
-        MyExcel myexcel = new MyExcel();
         ohlcvlist = myexcel.readall_ohlcv(STOCK_CODE);
         int size = ohlcvlist.size();
         FormatOHLCV preoneohlcv = new FormatOHLCV();
         for(int i=0;i<size;i++) {
             FormatOHLCV oneohlcv = ohlcvlist.get(i);
             if(nullcheck(oneohlcv)) oneohlcv = preoneohlcv;
-
             CLOSEPRICE.add(Float.parseFloat(oneohlcv.close));
             DATE.add(oneohlcv.date);
             HIGHPRICE.add(Float.parseFloat(oneohlcv.high));
@@ -93,7 +91,4 @@ public class PriceBox {
 
         return flag;
     }
-
-
-
 }

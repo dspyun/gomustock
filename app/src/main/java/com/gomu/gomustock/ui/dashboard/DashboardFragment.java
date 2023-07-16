@@ -171,13 +171,27 @@ public class DashboardFragment extends Fragment {
             public void onClick(View view) {
                 // 원하는 기능 구현
                 // dialog 화면에서 입력된 정보를 읽어온다
-                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
-                String name = stock_name.getText().toString();
+                EditText NAME = dialog_buy.findViewById(R.id.stock_name);
+                EditText CODE = dialog_buy.findViewById(R.id.stock_code);
+                String name = NAME.getText().toString();
+                String code = CODE.getText().toString();
 
-                String stock_code = stockdic.getStockcode(name);
-                if(stock_code.equals("")) {
-                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
-                    return;
+                String stock_code="",stock_name="";
+                if(!name.equals("")) {
+                    stock_code = stockdic.getStockcode(name);
+                    stock_name = name;
+                    if (stock_code.equals("")){
+                        Toast.makeText(context, "종목코드 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                } else if(!code.equals("")) {
+                    stock_name = stockdic.getStockname(code);
+                    stock_code = code;
+                    if (stock_name.equals("")){
+                        Toast.makeText(context, "종목명 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
 
                 // adapter list에 종목코드가 없으면 update사켜주고
@@ -203,9 +217,11 @@ public class DashboardFragment extends Fragment {
                 String name = stock_name.getText().toString();
 
                 String stock_code = stockdic.getStockcode(name);
-                if(stock_code.equals("")) {
-                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
-                    return;
+                if(!stockdic.checkKRStock(stock_code)) {
+                    if (stock_code.equals("")) {
+                        Toast.makeText(context, "종목명 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
 
                 // adapter list update사켜주고

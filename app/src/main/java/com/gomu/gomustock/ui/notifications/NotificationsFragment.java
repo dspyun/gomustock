@@ -125,6 +125,7 @@ public class NotificationsFragment extends Fragment {
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
                     if(i==1) tvDownload.setTextColor(Color.YELLOW);
                     else if(i==2) tvNews.setText(SHORT_NEWS);
+                    noti_adapter.refresh();
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;

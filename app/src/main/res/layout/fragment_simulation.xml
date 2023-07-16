@@ -8,13 +8,11 @@
     tools:context=".ui.simulation.SimulationFragment">
 
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="5"
-            android:orientation="horizontal"
-            android:rowCount="2">
-            <TableRow>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
             <TextView
                 android:id="@+id/sim_selectitem"
                 android:layout_width="@dimen/grid_width"
@@ -36,7 +34,7 @@
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:gravity="center"
-                android:text="파일\n다운로드"
+                android:text="주가\n다운로드"
                 android:textColor="@color/LightGray"
                 android:textSize="14sp"
                 android:background="@xml/bg_custom_button"
@@ -50,7 +48,7 @@
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:gravity="center"
-                android:text="매수전략\n적용"
+                android:text="조건식\n파일생성"
                 android:textColor="@color/LightGray"
                 android:textSize="14sp"
                 android:background="@xml/bg_custom_button"
@@ -71,31 +69,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"/>
-            <ImageView
-                android:id="@+id/sim_refresh_price"
-                android:layout_width="@dimen/grid_imagewidth"
-                android:layout_height="40dp"
-                android:layout_column="4"
-                android:layout_rowSpan="2"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:src="@drawable/sync_48px"/>
-
-
-            </TableRow>
-        </TableLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-
-        <TextView
-            android:id="@+id/noti_board"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:layout_weight = "1"/>
         <ImageView
             android:id="@+id/sim_addnew"
             android:layout_width="@dimen/grid_imagewidth"
@@ -104,6 +77,14 @@
             android:src="@drawable/stock_add_48px"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/noti_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_weight = "1"/>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
