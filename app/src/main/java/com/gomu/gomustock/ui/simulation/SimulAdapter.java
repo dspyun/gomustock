@@ -213,7 +213,7 @@ public class SimulAdapter extends RecyclerView.Adapter<SimulAdapter.ViewHolder>{
         simul_chart.adddata_float(pricelist,stock_name,context.getColor(R.color.Red));
 
         buypoint = bbtest.getBuyPoint();
-        chartdatalist = simul_chart.adddata_float(buypoint, stock_code, context.getColor(R.color.Blue));
+        chartdatalist = simul_chart.adddata_float(buypoint, stock_code, context.getColor(R.color.White));
         simul_chart.multi_chart(simulChart, chartdatalist, Integer.toString(position) + " " +stock_name, false);
 
         Balance balance = balancelist.get(position);

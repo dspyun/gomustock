@@ -288,6 +288,39 @@ public class MyWeb {
         }
     }
 
+    public void dl_fogninfo_one(String stock_code) {
+
+            MyExcel myexcel = new MyExcel();
+            List<List<String>> value = new ArrayList<List<String>>();
+            List<String> agency = new ArrayList<>();
+            List<String> fogn = new ArrayList<>();
+
+            value = getAgencyFogn(stock_code,"0");
+            agency.addAll(value.get(0));
+            fogn.addAll(value.get(1));
+
+            value = getAgencyFogn(stock_code,"2");
+            agency.addAll(value.get(0));
+            fogn.addAll(value.get(1));
+
+            value = getAgencyFogn(stock_code,"3");
+            agency.addAll(value.get(0));
+            fogn.addAll(value.get(1));
+
+            value = getAgencyFogn(stock_code,"4");
+            agency.addAll(value.get(0));
+            fogn.addAll(value.get(1));
+
+            value = getAgencyFogn(stock_code,"5");
+            agency.addAll(value.get(0));
+            fogn.addAll(value.get(1));
+
+            agency.add(0,"AGENCY");
+            fogn.add(0,"FOREIgN");
+            myexcel.writefogninfo(stock_code, fogn, agency);
+
+    }
+
     public void getNaverpriceByday(String stock_code, int day) {
         List<FormatOHLCV> naverpricelist = new ArrayList<>();
         String page="";

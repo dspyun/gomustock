@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,7 @@ public class DashboardFragment extends Fragment {
 
     MyScore myscore;
     Dialog dialog_buy; // 커스텀 다이얼로그
+    Dialog dialog_progress; // 커스텀 다이얼로그
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
 
@@ -68,6 +71,11 @@ public class DashboardFragment extends Fragment {
         dialog_buy = new Dialog(getActivity());       // Dialog 초기화
         dialog_buy.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         dialog_buy.setContentView(R.layout.dialog_buy);
+
+        dialog_progress = new Dialog(getActivity());       // Dialog 초기화
+        dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+        dialog_progress.setContentView(R.layout.dialog_progress);
+
 
         initResource(root);
 
@@ -127,11 +135,12 @@ public class DashboardFragment extends Fragment {
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyWeb myweb = new MyWeb();
+
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
-                dl_getStockinfo(recyclerlist);
-                dl_AgencyForeigne(recyclerlist);
-                dl_yahoofinance_price(recyclerlist);
+                YFDownload_Dialog(recyclerlist);
+                //dl_getStockinfo(recyclerlist);
+                //dl_AgencyForeigne(recyclerlist);
+
             }
         });
 
@@ -337,18 +346,6 @@ public class DashboardFragment extends Fragment {
     }
 
 
-    void dl_yahoofinance_price(List<String> stocklist) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                for(int i=0;i<stocklist.size();i++) {
-                    new YFDownload(stocklist.get(i));
-                }
-                notice_ok();
-            }
-        }).start();
-    }
     void notice_ok() {
 
         getActivity().runOnUiThread(new Runnable() {
@@ -366,46 +363,50 @@ public class DashboardFragment extends Fragment {
         });
     }
 
-    public void dl_AgencyForeigne(List<String> buylist) {
-        MyWeb myweb = new MyWeb();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                myweb.dl_fogninfo(buylist);
-            }
-        }).start();
-    }
 
-    public void dl_getStockinfo(List<String> recyclerList) {
-        MyWeb myweb = new MyWeb();
-        MyExcel myexcel = new MyExcel();
-        List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
-        new Thread(new Runnable() {
-            @Override
+    public void YFDownload_Dialog(List<String> stock_list){
+        dialog_progress.show(); // 다이얼로그 띄우기
+        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
+
+        Thread dlg_thread = new Thread(new Runnable() {
+            MyWeb myweb = new MyWeb();
+            MyExcel myexcel = new MyExcel();
+            List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
             public void run() {
-                int size = recyclerList.size();
-                for(int i =0;i<size;i++) {
-                    FormatStockInfo info = new FormatStockInfo();
-                    if(recyclerList.get(i).equals("069500")) {
-                        // ETF이기 때문에 수익률 같은 것은 불러올 수 없다
-                        info.init();
-                        info.stock_code = "069500";
-                        info.stock_name = "KODEX 200";
-                    } else {
-                        info = myweb.getStockinfo(recyclerList.get(i));
-                        info.stock_code = recyclerList.get(i);
+                try {
+                    int max = stock_list.size();
+                    dlg_bar.setProgress(0);
+                    for(int i=0;i<stock_list.size();i++) {
+                        dlg_bar.setProgress(100*(i+1)/max);
+                        // 1. 주가를 다운로드 하고
+                        new YFDownload(stock_list.get(i));
+                        // 2. 외국인/기관 매매정보를 다운로드 하고
+                        myweb.dl_fogninfo_one(stock_list.get(i));
+                        // 3. 종몪정보를 다운로드 한다
+                        FormatStockInfo info = new FormatStockInfo();
+                        if(stock_list.get(i).equals("069500")) {
+                            // ETF이기 때문에 수익률 같은 것은 불러올 수 없다
+                            info.init();
+                            info.stock_code = "069500";
+                            info.stock_name = "KODEX 200";
+                        } else {
+                            info = myweb.getStockinfo(stock_list.get(i));
+                            info.stock_code = stock_list.get(i);
+                        }
+                        web_stockinfo.add(i,info);
                     }
-                    web_stockinfo.add(i,info);
+                    myexcel.writestockinfo(web_stockinfo);
+                    notice_ok();
+                    dialog_progress.dismiss();
+                } catch (Exception ex) {
+                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
                 }
-                myexcel.writestockinfo(web_stockinfo);
-                notice_ok();
             }
-        }).start();
+        });
+
+        dlg_thread.start();
     }
-
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();

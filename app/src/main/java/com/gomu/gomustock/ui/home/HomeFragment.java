@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatMyStock;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class HomeFragment extends Fragment {
     public MyExcel myexcel = new MyExcel();
     private List<Integer> chartcolor = new ArrayList<>();
     Dialog dialog_buy; // 커스텀 다이얼로그
+    Dialog dialog_progress; // 커스텀 다이얼로그
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
 
@@ -76,6 +79,10 @@ public class HomeFragment extends Fragment {
         dialog_buy = new Dialog(getActivity());       // Dialog 초기화
         dialog_buy.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         dialog_buy.setContentView(R.layout.dialog_buy);
+
+        dialog_progress = new Dialog(getActivity());       // Dialog 초기화
+        dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+        dialog_progress.setContentView(R.layout.dialog_progress);
 
         recyclerView = root.findViewById(R.id.home_recycler_view);
         initialize_color();
@@ -107,7 +114,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                dl_yahoofinance_price(homestock_list);
+                YFDownload_Dialog(homestock_list);
             }
         });
 
@@ -213,20 +220,35 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    public void dl_NaverPriceByday(List<String> stock_code, int day) {
-        MyWeb myweb = new MyWeb();
-        new Thread(new Runnable() {
-            @Override
+
+    public void YFDownload_Dialog(List<String> stock_list){
+        dialog_progress.show(); // 다이얼로그 띄우기
+        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
+
+        Thread dlg_thread = new Thread(new Runnable() {
+            MyWeb myweb = new MyWeb();
+            MyExcel myexcel = new MyExcel();
+            List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
             public void run() {
-                // TODO Auto-generated method stub
-                for(int i=0;i<stock_code.size();i++) {
-                    myweb.getNaverpriceByday(stock_code.get(i), day);
+                try {
+                    int max = stock_list.size();
+                    dlg_bar.setProgress(0);
+                    for(int i=0;i<stock_list.size();i++) {
+                        dlg_bar.setProgress(100*(i+1)/max);
+                        // 1. 주가를 다운로드 하고
+                        new YFDownload(stock_list.get(i));
+                    }
+                    notice_ok();
+                    dialog_progress.dismiss();
+                } catch (Exception ex) {
+                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
                 }
-                myweb.getNaverpriceByday("069500", day); // kodex 200 상품
-                //updatePortfolioPrice();
             }
-        }).start();
+        });
+
+        dlg_thread.start();
     }
+
 
     public void dl_checkMarketOpen() {
         MyWeb myweb = new MyWeb();
@@ -282,20 +304,6 @@ public class HomeFragment extends Fragment {
     }
 
 
-    void dl_yahoofinance_price(List<String> stocklist) {
-        MyWeb myweb = new MyWeb();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                for(int i=0;i<stocklist.size();i++) {
-                    new YFDownload(stocklist.get(i));
-                }
-                notice_ok();
-            }
-        }).start();
-    }
-
     public void notice_ok() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
@@ -320,10 +328,6 @@ public class HomeFragment extends Fragment {
     }
 
     public void top_board(View view) {
-
-
-
-
         filedown = view.findViewById(R.id.filedownload);
         infodown = view.findViewById(R.id.infodownload);
         dummy = view.findViewById(R.id.dummy);

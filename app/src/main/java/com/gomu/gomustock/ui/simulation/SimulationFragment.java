@@ -5,12 +5,14 @@ import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,10 +84,12 @@ public class SimulationFragment extends Fragment {
 
     private List<String> sim_stock = new ArrayList<>();
     Dialog dialog_listmanagery; // 커스텀 다이얼로그
+    Dialog dialog_progress; // 커스텀 다이얼로그
     private List<Integer> chartcolor = new ArrayList<>();
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
     List<BBandTest> bbandtestlist = new ArrayList<>();
+
 
     public static SimulationFragment newInstance(String param1, String param2) {
         SimulationFragment fragment = new SimulationFragment();
@@ -115,6 +119,10 @@ public class SimulationFragment extends Fragment {
         dialog_listmanagery.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         dialog_listmanagery.setContentView(R.layout.dialog_buy);
 
+        dialog_progress = new Dialog(getActivity());       // Dialog 초기화
+        dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+        dialog_progress.setContentView(R.layout.dialog_progress);
+
         SimulationView(view);
         return view;
     }
@@ -141,8 +149,7 @@ public class SimulationFragment extends Fragment {
             {
                 setDefaultTextColor();
                 sim_stock = myexcel.readSimullist();
-                // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
-                dl_yahoofinance_price(sim_stock);
+                YFDownload_Dialog(sim_stock);
             }
         });
 
@@ -365,7 +372,7 @@ public class SimulationFragment extends Fragment {
         sim_stock = myexcel.readSimullist();
         noti_board.setText(code2name(sim_stock));
         if((sim_stock.size() <= 0) || (!checkTestFile(sim_stock))) {
-            String info = "test파일이 없습니다\n"+"전력선택 버튼을 눌러주세요";
+            String info = "test파일이 없습니다\n"+"조건식파일생성 버튼을 눌러주세요";
             noti_board.setText(info);
         }
         // simulation 재진입 시, 이전의 testlist를 지워준다
@@ -403,5 +410,39 @@ public class SimulationFragment extends Fragment {
         simdl_bt.setTextColor(Color.LTGRAY);
         simtool_bt.setTextColor(Color.LTGRAY);
         simsim_bt.setTextColor(Color.LTGRAY);
+
     }
+
+
+    /* Handler 클래스를 상속한 ProgressHandler 클래스를 새로 정의
+        이유는 handleMessage() 메소드를 다시 정의하여 메시지가
+        메인 스레드에서 수행될 때 필요한 기능을 정하기 위해서 새로 정의
+    */
+
+
+    public void YFDownload_Dialog(List<String> stock_list){
+        dialog_progress.show(); // 다이얼로그 띄우기
+        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
+
+        Thread dlg_thread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    int max = stock_list.size();
+                    dlg_bar.setProgress(0);
+                    for(int i=0;i<stock_list.size();i++) {
+                        dlg_bar.setProgress(100*(i+1)/max);
+                        new YFDownload(stock_list.get(i));
+                        //Thread.sleep(1000L);
+                    }
+                    dialog_progress.dismiss();
+                } catch (Exception ex) {
+                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
+                }
+            }
+        });
+
+        dlg_thread.start();
+    }
+
+
 }
