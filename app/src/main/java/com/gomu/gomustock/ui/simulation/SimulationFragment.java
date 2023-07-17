@@ -120,24 +120,17 @@ public class SimulationFragment extends Fragment {
     }
     public void SimulationView(View view) {
 
-        sim_stock = myexcel.readSimullist();
-
         init_resource(view);
-        noti_board.setText(code2name(sim_stock));
-        if((sim_stock.size() > 0) && (checkTestFile(sim_stock))) {
-            simulation();
-        } else {
-            String info = "test파일이 없습니다\n"+"전력선택 버튼을 눌러주세요";
-            noti_board.setText(info);
-            no_simulation();
-        }
+        simulation();
 
         simselect_bt.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
+                setDefaultTextColor();
                 sim_stock = myexcel.readSimullist();
+                notice_ok(0);
             }
         });
 
@@ -146,6 +139,7 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+                setDefaultTextColor();
                 sim_stock = myexcel.readSimullist();
                 // 1년치 히스토리다운로드. 1년 증시오픈일 약 248일
                 dl_yahoofinance_price(sim_stock);
@@ -158,7 +152,7 @@ public class SimulationFragment extends Fragment {
             public void onClick(View v)
             {
                 String code, name;
-
+                setDefaultTextColor();
                 // backtest용 data를 만들어 excel에 저장한다
                 for(int i =0;i<sim_stock.size();i++) {
                     code = sim_stock.get(i);
@@ -170,6 +164,7 @@ public class SimulationFragment extends Fragment {
                     bbandtestlist.add(bbtest);
                 }
                 simul_adapter.putBBandTestList(bbandtestlist);
+                notice_ok(2);
             }
         });
 
@@ -178,7 +173,9 @@ public class SimulationFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
+                setDefaultTextColor();
                 simulation();
+                notice_ok(3);
             }
         });
 
@@ -262,7 +259,7 @@ public class SimulationFragment extends Fragment {
                     adapterList.add(stock_code);
                     // 파일에도 추가해주고..info는 추가로 불러와야 함
                     addSimulFile(stock_code);
-                    simul_adapter.putRecyclerList(adapterList);
+                    //simul_adapter.putRecyclerList(adapterList);
                 }
 
                 // list를 update하며 안된다
@@ -309,19 +306,22 @@ public class SimulationFragment extends Fragment {
                 for(int i=0;i<stocklist.size();i++) {
                     new YFDownload(stocklist.get(i));
                 }
-                notice_ok();
+                notice_ok(1);
             }
         }).start();
     }
 
-    public void notice_ok() {
+    public void notice_ok(int i) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
                     Thread.sleep(1L); // 잠시라도 정지해야 함
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
-                    simdl_bt.setTextColor(Color.YELLOW);
+                    if(i==0) simselect_bt.setTextColor(Color.YELLOW);
+                    if(i==1) simdl_bt.setTextColor(Color.YELLOW);
+                    if(i==2) simtool_bt.setTextColor(Color.YELLOW);
+                    if(i==3) simsim_bt.setTextColor(Color.YELLOW);
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -362,6 +362,16 @@ public class SimulationFragment extends Fragment {
 
     public void simulation() {
 
+        sim_stock = myexcel.readSimullist();
+        noti_board.setText(code2name(sim_stock));
+        if((sim_stock.size() <= 0) || (!checkTestFile(sim_stock))) {
+            String info = "test파일이 없습니다\n"+"전력선택 버튼을 눌러주세요";
+            noti_board.setText(info);
+        }
+        // simulation 재진입 시, 이전의 testlist를 지워준다
+        // 아래처럼 testlist는 add만 있기 때문에 추가되면
+        // 반드시 지워주고 rebuild해야 한다
+        bbandtestlist.clear();
         List<Balance> balancelist = new ArrayList<Balance>();
         int size=sim_stock.size();
         for(int i =0;i<size;i++) {
@@ -385,11 +395,13 @@ public class SimulationFragment extends Fragment {
         recyclerView.setAdapter(simul_adapter);
         simul_adapter.putBBandTestList(bbandtestlist);
         simul_adapter.putChartdata(balancelist);
-
+        simul_adapter.refresh();
     }
 
-    public void no_simulation() {
-
-
+    public void setDefaultTextColor() {
+        simselect_bt.setTextColor(Color.LTGRAY);
+        simdl_bt.setTextColor(Color.LTGRAY);
+        simtool_bt.setTextColor(Color.LTGRAY);
+        simsim_bt.setTextColor(Color.LTGRAY);
     }
 }
