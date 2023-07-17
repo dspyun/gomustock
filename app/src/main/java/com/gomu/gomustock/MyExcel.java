@@ -655,11 +655,13 @@ public class MyExcel extends MyStat{
     }
 
 
-    public void writestockinfo(List<FormatStockInfo> information) {
+    public void writestockinfo(int index, List<FormatStockInfo> information) {
 
         WritableSheet writablesheet;
         WritableWorkbook workbook;
-        String PathFile = STOCKDIR+"stockinfo"+".xls";;
+        String PathFile="";
+        if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
+        if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
 
         // 헤더를 붙여준다
@@ -712,12 +714,14 @@ public class MyExcel extends MyStat{
         }
     }
 
-    public List<FormatStockInfo> readStockinfo(boolean header) {
+    public List<FormatStockInfo> readStockinfo(int index, boolean header) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
-        String PathFile = STOCKDIR+"stockinfo"+".xls";;
+        String PathFile="";
+        if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
+        if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
         List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
 
         try {
@@ -758,6 +762,8 @@ public class MyExcel extends MyStat{
         }
         return mArrayBuffer;
     }
+
+
 
 
     public List<FormatMyStock> readSectorinfo(boolean header) {

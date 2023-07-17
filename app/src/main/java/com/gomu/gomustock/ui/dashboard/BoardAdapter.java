@@ -46,10 +46,12 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     public List<PriceBox> priceboxlist = new ArrayList<PriceBox>();
     List<String> recycler_list = new ArrayList<>();
     StockDic stockdic = new StockDic();
-    public BoardAdapter(Activity context)
+    int INDEX;
+    public BoardAdapter(Activity context, int index)
     {
+        INDEX=index;
         this.context = context;
-        loadRecyclerList();
+        loadRecyclerList(index);
         makePriceBox();
         int i =0;
     }
@@ -68,8 +70,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         int i =0;
     }
 
-    public void loadRecyclerList() {
-        web_stockinfo = myexcel.readStockinfo(false);
+    public void loadRecyclerList(int index) {
+        web_stockinfo = myexcel.readStockinfo(index,false);
         if(web_stockinfo !=null) {
             recycler_list.clear();
             for (int i = 0; i < web_stockinfo.size(); i++) {

@@ -49,7 +49,7 @@ public class DashboardFragment extends Fragment {
     private FragmentDashboardBinding binding;
 
     ImageView imgAddlist;
-    TextView tvDownload, tvUpdate,tvSignal,tvDummy;
+    TextView tvDownload, tvUpdate,tvDummy01,tvDummy02;
     RecyclerView recyclerView;
 
     BoardAdapter bd_adapter;
@@ -59,6 +59,7 @@ public class DashboardFragment extends Fragment {
     Dialog dialog_progress; // 커스텀 다이얼로그
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
+    int ADT_INDEX=0;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -100,7 +101,7 @@ public class DashboardFragment extends Fragment {
         na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bd_adapter = new BoardAdapter(getActivity());
+        bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
         binding.recyclerView.setAdapter(bd_adapter);
 
         // adapter초기화 후 생성된 recyclerlist를
@@ -152,13 +153,43 @@ public class DashboardFragment extends Fragment {
                 scoringstock(recyclerlist);
             }
         });
-        tvDummy.setOnClickListener(new View.OnClickListener() {
+        tvDummy01.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //bd_adapter.adapter_refresh();
+                ADT_INDEX=0;
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
+                binding.recyclerView.setAdapter(bd_adapter);
+
+                // adapter초기화 후 생성된 recyclerlist를
+                // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
+                // scoring을 할 준비를 한다
+                // 나중에 사용자가 update버튼으로 score를 수동 update한다.
+                myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
+                myscore.getPriceThreadStart();
+                bd_adapter.refresh();
+            }
+        });
+
+        tvDummy02.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ADT_INDEX=1;
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
+                binding.recyclerView.setAdapter(bd_adapter);
+
+                // adapter초기화 후 생성된 recyclerlist를
+                // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
+                // scoring을 할 준비를 한다
+                // 나중에 사용자가 update버튼으로 score를 수동 update한다.
+                myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
+                myscore.getPriceThreadStart();
+                bd_adapter.refresh();
 
             }
         });
+
         binding.dashAddnew.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -221,18 +252,28 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                // dialog 화면에서 입력된 정보를 읽어온다
-                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
-                String name = stock_name.getText().toString();
+                EditText NAME = dialog_buy.findViewById(R.id.stock_name);
+                EditText CODE = dialog_buy.findViewById(R.id.stock_code);
+                String name = NAME.getText().toString();
+                String code = CODE.getText().toString();
 
-                String stock_code = stockdic.getStockcode(name);
-                if(!stockdic.checkKRStock(stock_code)) {
-                    if (stock_code.equals("")) {
+                String stock_code="",stock_name="";
+                if(!name.equals("")) {
+                    stock_code = stockdic.getStockcode(name);
+                    stock_name = name;
+                    if (stock_code.equals("")){
+                        Toast.makeText(context, "종목코드 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                } else if(!code.equals("")) {
+                    stock_name = stockdic.getStockname(code);
+                    stock_code = code;
+                    if (stock_name.equals("")){
                         Toast.makeText(context, "종목명 오류", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
-
                 // adapter list update사켜주고
                 List<String> adapterList = bd_adapter.getRecyclerList();
                 for(int i =0;i<adapterList.size();i++) {
@@ -254,8 +295,8 @@ public class DashboardFragment extends Fragment {
     public void initResource(View v) {
         tvDownload= v.findViewById(R.id.tv_dl);
         tvUpdate = v.findViewById(R.id.tv_update);
-        tvSignal = v.findViewById(R.id.tv_signal);
-        tvDummy = v.findViewById(R.id.tv_dummy);
+        tvDummy01 = v.findViewById(R.id.tv_dummy01);
+        tvDummy02 = v.findViewById(R.id.tv_dummy02);
         imgAddlist = v.findViewById(R.id.dash_addnew);
         recyclerView = v.findViewById(R.id.recycler_view);
     }
@@ -315,7 +356,7 @@ public class DashboardFragment extends Fragment {
 
     public void addInfoFile(String stockcode) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfo(false);
+        List<FormatStockInfo> infolist = myexcel.readStockinfo(ADT_INDEX,false);
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 없으면 추가, 있으면 건너뛰기
         int size = infolist.size();
@@ -328,11 +369,11 @@ public class DashboardFragment extends Fragment {
             newcode.addStockcode(stockcode);
             infolist.add(newcode);
         }
-        myexcel.writestockinfo(infolist);
+        myexcel.writestockinfo(ADT_INDEX,infolist);
     }
     public void delInfoFile(String stockcode) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfo(false);
+        List<FormatStockInfo> infolist = myexcel.readStockinfo(ADT_INDEX,false);
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 있으면 삭제
         int size = infolist.size();
@@ -342,7 +383,7 @@ public class DashboardFragment extends Fragment {
                 break;
             }
         }
-        myexcel.writestockinfo(infolist);
+        myexcel.writestockinfo(ADT_INDEX,infolist);
     }
 
 
@@ -396,7 +437,7 @@ public class DashboardFragment extends Fragment {
                         }
                         web_stockinfo.add(i,info);
                     }
-                    myexcel.writestockinfo(web_stockinfo);
+                    myexcel.writestockinfo(ADT_INDEX,web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
