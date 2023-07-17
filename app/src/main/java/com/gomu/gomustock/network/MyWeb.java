@@ -75,7 +75,9 @@ public class MyWeb {
             Elements classinfo3 = doc.select("#svdMainGrid2");
             Elements tbody1_list = classinfo3.select("tbody");
             Elements td1_list = tbody1_list.select("td");;
-            result.op_profit = td1_list.get(3).text();;
+            if(!td1_list.get(0).text().equals("관련 데이터가 없습니다.")) {
+                result.op_profit = td1_list.get(3).text();
+            }
 
 /*
             System.out.println("per = " + result.per+"\n");

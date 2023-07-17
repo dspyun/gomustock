@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.notifications;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Looper;
@@ -9,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +30,7 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.ui.format.FormatMyStock;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +49,7 @@ public class NotificationsFragment extends Fragment {
     List<Float> dow_index = new ArrayList<>();
     private RecyclerView recyclerView;
     private NotiAdapter noti_adapter;
+    Dialog dialog_progress; // 커스텀 다이얼로그
     String SHORT_NEWS="";
     List<FormatMyStock> sectorinfo;
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -54,6 +59,10 @@ public class NotificationsFragment extends Fragment {
 
         binding = FragmentNotificationsBinding.inflate(inflater, container, false);
         root = binding.getRoot();
+
+        dialog_progress = new Dialog(getActivity());       // Dialog 초기화
+        dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
+        dialog_progress.setContentView(R.layout.dialog_progress);
 
         initResource();
         dl_shortnews();
@@ -73,7 +82,14 @@ public class NotificationsFragment extends Fragment {
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dl_yahoofinance_price();
+
+                List<String> stocklist = new ArrayList<>();
+                int size = sectorinfo.size();
+                for(int i =0;i<size;i++) {
+                    stocklist.add(sectorinfo.get(i).stock_code);
+                }
+                YFDownload_Dialog(stocklist);
+                //dl_yahoofinance_price();
             }
         });
         tvUpdate.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +115,36 @@ public class NotificationsFragment extends Fragment {
         tvDummy = root.findViewById(R.id.tv_noti_dummy);
         tvNews = root.findViewById(R.id.short_news);
     }
+
+
+    public void YFDownload_Dialog(List<String> stock_list){
+        dialog_progress.show(); // 다이얼로그 띄우기
+        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
+
+        Thread dlg_thread = new Thread(new Runnable() {
+            MyWeb myweb = new MyWeb();
+            MyExcel myexcel = new MyExcel();
+            List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+            public void run() {
+                try {
+                    int max = stock_list.size();
+                    dlg_bar.setProgress(0);
+                    for(int i=0;i<stock_list.size();i++) {
+                        dlg_bar.setProgress(100*(i+1)/max);
+                        // 1. 주가를 다운로드 하고
+                        new YFDownload(stock_list.get(i));
+                    }
+                    notice_ok(0);
+                    dialog_progress.dismiss();
+                } catch (Exception ex) {
+                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
+                }
+            }
+        });
+
+        dlg_thread.start();
+    }
+
 
     void dl_yahoofinance_price() {
         MyWeb myweb = new MyWeb();

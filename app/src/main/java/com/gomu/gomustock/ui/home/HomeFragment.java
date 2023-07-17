@@ -130,7 +130,7 @@ public class HomeFragment extends Fragment {
                 String money_info = home_adapter.update_top_board();
                 tvhome_money_info.setText(money_info);
                 List<Float> total_line = home_adapter.getMoneyLine();
-                home_chart.single_float(homeChart,total_line,"moeny line",false );
+                home_chart.single_float(homeChart,total_line,"총자산변화",false );
             }
         });
 

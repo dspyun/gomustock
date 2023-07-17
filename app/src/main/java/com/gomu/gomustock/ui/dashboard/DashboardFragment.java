@@ -129,14 +129,12 @@ public class DashboardFragment extends Fragment {
                 BoardSubOption suboption = new BoardSubOption("popup","domestic");
                 intent.putExtra("class",suboption);
                 startActivity(intent);
-
             }
         });
 
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 YFDownload_Dialog(recyclerlist);
                 //dl_getStockinfo(recyclerlist);
@@ -148,11 +146,11 @@ public class DashboardFragment extends Fragment {
         tvUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 scoringstock(recyclerlist);
             }
         });
+
         tvDummy01.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -426,12 +424,9 @@ public class DashboardFragment extends Fragment {
                         myweb.dl_fogninfo_one(stock_list.get(i));
                         // 3. 종몪정보를 다운로드 한다
                         FormatStockInfo info = new FormatStockInfo();
-                        if(stock_list.get(i).equals("069500")) {
-                            // ETF이기 때문에 수익률 같은 것은 불러올 수 없다
-                            info.init();
-                            info.stock_code = "069500";
-                            info.stock_name = "KODEX 200";
-                        } else {
+                        String market = stockdic.getMarket(stock_list.get(i));
+                        if(market.equals("KOSPI") || market.equals("KOSDAQ") ||
+                                market.equals("KOSDAQ GLOBAL") || market.equals("KONEX")) {
                             info = myweb.getStockinfo(stock_list.get(i));
                             info.stock_code = stock_list.get(i);
                         }
