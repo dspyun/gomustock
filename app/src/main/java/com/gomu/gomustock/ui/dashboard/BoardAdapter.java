@@ -123,8 +123,9 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         if(size > 0) {
             for (int i = 0; i < size; i++) {
                 if (scorebox.get(i).stock_code.equals(stock_code)) {
-                    result = stockname + "(" + stock_code+ ") : " + scorebox.get(i).cur_price + "\n";
-                    result += "Score is " + String.valueOf(scorebox.get(i).score);
+                    result = stockname + "(" + stock_code+ ")" + "\n";
+                    result += scorebox.get(i).cur_price +  ", Score is " +
+                            String.valueOf(scorebox.get(i).score);
                     break;
                 }
             }
@@ -159,13 +160,15 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
         String stock_name = stockdic.getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
-        holder.tvStockinfo.setText(getStockInfo(stock_code));
         holder.tvscoreboard.setText(getScore(stock_name, stock_code));
+        holder.tvStockinfo.setText(getStockInfo(stock_code));
+
         // 차트에 코스피와 종목 데이터를 넣어준다
 
         standard_chart.clearbuffer();
         chartlist = new ArrayList<FormatChart>();
         int size = priceboxlist.size();
+        if(size <= 2) return;
         for(int i =0;i<size;i++) {
             if(priceboxlist.get(i).getStockCode().equals(stock_code)) {
                 if(priceboxlist.get(i).checkEmpty()) return;

@@ -172,7 +172,7 @@ public class DashboardFragment extends Fragment {
         tvDummy02.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ADT_INDEX=1;
+                ADT_INDEX=2;
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
                 binding.recyclerView.setAdapter(bd_adapter);

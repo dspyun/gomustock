@@ -38,6 +38,7 @@ public class MyWeb {
     public FormatStockInfo getStockinfo(String stock_code) {
         FormatStockInfo result = new FormatStockInfo();
 
+        System.out.println("stock_code = " + stock_code+"\n");
         if(!checkKRStock(stock_code)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
             result.init();
@@ -49,6 +50,10 @@ public class MyWeb {
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements classinfo0 = doc.select(".corp_group1");
+            if(classinfo0.text().isEmpty()) {
+                result.init();
+                return result;
+            }
             Element giname = classinfo0.select("#giName").get(0);
             result.stock_name = giname.text();
 
@@ -78,7 +83,6 @@ public class MyWeb {
             if(!td1_list.get(0).text().equals("관련 데이터가 없습니다.")) {
                 result.op_profit = td1_list.get(3).text();
             }
-
 /*
             System.out.println("per = " + result.per+"\n");
             System.out.println("per12 = " + result.per12+"\n");

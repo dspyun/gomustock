@@ -662,6 +662,7 @@ public class MyExcel extends MyStat{
         String PathFile="";
         if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
         if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
+        if(index==2) PathFile = STOCKDIR+"monitor"+".xls";;
         java.io.File file1 = new java.io.File(PathFile);
 
         // 헤더를 붙여준다
@@ -722,6 +723,7 @@ public class MyExcel extends MyStat{
         String PathFile="";
         if(index==0) PathFile = STOCKDIR+"stockinfo"+".xls";
         if(index==1) PathFile = STOCKDIR+"stockinfo01"+".xls";;
+        if(index==2) PathFile = STOCKDIR+"monitor"+".xls";;
         List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
 
         try {

@@ -56,7 +56,7 @@ public class MyStat {
 
     public List<Float> string2float(List<String> input, int scale) {
         List<Float> result = new ArrayList<Float>();
-        String temp, pre_temp="";
+        String temp, pre_temp="0";
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
@@ -64,6 +64,7 @@ public class MyStat {
                 result.add(Float.parseFloat(pre_temp)/scale);
             }
             else {
+                if(temp.equals("")) temp = "0";
                 result.add(Float.parseFloat(temp)/scale);
                 pre_temp = temp;
             }
