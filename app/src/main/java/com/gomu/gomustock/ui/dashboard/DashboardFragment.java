@@ -108,7 +108,7 @@ public class DashboardFragment extends Fragment {
         // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
         // scoring을 할 준비를 한다
         // 나중에 사용자가 update버튼으로 score를 수동 update한다.
-        myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
+        myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
         myscore.getPriceThreadStart();
 
         na_zumimage.setOnClickListener(new View.OnClickListener() {
@@ -427,7 +427,7 @@ public class DashboardFragment extends Fragment {
                         String market = stockdic.getMarket(stock_list.get(i));
                         if(market.equals("KOSPI") || market.equals("KOSDAQ") ||
                                 market.equals("KOSDAQ GLOBAL") || market.equals("KONEX")) {
-                            info = myweb.getStockinfo(stock_list.get(i));
+                            info = myweb.getNaverStockinfo(stock_list.get(i));
                             info.stock_code = stock_list.get(i);
                         }
                         web_stockinfo.add(i,info);

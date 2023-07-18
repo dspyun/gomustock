@@ -685,17 +685,19 @@ public class MyExcel extends MyStat{
                     for(int row =0;row<size;row++) {
                         writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
                         writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, information.get(row).per));
-                        writablesheet.addCell(new Label(3, row, information.get(row).per12));
-                        writablesheet.addCell(new Label(4, row, information.get(row).area_per));
-                        writablesheet.addCell(new Label(5, row, information.get(row).pbr));
-                        writablesheet.addCell(new Label(6, row, information.get(row).div_rate));
-                        writablesheet.addCell(new Label(7, row, information.get(row).fogn_rate));
-                        writablesheet.addCell(new Label(8, row, information.get(row).beta));
-                        writablesheet.addCell(new Label(9, row, information.get(row).op_profit));
+                        writablesheet.addCell(new Label(2, row, information.get(row).ranking));
+                        writablesheet.addCell(new Label(3, row, information.get(row).per));
+                        writablesheet.addCell(new Label(4, row, information.get(row).expect_per));
+                        writablesheet.addCell(new Label(5, row, information.get(row).area_per));
+                        writablesheet.addCell(new Label(6, row, information.get(row).pbr));
+                        writablesheet.addCell(new Label(7, row, information.get(row).div_rate));
+                        writablesheet.addCell(new Label(8, row, information.get(row).fogn_rate));
+                        writablesheet.addCell(new Label(9, row, information.get(row).recommend));
                         writablesheet.addCell(new Label(10, row, information.get(row).cur_price));
                         writablesheet.addCell(new Label(11, row, information.get(row).score));
                         writablesheet.addCell(new Label(12, row, information.get(row).desc));
+
+
                     }
                 }
             }
@@ -740,14 +742,14 @@ public class MyExcel extends MyStat{
                         FormatStockInfo temp = new FormatStockInfo();
                         temp.stock_code = sheet.getCell(0, i).getContents();
                         temp.stock_name = sheet.getCell(1, i).getContents();
-                        temp.per = sheet.getCell(2, i).getContents();
-                        temp.per12 = sheet.getCell(3, i).getContents();
-                        temp.area_per = sheet.getCell(4, i).getContents();
-                        temp.pbr = sheet.getCell(5, i).getContents();
-                        temp.div_rate = sheet.getCell(6, i).getContents();
-                        temp.fogn_rate = sheet.getCell(7, i).getContents();
-                        temp.beta = sheet.getCell(8, i).getContents();
-                        temp.op_profit = sheet.getCell(9, i).getContents();
+                        temp.ranking = sheet.getCell(2, i).getContents();
+                        temp.per = sheet.getCell(3, i).getContents();
+                        temp.expect_per = sheet.getCell(4, i).getContents();
+                        temp.area_per = sheet.getCell(5, i).getContents();
+                        temp.pbr = sheet.getCell(6, i).getContents();
+                        temp.div_rate = sheet.getCell(7, i).getContents();
+                        temp.fogn_rate = sheet.getCell(8, i).getContents();
+                        temp.recommend = sheet.getCell(9, i).getContents();
                         temp.cur_price = sheet.getCell(10, i).getContents();
                         temp.score = sheet.getCell(11, i).getContents();
                         temp.desc = sheet.getCell(12, i).getContents();
@@ -863,6 +865,40 @@ public class MyExcel extends MyStat{
             e.printStackTrace();
         }
         return Buffer_rev;
+    }
+    public List<String> readTodayFogninfo(String stock_code,boolean header) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile = STOCKDIR+stock_code+"fogn.xls";;
+
+        List<String> Buffer = new ArrayList<>();
+        List<String> Buffer_rev = new ArrayList<>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int start = 0;
+                    if(header != TRUE) start = 1;
+                    // 최신 외국인 매수량
+                    Buffer.add(sheet.getCell(1, 1).getContents());
+                    // 최신 기관 매수량
+                    Buffer.add(sheet.getCell(2, 1).getContents());
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return Buffer;
     }
 
     public String readTreemap() {

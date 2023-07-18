@@ -124,15 +124,21 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             for (int i = 0; i < size; i++) {
                 if (scorebox.get(i).stock_code.equals(stock_code)) {
                     result = stockname + "(" + stock_code+ ")" + "\n";
-                    result += scorebox.get(i).cur_price +  ", Score is " +
-                            String.valueOf(scorebox.get(i).score);
+                    result += "현재가 " + scorebox.get(i).cur_price +  ", Score is " +
+                            String.valueOf(scorebox.get(i).score) +"\n";
                     break;
                 }
             }
         } else {
             result = stockname + "(" + stock_code+ ") : \n";
-            result += "Score is ";
+            result += "Score is " + "\n";
         }
+
+        List<String> FognAgency = myexcel.readTodayFogninfo(stock_code,false);
+
+        result += "외국인 : " + FognAgency.get(0) + "\n";
+        result += "기관 : " + FognAgency.get(1);
+
         return result;
     }
     public void makePriceBox() {
