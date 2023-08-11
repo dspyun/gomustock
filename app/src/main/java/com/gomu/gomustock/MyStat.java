@@ -54,6 +54,8 @@ public class MyStat {
         return standardcloseprice;
     }
 
+
+
     public List<Float> string2float(List<String> input, int scale) {
         List<Float> result = new ArrayList<Float>();
         String temp, pre_temp="0";
@@ -100,6 +102,32 @@ public class MyStat {
                 result.add(Double.valueOf(temp) / scale);
                 pre_temp = temp;
             }
+        }
+        return result;
+    }
+
+    String findNotZero(List<String> input) {
+        String result="";
+        int size = input.size();
+        for(int i =0;i<size;i++) {
+            if(!input.get(i).equals("0") && !input.get(i).equals("")) {
+                result = input.get(i);
+                break;
+            }
+        }
+        return result;
+    }
+    public List<Float> string2float_fillpre(List<String> input, int scale) {
+        List<Float> result = new ArrayList<Float>();
+        String temp, pretemp="";
+        pretemp = findNotZero(input);
+        if(pretemp.isEmpty()) pretemp = "1";
+        int size = input.size();
+        for(int i=0;i< size;i++) {
+            temp = input.get(i).replaceAll(",", "");
+            if(temp.equals("0") || temp.equals("") || temp.isEmpty()) temp = pretemp;
+            result.add(Float.parseFloat(temp)/scale);
+            pretemp = temp;
         }
         return result;
     }
@@ -260,5 +288,23 @@ public class MyStat {
             temp.add(input.get(i));
         }
         return temp;
+    }
+
+    public List<Float> leveling_float(List<Float> input, float level) {
+        List<Float> temp = new ArrayList<>();
+        int size = input.size();
+        float lev = (float) (Collections.min(input)*level);
+        for(int i =0;i<size;i++) {
+            temp.add(input.get(i)-lev);
+        }
+        return temp;
+    }
+
+
+    public boolean checkKRStock(String stock_code) {
+        // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
+        // 즉 한국주식이면 true, 외국주식이면 false 반환
+        boolean isNumeric =  stock_code.matches("[+-]?\\d*(\\.\\d+)?");
+        return isNumeric;
     }
 }

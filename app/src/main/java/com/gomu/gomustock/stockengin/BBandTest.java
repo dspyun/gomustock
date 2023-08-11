@@ -91,6 +91,7 @@ public class BBandTest {
 
     // bband test에서 buysell signal은 percent_b를 사용한다
     // percentb를 1~100 사이로 백분율 스케일링해서 돌려준다
+    /*
     public List<Float> scaled_percentb() {
         List<Float> bband_score = new ArrayList<>();
         List<Float> bband_signal = new ArrayList<>();
@@ -98,6 +99,19 @@ public class BBandTest {
 
         for(float ftemp: bband_signal) {
             bband_score.add(ftemp*100); // 보통 0~100이지만 마이너스와 100을 넘어갈때도 있다
+        }
+        return bband_score;
+    }
+    */
+    public List<Float> scaled_percentb() {
+        List<Float> bband_score = new ArrayList<>();
+        List<Float> bband_signal = new ArrayList<>();
+        bband_signal = PERCENTB;
+        double pricemax = Collections.max(CLOSEDATA);
+        pricemax = pricemax+pricemax*0.03;
+        for(float ftemp: bband_signal) {
+            if(ftemp <= 0.3) bband_score.add((float)(pricemax - pricemax*0.1*ftemp));// 보통 0~100이지만 마이너스와 100을 넘어갈때도 있다
+            else bband_score.add((float)(pricemax));
         }
         return bband_score;
     }

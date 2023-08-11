@@ -43,6 +43,8 @@ public class BoardChartActivity extends AppCompatActivity {
     WebView webView;
 
     TAlib mytalib = new TAlib();
+
+    int TEST_PERIOD=120;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,9 +86,9 @@ public class BoardChartActivity extends AppCompatActivity {
 
             MyStat mystat = new MyStat();
             PriceBox pricebox = new PriceBox(stock_code);
-            List<Float> closeprice = mystat.trim_float(pricebox.getClose(), 60);
-            List<Float> highprice = mystat.trim_float(pricebox.getHigh(), 60);
-            List<Float> lowprice = mystat.trim_float(pricebox.getLow(),60);
+            List<Float> closeprice = mystat.trim_float(pricebox.getClose(), TEST_PERIOD);
+            List<Float> highprice = mystat.trim_float(pricebox.getHigh(), TEST_PERIOD);
+            List<Float> lowprice = mystat.trim_float(pricebox.getLow(),TEST_PERIOD);
             // bband 결과값에는 price chart data가 포함되지 않았다
             // 아래처럼 별도로 하나 만들어서 추가해준다.
 
@@ -95,7 +97,7 @@ public class BoardChartActivity extends AppCompatActivity {
             bbnandChart = findViewById(R.id.bband_chart);
             List<List<Float>> bb_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> bband_chartdata = new ArrayList<FormatChart>();
-            bb_chart_list = mytalib.bbands(closeprice,60);
+            bb_chart_list = mytalib.bbands(closeprice,TEST_PERIOD);
             bband_chart.adddata_float(closeprice, stock_code, Color.RED); // price chart data는 별도로 추가해준다
             bband_chart.adddata_float(bb_chart_list.get(0), "upper", Color.GRAY);
             bband_chart.adddata_float(bb_chart_list.get(1), "middle", Color.LTGRAY);
@@ -110,7 +112,7 @@ public class BoardChartActivity extends AppCompatActivity {
             rsiChart = findViewById(R.id.rsi_chart);
             List<List<Float>> rsi_chartlist = new ArrayList<List<Float>>();
             List<FormatChart> rsi_chartdata = new ArrayList<FormatChart>();
-            rsi_chartlist = mytalib.rsi(closeprice, 60);
+            rsi_chartlist = mytalib.rsi(closeprice, TEST_PERIOD);
             rsi_chart.adddata_float(rsi_chartlist.get(0), "RSI", Color.YELLOW);
             rsi_chartdata = rsi_chart.adddata_float(rsi_chartlist.get(1), "Interval", Color.WHITE);
             rsi_chart.multi_chart(rsiChart,rsi_chartdata,"RSI",false );
@@ -120,7 +122,7 @@ public class BoardChartActivity extends AppCompatActivity {
             macdChart = findViewById(R.id.macd_chart);
             List<List<Float>> macd_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> macd_chartdata = new ArrayList<FormatChart>();
-            macd_chart_list = mytalib.macd(closeprice,60);
+            macd_chart_list = mytalib.macd(closeprice,TEST_PERIOD);
             macd_chart.adddata_float(macd_chart_list.get(0), "fast", Color.YELLOW);
             macd_chart.adddata_float(macd_chart_list.get(1), "slow", Color.WHITE);
             macd_chartdata = macd_chart.adddata_float(macd_chart_list.get(2), "signal", Color.RED);
@@ -138,7 +140,7 @@ public class BoardChartActivity extends AppCompatActivity {
             MyChart adx_chart = new MyChart();
             adxChart = findViewById(R.id.adx_chart);
             List<Float> adx_chartdata = new ArrayList<>();
-            adx_chartdata = mytalib.mom(closeprice, 60);
+            adx_chartdata = mytalib.mom(closeprice, TEST_PERIOD);
             rsi_chart.single_float(adxChart,adx_chartdata,"MOM",false );
 
             // stoch test
@@ -146,7 +148,7 @@ public class BoardChartActivity extends AppCompatActivity {
             stochChart = findViewById(R.id.stoch_chart);
             List<List<Float>> stoch_chart_list = new ArrayList<List<Float>>();
             List<FormatChart> stock_chartdata = new ArrayList<FormatChart>();
-            stoch_chart_list = mytalib.stoch(closeprice,highprice,lowprice,60);
+            stoch_chart_list = mytalib.stoch(closeprice,highprice,lowprice,TEST_PERIOD);
             stoch_chart.adddata_float(stoch_chart_list.get(0), "slow-K", Color.GRAY);
             stock_chartdata = stoch_chart.adddata_float(stoch_chart_list.get(1), "slow-D", Color.LTGRAY);
             //stoch_chart.setYMinmax(0, 0);

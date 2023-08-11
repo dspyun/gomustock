@@ -1,13 +1,8 @@
 package com.gomu.gomustock.ui.home;
 
-import static android.content.ContentValues.TAG;
-
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
-import android.os.Looper;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,17 +21,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
-import com.gomu.gomustock.stockdb.BuyStockDBData;
+import com.gomu.gomustock.stockengin.BBandTest;
+import com.gomu.gomustock.stockengin.PriceBox;
+import com.gomu.gomustock.stockengin.RSITest;
 import com.gomu.gomustock.stockengin.StockDic;
+import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
-import com.gomu.gomustock.ui.format.PortfolioData;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -173,9 +172,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
     int finger_position;
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int input_position) {
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
-        finger_position = position;//holder.getAdapterPosition();
+        int position = holder.getAdapterPosition();
+        finger_position = position;
         FormatMyStock mystock = mystocklist.get(position);
 
         int now_price = mystocklist.get(position).cur_price;
@@ -183,7 +183,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         String stock_name = mystock.stock_name;
         String stock_code =  mystock.stock_code;
         MyChart home_chart = new MyChart();
-        home_chart.single_float(homeChart,mystock.chartdata,stock_name,false );
+
+        List<FormatChart> chartlist = new ArrayList<>();
+        chartlist = GetPeriodChart(stock_code,120);
+        //home_chart.single_float(homeChart,mystock.chartdata,stock_name,false );
+        home_chart.multi_chart(homeChart, chartlist, "복합차트", false);
+
 
         float cur_price = mystock.cur_price;
         if(cur_price<=0) {
@@ -436,5 +441,85 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             sumline.set(k,sumline.get(k)/10000);
         }
         return sumline;
+    }
+
+    public List<FormatChart> GetPeriodChart(String stock_code, int period) {
+
+        float maxprice;
+        float nowprice;
+
+        float position;
+        int test_period = period;
+        float scalelevel=0;
+        if(period <=60) {
+            scalelevel = 0.05f;
+            position = 0.95f;
+        }
+        else {
+            scalelevel = 0.15f;
+            position = 0.8f;
+        }
+
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        MyChart standard_chart = new MyChart();
+        standard_chart.clearbuffer();
+        chartlist = new ArrayList<FormatChart>();
+
+        //Color[] colors = {getColor(view,R.color.Red), Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.CYAN,Color.BLUE};
+        MyStat mystat = new MyStat();
+        PriceBox kbbank = new PriceBox(stock_code);
+        List<Float> kbband_close = kbbank.getClose(test_period);
+        if(kbband_close.get(0)==0 || kbband_close.size() < test_period) {
+            //XYChart chart  = new XYChartBuilder().width(300).height(200).build();
+            return chartlist;
+        }
+        BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
+        RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
+        List<Float> rsi_line = rsitest.test_line();
+        maxprice = Collections.max(kbband_close);
+        nowprice = kbband_close.get(kbband_close.size()-1);
+
+        // Create Chart & add first data
+        float linewidth=1.5f;
+        int size = kbband_close.size();
+        //List<Float> x = new ArrayList<>();
+        //for(int i =0;i<size;i++) { x.add((float)i); }
+
+        chartlist = standard_chart.adddata_float(kbband_close, stock_code, context.getColor(R.color.Red));
+        standard_chart.adddata_float(bbtest.getUpperLine(), "upper_line", context.getColor(R.color.LightGray));
+        standard_chart.adddata_float(bbtest.getLowLine(), "low_line", context.getColor(R.color.LightGray));
+        List<Float> buyscore = bbtest.scaled_percentb();
+        standard_chart.adddata_float(buyscore, "buysignal", context.getColor(R.color.Blue));
+
+        /*
+        IchimokuTest ichi = new IchimokuTest(stock_code, kbband_close, test_period);
+        List<Float> prospan1line = ichi.getProspan1();
+        float extval = prospan1line.get(0);
+        for(int j=0;j<26;j++) prospan1line.add(0,extval);
+        standard_chart.adddata_float(mystat.leveling_float(prospan1line,scalelevel), "prospan1line", context.getColor(R.color.SeaGreen));
+
+        List<Float> prospan2line = ichi.getProspan2();
+        extval = prospan2line.get(0);
+        for(int j=0;j<26;j++) prospan2line.add(0,extval);
+        chartlist = standard_chart.adddata_float(mystat.leveling_float(prospan2line,scalelevel), "prospan2line", context.getColor(R.color.DeepPink));
+        */
+
+        /*
+        Float diff_percent = 100*nowprice/maxprice;
+        String anntext = String.format("%.1f",diff_percent);
+        anntext += "\n" + String.format("%.0f",nowprice);
+        //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
+        //chart.addAnnotation(maxText);
+        chart.addAnnotation(
+                new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*position, false));
+        chart.getStyler().setAnnotationTextPanelPadding(0);
+        chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
+        //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
+        //chart.getStyler().setAnnotationTextPanelBorderColor(Color.BLUE);
+        chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
+        chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
+        //chart.getStyler().setYAxisTicksVisible(true);
+         */
+        return chartlist;
     }
 }

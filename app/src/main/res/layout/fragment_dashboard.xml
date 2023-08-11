@@ -73,7 +73,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_vertical|right"
-                            android:text="현재가\n다운로드"
+                            android:text="현재가\n불러오기"
                             android:textColor="@color/LightGray"
                             android:textSize="14sp"
                             android:background="@xml/bg_custom_button"

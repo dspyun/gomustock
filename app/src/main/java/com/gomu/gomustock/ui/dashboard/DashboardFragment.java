@@ -172,7 +172,7 @@ public class DashboardFragment extends Fragment {
         tvDummy02.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ADT_INDEX=2;
+                ADT_INDEX=1;
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
                 binding.recyclerView.setAdapter(bd_adapter);
@@ -406,6 +406,8 @@ public class DashboardFragment extends Fragment {
 
     public void YFDownload_Dialog(List<String> stock_list){
         dialog_progress.show(); // 다이얼로그 띄우기
+        dialog_progress.setCanceledOnTouchOutside(false);
+        dialog_progress.setCancelable(false);
         ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
 
         Thread dlg_thread = new Thread(new Runnable() {

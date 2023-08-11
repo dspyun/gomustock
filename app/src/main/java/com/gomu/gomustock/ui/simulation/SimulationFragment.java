@@ -422,6 +422,8 @@ public class SimulationFragment extends Fragment {
 
     public void YFDownload_Dialog(List<String> stock_list){
         dialog_progress.show(); // 다이얼로그 띄우기
+        dialog_progress.setCanceledOnTouchOutside(false);
+        dialog_progress.setCancelable(false);
         ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
 
         Thread dlg_thread = new Thread(new Runnable() {

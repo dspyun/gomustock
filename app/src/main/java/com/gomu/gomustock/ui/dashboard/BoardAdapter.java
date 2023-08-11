@@ -47,6 +47,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     List<String> recycler_list = new ArrayList<>();
     StockDic stockdic = new StockDic();
     int INDEX;
+
+    int TEST_PERIOD=120;
     public BoardAdapter(Activity context, int index)
     {
         INDEX=index;
@@ -131,7 +133,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             }
         } else {
             result = stockname + "(" + stock_code+ ") : \n";
-            result += "Score is " + "\n";
+            result += "현재가 0, Score is " + "\n";
         }
 
         List<String> FognAgency = myexcel.readTodayFogninfo(stock_code,false);
@@ -178,17 +180,17 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         for(int i =0;i<size;i++) {
             if(priceboxlist.get(i).getStockCode().equals(stock_code)) {
                 if(priceboxlist.get(i).checkEmpty()) return;
-                chart_data1 = priceboxlist.get(i).getStdClose(60);
+                chart_data1 = priceboxlist.get(i).getStdClose(TEST_PERIOD);
                 break;
             }
         }
-        pricelist = myexcel.read_ohlcv(stock_code , "CLOSE", 60, false);
+        pricelist = myexcel.read_ohlcv(stock_code , "CLOSE", TEST_PERIOD, false);
         chart_data1 = myexcel.oa_standardization(pricelist);
         chartlist = standard_chart.adddata_float(chart_data1, stock_code, context.getColor(R.color.Red));
 
         if (chart_data2.size() == 0) {
             // 어딘가에서 한 번 읽었으면 다시 읽지 않는다
-            pricelist = myexcel.read_ohlcv("^KS200", "CLOSE", 60, false);
+            pricelist = myexcel.read_ohlcv("^KS200", "CLOSE", TEST_PERIOD, false);
             //pricelist = myexcel.arrangeRev_string(pricelist);
             chart_data2 = myexcel.oa_standardization(pricelist);
         }
@@ -197,6 +199,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         //standard_chart.setYMinmax(-3, 3);
         standard_chart.multi_chart(lineChart, chartlist, "표준화차트", false);
         //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
+
     }
 
     @Override
