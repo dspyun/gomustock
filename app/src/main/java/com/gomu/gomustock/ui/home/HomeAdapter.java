@@ -1,8 +1,14 @@
 package com.gomu.gomustock.ui.home;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,10 +65,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     String latestOpenday="";
     StockDic stockdic = new StockDic();
     ImageView btexpand,btpricerefresh;
-    LineChart homeChart;
+    LineChart homeChart,todayChart;
+    ImageView homeChartImg;
     TextView tvhome_money_info;
     TableLayout home_buysell_item;
     View view;
+    String today_level="", period_level="";
     public HomeAdapter(Activity context, List<FormatMyStock> input_mystocklist)
     {
         this.context = context;
@@ -172,22 +180,51 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
     int finger_position;
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int input_position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // postion을 써도 되는데 구글에서는 아래처럼 사용하는 것을 recommend 한다
-        int position = holder.getAdapterPosition();
+        //int position = holder.getAdapterPosition();
         finger_position = position;
         FormatMyStock mystock = mystocklist.get(position);
 
         int now_price = mystocklist.get(position).cur_price;
 
+        homeChart.setVisibility(VISIBLE);
+        homeChartImg.setVisibility(INVISIBLE);
+
         String stock_name = mystock.stock_name;
         String stock_code =  mystock.stock_code;
         MyChart home_chart = new MyChart();
+        //home_chart.single_float(homeChart,mystock.chartdata,period_level,false );
 
+        //ImageView homeChartImg = view.findViewById(R.id.home_chart_img);
+        /*
+        String STOCKDIR = Environment.getExternalStorageDirectory().getPath() + "/gomustock/";;
+        if(myexcel.file_check(stock_code+"_home.png")) {
+            homeChart.setVisibility(INVISIBLE);
+            homeChartImg.setVisibility(VISIBLE);
+            Bitmap bm = BitmapFactory.decodeFile(STOCKDIR + stock_code+"_home.png");
+            homeChartImg.setImageBitmap(bm);
+
+        } else {
+            homeChart.setVisibility(VISIBLE);
+            homeChartImg.setVisibility(INVISIBLE);
+            List<FormatChart> chartlist = new ArrayList<>();
+            chartlist = GetPeriodChart(stock_code, 120);;
+            home_chart.multi_chart(homeChart, chartlist, "복합차트", false);
+        }
+        */
+        homeChart.setVisibility(VISIBLE);
+        homeChartImg.setVisibility(INVISIBLE);
         List<FormatChart> chartlist = new ArrayList<>();
-        chartlist = GetPeriodChart(stock_code,120);
-        //home_chart.single_float(homeChart,mystock.chartdata,stock_name,false );
-        home_chart.multi_chart(homeChart, chartlist, "복합차트", false);
+        chartlist = GetPeriodChart(stock_code, 120);
+        if(chartlist.size() <= 0) return;
+        home_chart.multi_chart(homeChart, chartlist, period_level, false);
+
+        MyChart day_chart = new MyChart();
+        List<FormatChart> chartlist1 = new ArrayList<>();
+        chartlist1 = GetTodayChart(stock_code,1);
+        if(chartlist1.size() <= 0) return;
+        day_chart.multi_chart(todayChart, chartlist1, today_level, false);
 
 
         float cur_price = mystock.cur_price;
@@ -196,6 +233,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             cur_price = mystock.chartdata.get(size-1);
         }
         //int returnmoney = balance.getSellPrice();
+        /*
         float total_buy_price = mystock.buy_price;
         int hold_quantity = mystock.quantity;
         float averprice = total_buy_price/hold_quantity;
@@ -211,6 +249,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 "수익액 " + String.format("%.0f",(estimprice-total_buy_price)/10000) + "만원\n";
 
         holder.tvbody_info.setText(simul_info);
+        */
+
 
         String head_info =
                 Integer.toString(position) + " " +
@@ -238,8 +278,37 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 //System.out.println("event position is " + Integer.toString(position));
             }
         });
-    }
 
+        /*
+        homeChart.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                String STOCKDIR = Environment.getExternalStorageDirectory().getPath() + "/gomustock/";;
+                homeChart.saveToPath(stock_code + "_home",STOCKDIR);
+                System.out.println("[view1의 크기] 가로 :" + homeChart.getWidth() + "   세로 : " + homeChart.getHeight());
+                //homeChart.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                homeChart.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                Bitmap b = Bitmap.createBitmap(homeChart.getMeasuredWidth(), homeChart.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+                Canvas c = new Canvas(b);
+                homeChart.layout(homeChart.getLeft(), homeChart.getTop(), homeChart.getRight(), homeChart.getBottom());
+                homeChart.draw(c);
+
+                File dest = new File(STOCKDIR + stock_code + "_home.png");
+
+                try {
+                    FileOutputStream out = new FileOutputStream(dest);
+                    b.compress(Bitmap.CompressFormat.PNG, 90, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        */
+    }
 
     public void showDialog_buy(){
         EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
@@ -300,6 +369,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         //private View portfolio_list_view;
         LinearLayout home_list_item;
 
+
         int finger_position;
         public ViewHolder(View view)
         {
@@ -309,10 +379,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
             homeChart = view.findViewById(R.id.home_chart);
             tv_name = view.findViewById(R.id.stock_name);
-
+            homeChartImg = view.findViewById(R.id.home_chart_img);
 
             tvhead_info = view.findViewById(R.id.home_info_header);
-            tvbody_info = view.findViewById(R.id.home_info_body);
+            //tvbody_info = view.findViewById(R.id.home_info_body);
+            todayChart = view.findViewById(R.id.today_chart);
 
             // 펼쳐진 부분이 클릭되면 접히게 하는 click listener
             home_list_item = view.findViewById(R.id.home_list_layout);
@@ -342,7 +413,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         }
 
         public void onBind(int position, SparseBooleanArray selectedItems) {
-            home_buysell_item.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
+            home_buysell_item.setVisibility(selectedItems.get(position) ? VISIBLE : View.GONE);
             //finger_position = position;
             //changeVisibility(selectedItems.get(position));
         }
@@ -364,12 +435,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                     buybt.getLayoutParams().height = (int) animation.getAnimatedValue();
                     buybt.requestLayout();
                     // imageView가 실제로 사라지게하는 부분
-                    buybt.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+                    buybt.setVisibility(isExpanded ? VISIBLE : View.GONE);
 
                     sellbt.getLayoutParams().height = (int) animation.getAnimatedValue();
                     sellbt.requestLayout();
                     // imageView가 실제로 사라지게하는 부분
-                    sellbt.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+                    sellbt.setVisibility(isExpanded ? VISIBLE : View.GONE);
                 }
             });
             // Animation start
@@ -443,8 +514,22 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         return sumline;
     }
 
+    public void chart_test(String stock_code) {
+        LineChart homeChart;
+        MyChart home_chart = new MyChart();
+        homeChart = view.findViewById(R.id.home_chart);
+
+        List<FormatChart> chartlist = new ArrayList<>();
+        chartlist = GetPeriodChart(stock_code,120);
+        //home_chart.single_float(homeChart,mystock.chartdata,stock_name,false );
+        home_chart.multi_chart(homeChart, chartlist, "복합차트", false);
+        homeChart.saveToGallery(stock_code+"_home.jpg","", "MPAndroidChart-Library Save", Bitmap.CompressFormat.PNG, 40);
+
+    }
+
     public List<FormatChart> GetPeriodChart(String stock_code, int period) {
 
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
         float maxprice;
         float nowprice;
 
@@ -460,7 +545,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             position = 0.8f;
         }
 
-        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        if(!myexcel.file_check(stock_code)) {
+            return chartlist;
+        }
+
         MyChart standard_chart = new MyChart();
         standard_chart.clearbuffer();
         chartlist = new ArrayList<FormatChart>();
@@ -489,37 +577,80 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         standard_chart.adddata_float(bbtest.getUpperLine(), "upper_line", context.getColor(R.color.LightGray));
         standard_chart.adddata_float(bbtest.getLowLine(), "low_line", context.getColor(R.color.LightGray));
         List<Float> buyscore = bbtest.scaled_percentb();
-        standard_chart.adddata_float(buyscore, "buysignal", context.getColor(R.color.Blue));
+        chartlist = standard_chart.adddata_float(buyscore, "buysignal", context.getColor(R.color.Yellow));
 
-        /*
-        IchimokuTest ichi = new IchimokuTest(stock_code, kbband_close, test_period);
-        List<Float> prospan1line = ichi.getProspan1();
-        float extval = prospan1line.get(0);
-        for(int j=0;j<26;j++) prospan1line.add(0,extval);
-        standard_chart.adddata_float(mystat.leveling_float(prospan1line,scalelevel), "prospan1line", context.getColor(R.color.SeaGreen));
 
-        List<Float> prospan2line = ichi.getProspan2();
-        extval = prospan2line.get(0);
-        for(int j=0;j<26;j++) prospan2line.add(0,extval);
-        chartlist = standard_chart.adddata_float(mystat.leveling_float(prospan2line,scalelevel), "prospan2line", context.getColor(R.color.DeepPink));
-        */
-
-        /*
         Float diff_percent = 100*nowprice/maxprice;
-        String anntext = String.format("%.1f",diff_percent);
-        anntext += "\n" + String.format("%.0f",nowprice);
+        period_level = String.format("%.1f",diff_percent);
+        period_level += "\n" + String.format("%.0f",nowprice);
+
+        return chartlist;
+    }
+
+    public List<FormatChart> GetTodayChart(String stock_code, float input_target) {
+
+        int hour = 60*4;
+        float startprice;
+        float nowprice;
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+
+        MyExcel myexcel = new MyExcel();
+        if(!myexcel.file_check(stock_code)) {
+            return chartlist;
+        }
+
+        java.util.List<String> dealprice = myexcel.readtodayprice(stock_code+"today","DEAL",-1,false);
+        java.util.List<String> sellprice = myexcel.readtodayprice(stock_code+"today","SELL",-1,false);
+        java.util.List<String> buyprice = myexcel.readtodayprice(stock_code+"today","BUY",-1,false);
+        java.util.List<String> volume = myexcel.readtodayprice(stock_code+"today","VOLUME",-1,false);
+        java.util.List<Float> kbband_deal = myexcel.string2float_fillpre(dealprice,1);
+        java.util.List<Float> kbband_sell = myexcel.string2float_fillpre(sellprice,1);
+        java.util.List<Float> kbband_buy = myexcel.string2float_fillpre(buyprice,1);
+        java.util.List<Float> kbband_vol = myexcel.string2float_fillpre(volume,1);
+        List<Float> targetlist = new ArrayList<>();
+        startprice = kbband_deal.get(0);
+        nowprice = kbband_deal.get(kbband_deal.size()-1);
+
+        float target;
+        if(input_target==1) target = kbband_buy.get(0);
+        else target = input_target;
+        int size = kbband_buy.size();
+
+        for(int i =0;i<size;i++) {
+            targetlist.add(target);
+        }
+
+
+        MyChart standard_chart = new MyChart();
+        standard_chart.clearbuffer();
+        chartlist = new ArrayList<FormatChart>();
+
+        chartlist = standard_chart.adddata_float(kbband_sell, "Upper", context.getColor(R.color.Red));
+        standard_chart.adddata_float(kbband_buy, "Low", context.getColor(R.color.LightGray));
+
+        float low_price = Collections.min(kbband_buy);
+        MyStat mystat = new MyStat();
+        List<Float> vol2 = mystat.scaling_float2(kbband_vol,low_price);
+        standard_chart.adddata_float(vol2, "Vol", context.getColor(R.color.SeaGreen));
+
+        chartlist = standard_chart.adddata_float(targetlist, "Start", context.getColor(R.color.Yellow));
+
+
+        Float diff_percent = 100*nowprice/startprice-100;
+        today_level = String.format("%.1f",diff_percent);
+        today_level += "\n" + String.format("%.0f",nowprice);
+        /*
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
         chart.addAnnotation(
-                new AnnotationTextPanel(anntext, prospan2line.size(), nowprice*position, false));
+                new AnnotationTextPanel(anntext, xsize, startprice, false));
         chart.getStyler().setAnnotationTextPanelPadding(0);
         chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
         //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
         //chart.getStyler().setAnnotationTextPanelBorderColor(Color.BLUE);
         chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
         chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
-        //chart.getStyler().setYAxisTicksVisible(true);
-         */
+        */
         return chartlist;
     }
 }

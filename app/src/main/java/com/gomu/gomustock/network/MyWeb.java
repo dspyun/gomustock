@@ -1,5 +1,6 @@
 package com.gomu.gomustock.network;
 
+import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
@@ -576,4 +577,96 @@ public class MyWeb {
         }
         return ranking + company_string;
     }
+
+    public void getNaverpriceByToday(String stock_code, int minute) {
+        // 1page는 10분 데이터. 30분은 3페이지, 1시간은 6페이지
+        List<FormatOHLCV> naverpricelist = new ArrayList<>();
+        String page="";
+
+        for(int i =1;i<=minute;i++) {
+            page = Integer.toString(i);
+            naverpricelist.addAll(getTodayPrice10(stock_code,page));
+        }
+        FormatOHLCV naverheader = new FormatOHLCV();
+        naverheader.date = "date";
+        naverheader.close = "close";
+        naverheader.open = "open";
+        naverheader.high = "high";
+        naverheader.low = "low";
+        naverheader.volume = "volume";
+        naverpricelist.add(0,naverheader);
+        MyExcel myexcel = new MyExcel();
+        myexcel.writetodayprice(stock_code+"today",naverpricelist);
+    }
+
+
+
+    public List<FormatOHLCV> getTodayPrice10(String stock_code, String pageno) {
+
+        MyDate mydate = new MyDate();
+        List<String> agent = new ArrayList<>();
+        List<String> fogn = new ArrayList<>();
+        List<FormatOHLCV> naverpricelist = new ArrayList<>();
+
+        try {
+            String pagenumber;
+            if(pageno.equals("0")) pagenumber="";
+            else pagenumber = "&page="+pageno;
+            String time="";
+            if(mydate.getTodayDayofWeek() == 6) {
+                time = mydate.getBeforeday(1);
+                time += 153000;
+            } else if (mydate.getTodayDayofWeek() == 7){
+                time = mydate.getBeforeday(2);
+                time += 153000;
+            } else {
+                time = mydate.getTodayFullTime();
+            }
+            // /item/sise_time.naver?code=005490&thistime=20230721113906
+            //time = "20230728153000";
+            String URL = "https://finance.naver.com/item/sise_time.naver?code="+stock_code+"&thistime="+time+pagenumber;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements trlist = doc.select("tr");
+            for(int i =2;i<7;i++ ){
+                FormatOHLCV naverprice = new FormatOHLCV();
+                Elements tdlist = trlist.get(i).select("td");
+                naverprice.date = tdlist.get(0).text().replaceAll("\\.",""); // 시간
+                naverprice.close = tdlist.get(1).text().replaceAll(",", ""); // 체결가 close
+                naverprice.open = tdlist.get(3).text().replaceAll(",", ""); // 매도 open
+                naverprice.high = tdlist.get(4).text().replaceAll(",", ""); // 매수 high
+                naverprice.volume = tdlist.get(5).text().replaceAll(",", ""); // 거래량
+                naverpricelist.add(naverprice);
+            }
+            for(int i =10;i<15;i++ ){
+                FormatOHLCV naverprice = new FormatOHLCV();
+                Elements tdlist = trlist.get(i).select("td");
+                naverprice.date = tdlist.get(0).text().replaceAll("\\.","");
+                naverprice.close = tdlist.get(1).text().replaceAll(",", "");
+                naverprice.open = tdlist.get(3).text().replaceAll(",", "");
+                naverprice.high = tdlist.get(4).text().replaceAll(",", "");
+                naverprice.volume = tdlist.get(5).text().replaceAll(",", "");
+                naverpricelist.add(naverprice);
+            }
+
+            int j = 0;
+            ;/*
+            System.out.println("per = " + result.per+"\n");
+            System.out.println("per12 = " + result.per12+"\n");
+            System.out.println("area_per = " + result.area_per+"\n");
+            System.out.println("pbr = " + result.pbr+"\n");
+            System.out.println("div_rate = " +result.div_rate+"\n");
+            System.out.println("fogn_rate = " + result.fogn_rate+"\n");
+            System.out.println("beta = " + result.beta+"\n");
+            System.out.println("op_profit = " + result.op_profit+"\n");
+*/
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        };
+        return naverpricelist;
+    }
+
+
+
 }

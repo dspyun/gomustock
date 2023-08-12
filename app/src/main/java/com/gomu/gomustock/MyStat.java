@@ -300,7 +300,43 @@ public class MyStat {
         return temp;
     }
 
+    Float average(List<Float> input) {
+        Float result=0f;
+        int size = input.size();
+        for(int i =0;i<size;i++) {
+            result += input.get(i);
+        }
+        return result/size;
+    }
+    // 누적치를 스케일링하는 함수
+    public List<Float> scaling_float2(List<Float> input, float min) {
+        int size = input.size();
+        List<Float> temp = new ArrayList<>();
+        float diff = (float) (min*1.1 - min);// 최저치=min, 최고치는 min*1.1 사이에서 백분율값으로 왔다갔다 하게 한다
 
+        // volume은 누적량이기 때문에 변동량으로 바꿔주어야 한다.
+        for(int i =0;i<size-1;i++) {
+            temp.add(input.get(i+1)-input.get(i));
+        }
+        //float fill_value = findNotZero_f(temp);
+        float fill_value = average(temp);
+        // 변동량으로 바뀐 숫자를 스케일링한다
+        float inputmax = Collections.max(temp);
+        size = temp.size();
+        for(int i =0;i<size;i++) {
+            float value =temp.get(i);
+            if(value <= 0) value = fill_value;
+            temp.set(i,value/inputmax);
+        }
+        for(int i =0;i<size;i++) {
+            temp.set(i,min+diff*temp.get(i)*0.1f);
+        }
+        temp.remove(size-1);
+        // input(get(i+1)-input.get(i))를 적용하면
+        // 가장 마지막은 계산이 안됨.(계상이 가능하려면 size+1번째 거래량이 있어야 됨)
+        // 그래서 잘라줌
+        return temp;
+    }
     public boolean checkKRStock(String stock_code) {
         // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
         // 즉 한국주식이면 true, 외국주식이면 false 반환

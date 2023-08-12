@@ -1,6 +1,7 @@
 package com.gomu.gomustock;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
@@ -230,5 +231,30 @@ public class MyDate {
         str = sdformat.format(date);
         return str;
     }
+    public int getTodayDayofWeek() {
+        LocalDate  date = LocalDate.now();
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek.getValue();
+    }
 
+    public String getBeforeday(int beforeday) {
+        String str="";
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        // 하루 전의 date를 넘겨준다
+        date = addDay(date,-beforeday);
+        SimpleDateFormat sdformat = new SimpleDateFormat("yyyyMMdd");
+        str = sdformat.format(date);
+        return str;
+    }
+
+    public String  getTodayFullTime() {
+        Date date = new Date();
+        date.setTime(System.currentTimeMillis());
+
+        String result;
+        SimpleDateFormat mFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        result = mFormat.format(date);
+        return result;
+    }
 }

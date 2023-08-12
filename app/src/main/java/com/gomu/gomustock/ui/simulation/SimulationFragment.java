@@ -219,7 +219,7 @@ public class SimulationFragment extends Fragment {
         boolean flag=true;
         int size = codelist.size();
         for(int i =0;i<size;i++) {
-            if(!myexcel.file_check(sim_stock.get(i)+"_testset.xls")) {
+            if(!myexcel.file_check(sim_stock.get(i)+"_testset")) {
                 flag = false;
                 break;
             }
@@ -383,6 +383,7 @@ public class SimulationFragment extends Fragment {
         int size=sim_stock.size();
         for(int i =0;i<size;i++) {
             String code = sim_stock.get(i);
+            if(!myexcel.file_check(code)) continue;
             PriceBox pricebox = new PriceBox(code);
             List<Float> closeprice = new ArrayList<>();
             closeprice = pricebox.getClose();

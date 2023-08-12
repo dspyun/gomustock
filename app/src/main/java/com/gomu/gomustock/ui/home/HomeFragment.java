@@ -31,7 +31,6 @@ import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
 import com.gomu.gomustock.graph.MyChart;
-import com.gomu.gomustock.graph.MyTreeMap;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.PriceBox;
@@ -61,6 +60,7 @@ public class HomeFragment extends Fragment {
     TextView filedown, infodown, dummy, history;
 
 
+    public MyWeb myweb = new MyWeb();
     public MyExcel myexcel = new MyExcel();
     private List<Integer> chartcolor = new ArrayList<>();
     Dialog dialog_buy; // 커스텀 다이얼로그
@@ -103,12 +103,10 @@ public class HomeFragment extends Fragment {
         binding.homeRecyclerView.setAdapter(home_adapter);
 
         dl_checkMarketOpen();
-        //}
 
         if(stop_flag!= true) {
             stop_flag=true;
         }
-
         binding.filedownload.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -139,20 +137,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                //binding.dummy.setText("빽데이터");
-                MyTreeMap mytree = new MyTreeMap(context);
-                mytree.Treemapfile();
-                // backtest용 data를 만들어 excel에 저장한다
-            }
-        });
-
-
-        binding.dummy.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                dl_checkMarketOpen();
+                //dl_checkMarketOpen();
+                int size = mystocklist.size();
+                for(int i =0;i<size;i++) {
+                    myexcel.file_delete(mystocklist.get(i)+"_home.png");
+                }
             }
         });
         binding.buynew.setOnClickListener(new View.OnClickListener()
@@ -220,6 +209,15 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    public void downloadNowPrice(List<String> stock_list, int hour) {
+        int size = stock_list.size();
+        String sizestr = Integer.toString(size);
+        for(int i =0;i<size;i++) {
+            String stock_code = stock_list.get(i);
+            //_cb.callback("오늘가격" + "\n"+"다운로드" + "\n"+ Integer.toString(i)+ "/"+ sizestr+"\n"+ stock_code);
+            myweb.getNaverpriceByToday(stock_code, 6 * hour); // 1시간을 읽어서 저장한다
+        }
+    }
 
     public void YFDownload_Dialog(List<String> stock_list){
         dialog_progress.show(); // 다이얼로그 띄우기
@@ -233,12 +231,14 @@ public class HomeFragment extends Fragment {
             List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
             public void run() {
                 try {
+                    int hour = 4;
                     int max = stock_list.size();
                     dlg_bar.setProgress(0);
                     for(int i=0;i<stock_list.size();i++) {
                         dlg_bar.setProgress(100*(i+1)/max);
                         // 1. 주가를 다운로드 하고
-                        new YFDownload(stock_list.get(i));
+                        new YFDownload(stock_list.get(i)); // 1년치를 다운로드 받고
+                        myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다
                     }
                     notice_ok();
                     dialog_progress.dismiss();
@@ -250,6 +250,7 @@ public class HomeFragment extends Fragment {
 
         dlg_thread.start();
     }
+
 
 
     public void dl_checkMarketOpen() {
@@ -362,6 +363,9 @@ public class HomeFragment extends Fragment {
             mystocklist.get(i).chartdata = pricebox.getClose(days);
         }
     }
+
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

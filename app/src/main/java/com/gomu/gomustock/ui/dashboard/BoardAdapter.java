@@ -49,11 +49,10 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     int INDEX;
 
     int TEST_PERIOD=120;
-    public BoardAdapter(Activity context, int index)
+    public BoardAdapter(Activity context)
     {
-        INDEX=index;
         this.context = context;
-        loadRecyclerList(index);
+        loadRecyclerList();
         makePriceBox();
         int i =0;
     }
@@ -72,8 +71,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         int i =0;
     }
 
-    public void loadRecyclerList(int index) {
-        web_stockinfo = myexcel.readStockinfo(index,false);
+    public void loadRecyclerList() {
+        web_stockinfo = myexcel.readStockinfo();
         if(web_stockinfo !=null) {
             recycler_list.clear();
             for (int i = 0; i < web_stockinfo.size(); i++) {
@@ -165,6 +164,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         finger_position = position;
         //final BoardData data = dataList.get(position);
         String stock_code = recycler_list.get(position);
+        if(!myexcel.file_check(stock_code)) return;
 
         String stock_name = stockdic.getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));

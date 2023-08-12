@@ -59,7 +59,7 @@ public class DashboardFragment extends Fragment {
     Dialog dialog_progress; // 커스텀 다이얼로그
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
-    int ADT_INDEX=0;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -101,7 +101,7 @@ public class DashboardFragment extends Fragment {
         na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
+        bd_adapter = new BoardAdapter( getActivity());
         binding.recyclerView.setAdapter(bd_adapter);
 
         // adapter초기화 후 생성된 recyclerlist를
@@ -154,9 +154,9 @@ public class DashboardFragment extends Fragment {
         tvDummy01.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ADT_INDEX=0;
+
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
+                bd_adapter = new BoardAdapter( getActivity());
                 binding.recyclerView.setAdapter(bd_adapter);
 
                 // adapter초기화 후 생성된 recyclerlist를
@@ -172,9 +172,9 @@ public class DashboardFragment extends Fragment {
         tvDummy02.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ADT_INDEX=1;
+
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                bd_adapter = new BoardAdapter( getActivity(),ADT_INDEX);
+                bd_adapter = new BoardAdapter( getActivity());
                 binding.recyclerView.setAdapter(bd_adapter);
 
                 // adapter초기화 후 생성된 recyclerlist를
@@ -354,7 +354,7 @@ public class DashboardFragment extends Fragment {
 
     public void addInfoFile(String stockcode) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfo(ADT_INDEX,false);
+        List<FormatStockInfo> infolist = myexcel.readStockinfo();
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 없으면 추가, 있으면 건너뛰기
         int size = infolist.size();
@@ -367,11 +367,11 @@ public class DashboardFragment extends Fragment {
             newcode.addStockcode(stockcode);
             infolist.add(newcode);
         }
-        myexcel.writestockinfo(ADT_INDEX,infolist);
+        myexcel.writestockinfo(infolist);
     }
     public void delInfoFile(String stockcode) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfo(ADT_INDEX,false);
+        List<FormatStockInfo> infolist = myexcel.readStockinfo();
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 있으면 삭제
         int size = infolist.size();
@@ -381,7 +381,7 @@ public class DashboardFragment extends Fragment {
                 break;
             }
         }
-        myexcel.writestockinfo(ADT_INDEX,infolist);
+        myexcel.writestockinfo(infolist);
     }
 
 
@@ -434,7 +434,7 @@ public class DashboardFragment extends Fragment {
                         }
                         web_stockinfo.add(i,info);
                     }
-                    myexcel.writestockinfo(ADT_INDEX,web_stockinfo);
+                    myexcel.writestockinfo(web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
