@@ -48,6 +48,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     StockDic stockdic = new StockDic();
     int INDEX;
 
+
     int TEST_PERIOD=120;
     public BoardAdapter(Activity context)
     {
@@ -135,6 +136,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             result += "현재가 0, Score is " + "\n";
         }
 
+        if(!myexcel.file_check(stock_code+"fogn")) return result;
         List<String> FognAgency = myexcel.readTodayFogninfo(stock_code,false);
 
         result += "외국인 : " + FognAgency.get(0) + "\n";
@@ -163,6 +165,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         //int position = holder.getAdapterPosition();
         finger_position = position;
         //final BoardData data = dataList.get(position);
+
         String stock_code = recycler_list.get(position);
         if(!myexcel.file_check(stock_code)) return;
 

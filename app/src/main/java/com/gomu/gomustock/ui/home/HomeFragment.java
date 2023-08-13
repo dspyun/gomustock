@@ -28,18 +28,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
+import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.PriceBox;
+import com.gomu.gomustock.stockengin.RSITest;
 import com.gomu.gomustock.stockengin.StockDic;
+import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -67,6 +72,7 @@ public class HomeFragment extends Fragment {
     Dialog dialog_progress; // 커스텀 다이얼로그
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
+    String today_level="", period_level="";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -96,6 +102,7 @@ public class HomeFragment extends Fragment {
         mystocklist = myexcel.readMyStockList();
         homestock_list = makeStocklist(mystocklist);
         FillPriceInStocklist(homestock_list,120);
+        fill_chartdata();
 
         // recycler view 준비
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -365,6 +372,143 @@ public class HomeFragment extends Fragment {
     }
 
 
+    public List<FormatChart> GetPeriodChart(String stock_code, int period) {
+
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+        float maxprice;
+        float nowprice;
+
+        float position;
+        int test_period = period;
+        float scalelevel=0;
+        if(period <=60) {
+            scalelevel = 0.05f;
+            position = 0.95f;
+        }
+        else {
+            scalelevel = 0.15f;
+            position = 0.8f;
+        }
+
+        if(!myexcel.file_check(stock_code)) {
+            return chartlist;
+        }
+
+        MyChart standard_chart = new MyChart();
+        standard_chart.clearbuffer();
+        chartlist = new ArrayList<FormatChart>();
+
+        //Color[] colors = {getColor(view,R.color.Red), Color.GRAY, Color.GRAY, Color.BLUE,Color.GREEN,Color.CYAN,Color.BLUE};
+        MyStat mystat = new MyStat();
+        PriceBox kbbank = new PriceBox(stock_code);
+        List<Float> kbband_close = kbbank.getClose(test_period);
+        if(kbband_close.get(0)==0 || kbband_close.size() < test_period) {
+            //XYChart chart  = new XYChartBuilder().width(300).height(200).build();
+            return chartlist;
+        }
+        BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
+        RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
+        List<Float> rsi_line = rsitest.test_line();
+        maxprice = Collections.max(kbband_close);
+        nowprice = kbband_close.get(kbband_close.size()-1);
+
+        // Create Chart & add first data
+        float linewidth=1.5f;
+        int size = kbband_close.size();
+        //List<Float> x = new ArrayList<>();
+        //for(int i =0;i<size;i++) { x.add((float)i); }
+
+        chartlist = standard_chart.adddata_float(kbband_close, stock_code, context.getColor(R.color.Red));
+        standard_chart.adddata_float(bbtest.getUpperLine(), "upper_line", context.getColor(R.color.LightGray));
+        standard_chart.adddata_float(bbtest.getLowLine(), "low_line", context.getColor(R.color.LightGray));
+        List<Float> buyscore = bbtest.scaled_percentb();
+        chartlist = standard_chart.adddata_float(buyscore, "buysignal", context.getColor(R.color.Yellow));
+
+
+        Float diff_percent = 100*nowprice/maxprice;
+        period_level = String.format("%.1f",diff_percent);
+        period_level += "\n" + String.format("%.0f",nowprice);
+
+        return chartlist;
+    }
+
+    public List<FormatChart> GetTodayChart(String stock_code, float input_target) {
+
+        int hour = 60*4;
+        float startprice;
+        float nowprice;
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+
+        MyExcel myexcel = new MyExcel();
+        if(!myexcel.file_check(stock_code)) {
+            return chartlist;
+        }
+
+        java.util.List<String> dealprice = myexcel.readtodayprice(stock_code+"today","DEAL",-1,false);
+        java.util.List<String> sellprice = myexcel.readtodayprice(stock_code+"today","SELL",-1,false);
+        java.util.List<String> buyprice = myexcel.readtodayprice(stock_code+"today","BUY",-1,false);
+        java.util.List<String> volume = myexcel.readtodayprice(stock_code+"today","VOLUME",-1,false);
+        java.util.List<Float> kbband_deal = myexcel.string2float_fillpre(dealprice,1);
+        java.util.List<Float> kbband_sell = myexcel.string2float_fillpre(sellprice,1);
+        java.util.List<Float> kbband_buy = myexcel.string2float_fillpre(buyprice,1);
+        java.util.List<Float> kbband_vol = myexcel.string2float_fillpre(volume,1);
+        List<Float> targetlist = new ArrayList<>();
+        startprice = kbband_deal.get(0);
+        nowprice = kbband_deal.get(kbband_deal.size()-1);
+
+        float target;
+        if(input_target==1) target = kbband_buy.get(0);
+        else target = input_target;
+        int size = kbband_buy.size();
+
+        for(int i =0;i<size;i++) {
+            targetlist.add(target);
+        }
+
+
+        MyChart standard_chart = new MyChart();
+        standard_chart.clearbuffer();
+        chartlist = new ArrayList<FormatChart>();
+
+        chartlist = standard_chart.adddata_float(kbband_sell, "Upper", context.getColor(R.color.Red));
+        standard_chart.adddata_float(kbband_buy, "Low", context.getColor(R.color.LightGray));
+
+        float low_price = Collections.min(kbband_buy);
+        MyStat mystat = new MyStat();
+        List<Float> vol2 = mystat.scaling_float2(kbband_vol,low_price);
+        standard_chart.adddata_float(vol2, "Vol", context.getColor(R.color.SeaGreen));
+
+        chartlist = standard_chart.adddata_float(targetlist, "Start", context.getColor(R.color.Yellow));
+
+
+        Float diff_percent = 100*nowprice/startprice-100;
+        today_level = String.format("%.1f",diff_percent);
+        today_level += "\n" + String.format("%.0f",nowprice);
+        /*
+        //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
+        //chart.addAnnotation(maxText);
+        chart.addAnnotation(
+                new AnnotationTextPanel(anntext, xsize, startprice, false));
+        chart.getStyler().setAnnotationTextPanelPadding(0);
+        chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
+        //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
+        //chart.getStyler().setAnnotationTextPanelBorderColor(Color.BLUE);
+        chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
+        chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
+        */
+        return chartlist;
+    }
+
+    public void fill_chartdata() {
+        int size = mystocklist.size();
+        for(int i =0;i<size;i++) {
+            String stock_code = mystocklist.get(i).stock_code;
+            mystocklist.get(i).chartlist1 = new ArrayList<FormatChart>();
+            mystocklist.get(i).chartlist2 = new ArrayList<FormatChart>();
+            mystocklist.get(i).chartlist1 = GetPeriodChart(stock_code, 120);
+            mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
+        }
+    }
 
     @Override
     public void onDestroyView() {
