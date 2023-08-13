@@ -226,6 +226,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         List<FormatChart> chartlist1 = new ArrayList<>();
         //chartlist = GetPeriodChart(stock_code, 120);
         chartlist1 = mystock.chartlist1;
+        period_level = mystock.period_level;
         if(chartlist1.size() <= 0) return;
         home_chart.multi_chart(homeChart, chartlist1, period_level, false);
 
@@ -233,6 +234,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         List<FormatChart> chartlist2 = new ArrayList<>();
         //chartlist1 = GetTodayChart(stock_code,1);
         chartlist2 = mystock.chartlist2;
+        today_level = mystock.today_level;
         if(chartlist2.size() <= 0) return;
         day_chart.multi_chart(todayChart, chartlist2, today_level, false);
 

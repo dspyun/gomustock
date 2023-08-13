@@ -93,7 +93,7 @@ public class MyChart {
         //setyLAxis(lineChart, true, chartlist.get(0).min, chartlist.get(0).max,true);
         //setyLAxis(lineChart, true, Ymin, Ymax,true);
         setyLAxis(lineChart, true, true);
-        setlegend(lineChart, true);
+        setlegend(lineChart, false); // 그래프를 좀 더 키우기 위해 legend는 off시킴 230813
 
         //lineChart.setBackgroundColor(Color.LTGRAY);
         setdescription(lineChart,true,description,  Color.YELLOW);
@@ -135,7 +135,7 @@ public class MyChart {
         YAxis yLAxis = linechart.getAxisLeft();
         //XAxis xBAxis = linechart.getXAxis();
         setlegend(linechart,false);
-        yLAxis.setTextColor(Color.YELLOW);
+        yLAxis.setTextColor(Color.WHITE);
         //xBAxis.setTextColor(Color.YELLOW);
         linechart.invalidate(); // 차트 업데이트
 
@@ -173,7 +173,7 @@ public class MyChart {
         //setyLAxis(barChart,false,false);
         YAxis yLAxis = linechart.getAxisLeft();
         setlegend(linechart,false);
-        yLAxis.setTextColor(Color.YELLOW);
+        yLAxis.setTextColor(Color.WHITE);
         setdescription(linechart,false,description,Color.YELLOW);
         linechart.invalidate(); // 차트 업데이트
     }
@@ -206,7 +206,7 @@ public class MyChart {
         //setyLAxis(barchart,false,false);
         YAxis yLAxis = barchart.getAxisLeft();
         setlegend(barchart,false);
-        yLAxis.setTextColor(Color.YELLOW);
+        yLAxis.setTextColor(Color.WHITE);
         setdescription(barchart,false,description,Color.YELLOW);
         barchart.invalidate(); // 차트 업데이트
     }
@@ -255,7 +255,7 @@ public class MyChart {
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setEnabled(flag);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(Color.YELLOW);
+        xAxis.setTextColor(Color.WHITE);
         if(GRID_SHOW == TRUE ) {
             xAxis.enableGridDashedLine(8, 24, 0);
         }
@@ -264,7 +264,7 @@ public class MyChart {
         XAxis xAxis = barChart.getXAxis();
         xAxis.setEnabled(flag);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(Color.YELLOW);
+        xAxis.setTextColor(Color.WHITE);
         if(GRID_SHOW == TRUE ) {
             xAxis.enableGridDashedLine(8, 24, 0);
         }
@@ -274,7 +274,7 @@ public class MyChart {
         yLAxis.setAxisMaximum(max);
         yLAxis.setAxisMinimum(min);
         yLAxis.setEnabled(flag);
-        yLAxis.setTextColor(Color.YELLOW);
+        yLAxis.setTextColor(Color.WHITE);
         yLAxis.setDrawLabels(true);
         if(GRID_SHOW == TRUE ) {
             yLAxis.setDrawAxisLine(false);
@@ -284,7 +284,7 @@ public class MyChart {
     public void setyLAxis(LineChart lineChart, Boolean flag, Boolean GRID_SHOW) {
         YAxis yLAxis = lineChart.getAxisLeft();
         yLAxis.setEnabled(flag);
-        yLAxis.setTextColor(Color.YELLOW);
+        yLAxis.setTextColor(Color.WHITE);
         yLAxis.setDrawLabels(true);
         if(GRID_SHOW == TRUE ) {
             yLAxis.setDrawAxisLine(false);
@@ -296,7 +296,7 @@ public class MyChart {
         yLAxis.setAxisMaximum(max);
         yLAxis.setAxisMinimum(min);
         yLAxis.setEnabled(flag);
-        yLAxis.setTextColor(Color.YELLOW);
+        yLAxis.setTextColor(Color.WHITE);
         yLAxis.setDrawLabels(true);
         if(GRID_SHOW == TRUE ) {
             yLAxis.setDrawAxisLine(false);

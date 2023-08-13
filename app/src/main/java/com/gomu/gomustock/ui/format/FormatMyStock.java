@@ -16,4 +16,6 @@ public class FormatMyStock {
     public ByteBuffer img_buf_2;
     public List<FormatChart> chartlist1;
     public List<FormatChart> chartlist2;
+    public String today_level;
+    public String period_level;
 }

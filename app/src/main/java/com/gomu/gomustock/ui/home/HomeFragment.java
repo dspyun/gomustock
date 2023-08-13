@@ -418,16 +418,16 @@ public class HomeFragment extends Fragment {
         //List<Float> x = new ArrayList<>();
         //for(int i =0;i<size;i++) { x.add((float)i); }
 
-        chartlist = standard_chart.adddata_float(kbband_close, stock_code, context.getColor(R.color.Red));
-        standard_chart.adddata_float(bbtest.getUpperLine(), "upper_line", context.getColor(R.color.LightGray));
-        standard_chart.adddata_float(bbtest.getLowLine(), "low_line", context.getColor(R.color.LightGray));
+        chartlist = standard_chart.adddata_float(kbband_close, "", context.getColor(R.color.Red));
+        standard_chart.adddata_float(bbtest.getUpperLine(), "", context.getColor(R.color.LightGray));
+        standard_chart.adddata_float(bbtest.getLowLine(), "", context.getColor(R.color.LightGray));
         List<Float> buyscore = bbtest.scaled_percentb();
-        chartlist = standard_chart.adddata_float(buyscore, "buysignal", context.getColor(R.color.Yellow));
+        chartlist = standard_chart.adddata_float(buyscore, "", context.getColor(R.color.Yellow));
 
 
         Float diff_percent = 100*nowprice/maxprice;
-        period_level = String.format("%.1f",diff_percent);
-        period_level += "\n" + String.format("%.0f",nowprice);
+        period_level = String.format("%.0f",nowprice);
+        period_level += " / " + String.format("%.1f",diff_percent);
 
         return chartlist;
     }
@@ -470,20 +470,20 @@ public class HomeFragment extends Fragment {
         standard_chart.clearbuffer();
         chartlist = new ArrayList<FormatChart>();
 
-        chartlist = standard_chart.adddata_float(kbband_sell, "Upper", context.getColor(R.color.Red));
-        standard_chart.adddata_float(kbband_buy, "Low", context.getColor(R.color.LightGray));
+        chartlist = standard_chart.adddata_float(kbband_sell, "", context.getColor(R.color.Red));
+        standard_chart.adddata_float(kbband_buy, "", context.getColor(R.color.LightGray));
 
         float low_price = Collections.min(kbband_buy);
         MyStat mystat = new MyStat();
         List<Float> vol2 = mystat.scaling_float2(kbband_vol,low_price);
-        standard_chart.adddata_float(vol2, "Vol", context.getColor(R.color.SeaGreen));
+        standard_chart.adddata_float(vol2, "", context.getColor(R.color.SeaGreen));
 
-        chartlist = standard_chart.adddata_float(targetlist, "Start", context.getColor(R.color.Yellow));
+        chartlist = standard_chart.adddata_float(targetlist, "", context.getColor(R.color.Yellow));
 
 
         Float diff_percent = 100*nowprice/startprice-100;
-        today_level = String.format("%.1f",diff_percent);
-        today_level += "\n" + String.format("%.0f",nowprice);
+        today_level = String.format("%.0f",nowprice);
+        today_level += " / " + String.format("%.1f",diff_percent);
         /*
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
@@ -506,7 +506,9 @@ public class HomeFragment extends Fragment {
             mystocklist.get(i).chartlist1 = new ArrayList<FormatChart>();
             mystocklist.get(i).chartlist2 = new ArrayList<FormatChart>();
             mystocklist.get(i).chartlist1 = GetPeriodChart(stock_code, 120);
+            mystocklist.get(i).period_level = period_level;
             mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
+            mystocklist.get(i).today_level = today_level;
         }
     }
 
