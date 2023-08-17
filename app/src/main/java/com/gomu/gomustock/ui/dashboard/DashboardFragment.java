@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -137,9 +138,8 @@ public class DashboardFragment extends Fragment {
             public void onClick(View v) {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 YFDownload_Dialog(recyclerlist);
-                //dl_getStockinfo(recyclerlist);
-                //dl_AgencyForeigne(recyclerlist);
-
+                bd_adapter.refresh();
+                fragment_refresh();
             }
         });
 
@@ -184,7 +184,6 @@ public class DashboardFragment extends Fragment {
                 myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
                 myscore.getPriceThreadStart();
                 bd_adapter.refresh();
-
             }
         });
 
@@ -199,6 +198,11 @@ public class DashboardFragment extends Fragment {
         });
 
         return root;
+    }
+
+    public void fragment_refresh() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(this).attach(this).commit();
     }
 
     public void showDialog_buy(){
@@ -418,6 +422,7 @@ public class DashboardFragment extends Fragment {
                 try {
                     int max = stock_list.size();
                     dlg_bar.setProgress(0);
+                    new YFDownload("^KS200");
                     for(int i=0;i<stock_list.size();i++) {
                         dlg_bar.setProgress(100*(i+1)/max);
                         // 1. 주가를 다운로드 하고

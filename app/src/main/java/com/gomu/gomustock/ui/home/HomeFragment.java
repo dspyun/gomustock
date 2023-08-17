@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -114,12 +115,16 @@ public class HomeFragment extends Fragment {
         if(stop_flag!= true) {
             stop_flag=true;
         }
+
+
         binding.filedownload.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 YFDownload_Dialog(homestock_list);
+                home_adapter.refresh();
+                fragment_refresh();
             }
         });
 
@@ -168,6 +173,12 @@ public class HomeFragment extends Fragment {
             }
         });
         return root;
+    }
+
+
+    public void fragment_refresh() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(this).attach(this).commit();
     }
 
     public void showDialog_buy(){
@@ -371,12 +382,12 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
+    float lastprice;
     public List<FormatChart> GetPeriodChart(String stock_code, int period) {
 
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
         float maxprice;
-        float nowprice;
+
 
         float position;
         int test_period = period;
@@ -410,7 +421,7 @@ public class HomeFragment extends Fragment {
         RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
         List<Float> rsi_line = rsitest.test_line();
         maxprice = Collections.max(kbband_close);
-        nowprice = kbband_close.get(kbband_close.size()-1);
+        lastprice = kbband_close.get(kbband_close.size()-1);
 
         // Create Chart & add first data
         float linewidth=1.5f;
@@ -425,8 +436,8 @@ public class HomeFragment extends Fragment {
         chartlist = standard_chart.adddata_float(buyscore, "", context.getColor(R.color.Yellow));
 
 
-        Float diff_percent = 100*nowprice/maxprice;
-        period_level = String.format("%.0f",nowprice);
+        Float diff_percent = 100*lastprice/maxprice;
+        period_level = String.format("%.0f",lastprice);
         period_level += " / " + String.format("%.1f",diff_percent);
 
         return chartlist;
@@ -481,7 +492,7 @@ public class HomeFragment extends Fragment {
         chartlist = standard_chart.adddata_float(targetlist, "", context.getColor(R.color.Yellow));
 
 
-        Float diff_percent = 100*nowprice/startprice-100;
+        Float diff_percent = 100*nowprice/lastprice-100;
         today_level = String.format("%.0f",nowprice);
         today_level += " / " + String.format("%.1f",diff_percent);
         /*
