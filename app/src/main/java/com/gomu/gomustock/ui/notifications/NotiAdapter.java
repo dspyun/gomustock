@@ -14,6 +14,7 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 
+import java.util.Collections;
 import java.util.List;
 
 public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
@@ -72,17 +73,22 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
         if ((index + 1) < maxlist) onesector2 = sectorinfo.get(index + 1);
 
         if (onesector1.chartdata.size() > 0) {
-            String stock_name1 = onesector1.stock_name;
+            String sector_info = onesector1.stock_name;
+            float max = Collections.max(onesector1.chartdata);
+            float last = onesector1.chartdata.get((onesector1.chartdata.size()-1));
+            sector_info += " " + String.format("%.0f", last) + "/" + String.format("%.0f",100*last/max);
             MyChart noti_chart1 = new MyChart();
-            noti_chart1.single_float(chart1, onesector1.chartdata, stock_name1, false);
+            noti_chart1.single_float(chart1, onesector1.chartdata, sector_info, false);
         }
 
         if (onesector2.chartdata.size() > 0 && (index + 1) < maxlist) {
-            String stock_name2 = onesector2.stock_name;
+            String sector_info2 = onesector2.stock_name;
+            float max = Collections.max(onesector2.chartdata);
+            float last = onesector2.chartdata.get((onesector2.chartdata.size()-1));
+            sector_info2 += " " + String.format("%.0f",last) + "/" + String.format("%.0f",100*last/max);
             MyChart noti_chart2 = new MyChart();
-            noti_chart2.single_float(chart2, onesector2.chartdata, stock_name2, false);
+            noti_chart2.single_float(chart2, onesector2.chartdata, sector_info2, false);
         }
-
     }
     // Return the size of your dataset (invoked by the layout manager)
 
