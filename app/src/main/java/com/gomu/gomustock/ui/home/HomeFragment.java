@@ -43,10 +43,8 @@ import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
@@ -73,7 +71,7 @@ public class HomeFragment extends Fragment {
     Dialog dialog_progress; // 커스텀 다이얼로그
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
-    String today_level="", period_level="";
+    String g_today_level="", g_period_level="";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -100,7 +98,7 @@ public class HomeFragment extends Fragment {
         Cache mycache = new Cache();
         mycache.initialize();
 
-        mystocklist = myexcel.readMyStockList();
+        mystocklist = myexcel.readMyStock();
         homestock_list = makeStocklist(mystocklist);
         FillPriceInStocklist(homestock_list,120);
         fill_chartdata();
@@ -122,7 +120,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                YFDownload_Dialog(homestock_list);
+                YFDownload_Dialog(homestock_list,"All");
                 home_adapter.refresh();
                 fragment_refresh();
             }
@@ -149,11 +147,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                //dl_checkMarketOpen();
-                int size = mystocklist.size();
-                for(int i =0;i<size;i++) {
-                    myexcel.file_delete(mystocklist.get(i)+"_home.png");
-                }
+                YFDownload_Dialog(homestock_list,"TODAY");
             }
         });
         binding.buynew.setOnClickListener(new View.OnClickListener()
@@ -195,13 +189,19 @@ public class HomeFragment extends Fragment {
 ;
                 StockDic stockdic = new StockDic();
 
-                String stock_no = stockdic.getStockcode(name);
+                String code = stockdic.getStockcode(name);
                 //String stock_no = myexcel.find_stockno(name);
-                if(stock_no.equals("")) {
-                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
-                    return;
+                if(code.equals("")) {
+                    EditText stock_code = dialog_buy.findViewById(R.id.stock_name);
+                    code = stock_code.getText().toString();
+                    name = stockdic.getStockname(code);
+                    if(name.equals("")) {
+                        Toast.makeText(context, code + " / " + name + " : 코드/종목명 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
 
+                /* 거래날짜 체크 : 일단 막아놓는다
                 Date buydate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
                 String mybuydate = format.format(buydate);
@@ -209,11 +209,17 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(context, "오늘은 거래날짜가 아닙니다",Toast.LENGTH_SHORT).show();
                     return; // 오늘이 오픈일이 아니면 매도매수 안됨
                 }
+                */
+                // 파일에 저장한다
+                MyExcel myexcel = new MyExcel();
+                List<FormatMyStock> mystock = new ArrayList<>();
+                mystock = myexcel.readMyStock();
+                FormatMyStock newstock = new FormatMyStock();
+                newstock.stock_code = code;
+                newstock.stock_name = name;
+                mystock.add(newstock);
+                myexcel.writeMyStock(mystock);
 
-                // 1. 파일update하고
-                // 2. adapter list update하고
-
-                home_adapter.refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
@@ -237,7 +243,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void YFDownload_Dialog(List<String> stock_list){
+    public void YFDownload_Dialog(List<String> stock_list, String guide){
         dialog_progress.show(); // 다이얼로그 띄우기
         dialog_progress.setCanceledOnTouchOutside(false);
         dialog_progress.setCancelable(false);
@@ -255,8 +261,13 @@ public class HomeFragment extends Fragment {
                     for(int i=0;i<stock_list.size();i++) {
                         dlg_bar.setProgress(100*(i+1)/max);
                         // 1. 주가를 다운로드 하고
-                        new YFDownload(stock_list.get(i)); // 1년치를 다운로드 받고
-                        myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다
+                        if(guide.equals("All")) {
+                            new YFDownload(stock_list.get(i)); // 1년치를 다운로드 받고
+                            myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
+                        } else {
+                            // "TODAY"
+                            myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
+                        }
                     }
                     notice_ok();
                     dialog_progress.dismiss();
@@ -268,7 +279,6 @@ public class HomeFragment extends Fragment {
 
         dlg_thread.start();
     }
-
 
 
     public void dl_checkMarketOpen() {
@@ -353,7 +363,6 @@ public class HomeFragment extends Fragment {
         infodown = view.findViewById(R.id.infodownload);
         dummy = view.findViewById(R.id.dummy);
         history = view.findViewById(R.id.buysellhistory);
-
     }
 
     public void initialize_color() {
@@ -437,8 +446,8 @@ public class HomeFragment extends Fragment {
 
 
         Float diff_percent = 100*lastprice/maxprice;
-        period_level = String.format("%.0f",lastprice);
-        period_level += " / " + String.format("%.1f",diff_percent);
+        g_period_level = String.format("%.0f",lastprice);
+        g_period_level += " / " + String.format("%.1f",diff_percent);
 
         return chartlist;
     }
@@ -476,7 +485,6 @@ public class HomeFragment extends Fragment {
             targetlist.add(target);
         }
 
-
         MyChart standard_chart = new MyChart();
         standard_chart.clearbuffer();
         chartlist = new ArrayList<FormatChart>();
@@ -491,10 +499,10 @@ public class HomeFragment extends Fragment {
 
         chartlist = standard_chart.adddata_float(targetlist, "", context.getColor(R.color.Yellow));
 
-
         Float diff_percent = 100*nowprice/lastprice-100;
-        today_level = String.format("%.0f",nowprice);
-        today_level += " / " + String.format("%.1f",diff_percent);
+        g_today_level = String.format("%.0f",nowprice);
+        g_today_level += " / " + String.format("%.1f",diff_percent);
+
         /*
         //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
         //chart.addAnnotation(maxText);
@@ -517,9 +525,9 @@ public class HomeFragment extends Fragment {
             mystocklist.get(i).chartlist1 = new ArrayList<FormatChart>();
             mystocklist.get(i).chartlist2 = new ArrayList<FormatChart>();
             mystocklist.get(i).chartlist1 = GetPeriodChart(stock_code, 120);
-            mystocklist.get(i).period_level = period_level;
+            mystocklist.get(i).period_level = g_period_level;
             mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
-            mystocklist.get(i).today_level = today_level;
+            mystocklist.get(i).today_level = g_today_level;
         }
     }
 

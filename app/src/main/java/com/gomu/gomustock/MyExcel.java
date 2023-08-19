@@ -1018,43 +1018,6 @@ public class MyExcel extends MyStat{
         return stocklist;
     }
 
-    public List<FormatMyStock> readMyStockList() {
-
-        String temp=null;
-
-        String PathFile = INFODIR+"mystock"+".xls";;
-        List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
-
-
-        try {
-            InputStream is =  new FileInputStream(PathFile);
-            Workbook wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=1;i<size;i++) {
-                        FormatMyStock mystock = new FormatMyStock();
-                        mystock.stock_code = sheet.getCell(0, i).getContents();
-                        mystock.stock_name = sheet.getCell(1, i).getContents();
-                        temp = sheet.getCell(2, i).getContents();
-                        mystock.quantity = Integer.parseInt(temp);
-                        temp = sheet.getCell(3, i).getContents();
-                        mystock.buy_price = Integer.parseInt(temp);
-                        mystocklist.add(mystock);
-                    }
-                }
-            }
-            wb.close();
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
-            e.printStackTrace();
-        }
-        return mystocklist;
-    }
 
     public int getTodayTagColumn(String tag) {
         // default 값은  종가는읽게 6으로 리턴
@@ -1133,5 +1096,96 @@ public class MyExcel extends MyStat{
 
         return pricebuffer_rev;
     }
+
+
+    public void writeMyStock(List<FormatMyStock> information) {
+
+        WritableSheet writablesheet;
+        WritableWorkbook workbook;
+        String PathFile="";
+        PathFile = INFODIR+"mystock"+".xls";
+        java.io.File file1 = new java.io.File(PathFile);
+
+        // 헤더를 붙여준다
+        FormatMyStock info1 = new FormatMyStock();
+        info1.setheader();
+        information.add(0,info1);
+
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet0", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+                int size = information.size();
+                if(writablesheet != null) {
+                    for(int row =0;row<size;row++) {
+                        writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
+                        writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
+                        writablesheet.addCell(new Label(2, row, information.get(row).quantity));
+                        writablesheet.addCell(new Label(3, row, information.get(row).buy_price));
+                        writablesheet.addCell(new Label(4, row, information.get(row).memo01));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+    public List<FormatMyStock> readMyStock() {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile="";
+        PathFile = INFODIR+"mystock"+".xls";
+
+        List<FormatMyStock> mArrayBuffer = new ArrayList<>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatMyStock temp = new FormatMyStock();
+                        temp.stock_code = sheet.getCell(0, i).getContents();
+                        temp.stock_name = sheet.getCell(1, i).getContents();
+                        temp.quantity = sheet.getCell(2, i).getContents();
+                        temp.buy_price = sheet.getCell(3, i).getContents();
+                        temp.memo01 = sheet.getCell(4, i).getContents();
+                        mArrayBuffer.add(temp);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return mArrayBuffer;
+    }
+
 }
 

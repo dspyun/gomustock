@@ -373,7 +373,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         //private View portfolio_list_view;
         LinearLayout home_list_item;
 
-
         int finger_position;
         public ViewHolder(View view)
         {
@@ -451,6 +450,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             va.start();
         }
     }
+
     public String show_myaccount() {
 
         Cache mycache = new Cache();
@@ -459,8 +459,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         int estim_price=0;
 
         if(first_cache ==0) return "";
-        for(int i=0;i<mystocklist.size();i++) {
-            estim_price += mystocklist.get(i).cur_price*mystocklist.get(i).quantity;
+        int size = mystocklist.size();
+        for(int i=0;i<size;i++) {
+            String quantity = mystocklist.get(i).quantity;
+            estim_price += Float.parseFloat(quantity)* mystocklist.get(i).cur_price;
         }
         int total_cache =0;
         total_cache = first_cache + remain_cache + estim_price;
@@ -482,8 +484,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
         int size = mystocklist.size();
         for(int i =0;i<size;i++) {
-            totol_invest_money += mystocklist.get(i).buy_price;
-            total_estim_money += mystocklist.get(i).quantity*mystocklist.get(i).cur_price;;
+            String price = mystocklist.get(i).buy_price;
+            String quantity = mystocklist.get(i).quantity;
+            totol_invest_money += Float.parseFloat(price);
+            total_estim_money += Float.parseFloat(quantity)*Float.parseFloat(price);;
         }
         profit_rate = (total_estim_money/totol_invest_money)*100-100;
         total_earn_money = total_estim_money-totol_invest_money;
@@ -505,7 +509,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         for(int i =0;i<size;i++) {
             List<Float> oneline = new ArrayList<>();
             oneline = mystocklist.get(i).chartdata;
-            int quantity = mystocklist.get(i).quantity;
+            int quantity = Integer.parseInt(mystocklist.get(i).quantity);
             days = oneline.size();
             for(int j =0;j<days;j++) {
                 float sum = sumline.get(j) + oneline.get(j)*quantity;
