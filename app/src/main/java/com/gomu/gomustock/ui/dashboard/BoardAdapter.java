@@ -57,7 +57,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         makePriceBox();
         int i =0;
     }
-
+    public BoardAdapter(Activity context, String filename)
+    {
+        this.context = context;
+        loadRecyclerList(filename);
+        makePriceBox();
+        int i =0;
+    }
     public void refresh( ) {
         notifyDataSetChanged();
     }
@@ -74,12 +80,20 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
     public void loadRecyclerList() {
         web_stockinfo = myexcel.readStockinfo();
-        if(web_stockinfo !=null) {
-            recycler_list.clear();
-            for (int i = 0; i < web_stockinfo.size(); i++) {
-                //if(web_stockinfo.get(i).stock_code.equals("")) continue;
-                recycler_list.add(web_stockinfo.get(i).stock_code);
-            }
+        if(web_stockinfo !=null) recycler_list.clear();
+        for (int i = 0; i < web_stockinfo.size(); i++) {
+            //if(web_stockinfo.get(i).stock_code.equals("")) continue;
+            recycler_list.add(web_stockinfo.get(i).stock_code);
+        }
+        int i =0;
+    }
+
+    public void loadRecyclerList(String filename) {
+        web_stockinfo = myexcel.readStockinfoCustom(filename);
+        if(web_stockinfo !=null) recycler_list.clear();
+        for (int i = 0; i < web_stockinfo.size(); i++) {
+            //if(web_stockinfo.get(i).stock_code.equals("")) continue;
+            recycler_list.add(web_stockinfo.get(i).stock_code);
         }
         int i =0;
     }

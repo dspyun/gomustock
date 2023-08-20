@@ -64,7 +64,7 @@ public class DashboardFragment extends Fragment {
     MyExcel myexcel = new MyExcel();
     StockDic stockdic = new StockDic();
 
-
+    String FILENAME;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         dashboardViewModel =
@@ -104,7 +104,7 @@ public class DashboardFragment extends Fragment {
                 .into(na_zumimage);
         na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
-        String[] items = {"fish","tutle","seal"};
+        String[] items = {"stockinfo","grp_manual","monitor"};
         Spinner spinner = root.findViewById(R.id.spinner);
         spinner = root.findViewById(R.id.spinner);
 
@@ -114,22 +114,9 @@ public class DashboardFragment extends Fragment {
         spinner.setAdapter(monthAdapter); //어댑터에 연결해줍니다.
         spinner.setSelection(0);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("slected " + items[position]);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-
-        });
-
-
+        FILENAME = "stockinfo";
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bd_adapter = new BoardAdapter( getActivity());
+        bd_adapter = new BoardAdapter( getActivity(),FILENAME);
         binding.recyclerView.setAdapter(bd_adapter);
 
         // adapter초기화 후 생성된 recyclerlist를
@@ -176,6 +163,27 @@ public class DashboardFragment extends Fragment {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 scoringstock(recyclerlist);
             }
+        });
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("slected " + items[position]);
+                FILENAME = items[position];
+                bd_adapter = new BoardAdapter( getActivity(),FILENAME);
+                binding.recyclerView.setAdapter(bd_adapter);
+
+                bd_adapter.refresh();
+                fragment_refresh();
+                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                myscore.getPriceThreadStart();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
         });
 
         binding.dashAddnew.setOnClickListener(new View.OnClickListener()
