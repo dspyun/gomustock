@@ -14,9 +14,12 @@ import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,6 +104,30 @@ public class DashboardFragment extends Fragment {
                 .into(na_zumimage);
         na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
 
+        String[] items = {"fish","tutle","seal"};
+        Spinner spinner = root.findViewById(R.id.spinner);
+        spinner = root.findViewById(R.id.spinner);
+
+        ArrayAdapter monthAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, items);
+        //R.array.test는 저희가 정의해놓은 1월~12월 / android.R.layout.simple_spinner_dropdown_item은 기본으로 제공해주는 형식입니다.
+        monthAdapter.setDropDownViewResource(R.layout.spinner_list);
+        spinner.setAdapter(monthAdapter); //어댑터에 연결해줍니다.
+        spinner.setSelection(0);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("slected " + items[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
+
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         bd_adapter = new BoardAdapter( getActivity());
         binding.recyclerView.setAdapter(bd_adapter);
@@ -148,42 +175,6 @@ public class DashboardFragment extends Fragment {
             public void onClick(View v) {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 scoringstock(recyclerlist);
-            }
-        });
-
-        tvDummy01.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                bd_adapter = new BoardAdapter( getActivity());
-                binding.recyclerView.setAdapter(bd_adapter);
-
-                // adapter초기화 후 생성된 recyclerlist를
-                // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
-                // scoring을 할 준비를 한다
-                // 나중에 사용자가 update버튼으로 score를 수동 update한다.
-                myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
-                myscore.getPriceThreadStart();
-                bd_adapter.refresh();
-            }
-        });
-
-        tvDummy02.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                bd_adapter = new BoardAdapter( getActivity());
-                binding.recyclerView.setAdapter(bd_adapter);
-
-                // adapter초기화 후 생성된 recyclerlist를
-                // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
-                // scoring을 할 준비를 한다
-                // 나중에 사용자가 update버튼으로 score를 수동 update한다.
-                myscore = new MyScore(bd_adapter.getRecyclerList(), "069500");
-                myscore.getPriceThreadStart();
-                bd_adapter.refresh();
             }
         });
 
@@ -297,8 +288,6 @@ public class DashboardFragment extends Fragment {
     public void initResource(View v) {
         tvDownload= v.findViewById(R.id.tv_dl);
         tvUpdate = v.findViewById(R.id.tv_update);
-        tvDummy01 = v.findViewById(R.id.tv_dummy01);
-        tvDummy02 = v.findViewById(R.id.tv_dummy02);
         imgAddlist = v.findViewById(R.id.dash_addnew);
         recyclerView = v.findViewById(R.id.recycler_view);
     }

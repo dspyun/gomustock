@@ -484,10 +484,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
         int size = mystocklist.size();
         for(int i =0;i<size;i++) {
+            int curwprice = mystocklist.get(i).cur_price;
             String price = mystocklist.get(i).buy_price;
             String quantity = mystocklist.get(i).quantity;
-            totol_invest_money += Float.parseFloat(price);
-            total_estim_money += Float.parseFloat(quantity)*Float.parseFloat(price);;
+            totol_invest_money += Float.parseFloat(price)*Float.parseFloat(quantity);
+            total_estim_money += Float.parseFloat(quantity)*curwprice;;
         }
         profit_rate = (total_estim_money/totol_invest_money)*100-100;
         total_earn_money = total_estim_money-totol_invest_money;

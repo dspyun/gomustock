@@ -150,6 +150,7 @@ public class HomeFragment extends Fragment {
                 YFDownload_Dialog(homestock_list,"TODAY");
             }
         });
+
         binding.buynew.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -227,7 +228,45 @@ public class HomeFragment extends Fragment {
         dialog_buy.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 원하는 기능 구현
+                EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
+                String name = stock_name.getText().toString();
+                ;
+                StockDic stockdic = new StockDic();
+
+                String code = stockdic.getStockcode(name);
+                //String stock_no = myexcel.find_stockno(name);
+                if(code.equals("")) {
+                    EditText stock_code = dialog_buy.findViewById(R.id.stock_name);
+                    code = stock_code.getText().toString();
+                    name = stockdic.getStockname(code);
+                    if(name.equals("")) {
+                        Toast.makeText(context, code + " / " + name + " : 코드/종목명 오류", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                /* 거래날짜 체크 : 일단 막아놓는다
+                Date buydate = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                String mybuydate = format.format(buydate);
+                if(!latestOpenday.equals(mybuydate)) {
+                    Toast.makeText(context, "오늘은 거래날짜가 아닙니다",Toast.LENGTH_SHORT).show();
+                    return; // 오늘이 오픈일이 아니면 매도매수 안됨
+                }
+                */
+                // 파일에 저장한다
+                MyExcel myexcel = new MyExcel();
+                List<FormatMyStock> mystock = new ArrayList<>();
+                mystock = myexcel.readMyStock();
+                int size = mystock.size();
+                for(int i =0;i<size;i++) {
+                    if(mystock.get(i).stock_code.equals(code)) {
+                        mystock.remove(i);
+                        break;
+                    }
+                }
+                myexcel.writeMyStock(mystock);
+
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
@@ -422,7 +461,7 @@ public class HomeFragment extends Fragment {
         MyStat mystat = new MyStat();
         PriceBox kbbank = new PriceBox(stock_code);
         List<Float> kbband_close = kbbank.getClose(test_period);
-        if(kbband_close.get(0)==0 || kbband_close.size() < test_period) {
+        if(kbband_close.get(0)==0 || kbband_close.size() < test_period || kbbank.checkFile()==false) {
             //XYChart chart  = new XYChartBuilder().width(300).height(200).build();
             return chartlist;
         }
@@ -460,7 +499,7 @@ public class HomeFragment extends Fragment {
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
 
         MyExcel myexcel = new MyExcel();
-        if(!myexcel.file_check(stock_code)) {
+        if(!myexcel.file_check(stock_code+"today")) {
             return chartlist;
         }
 
@@ -503,18 +542,7 @@ public class HomeFragment extends Fragment {
         g_today_level = String.format("%.0f",nowprice);
         g_today_level += " / " + String.format("%.1f",diff_percent);
 
-        /*
-        //AnnotationText maxText = new AnnotationText(anntext, series.getXMax(), nowprice*0.9, false);
-        //chart.addAnnotation(maxText);
-        chart.addAnnotation(
-                new AnnotationTextPanel(anntext, xsize, startprice, false));
-        chart.getStyler().setAnnotationTextPanelPadding(0);
-        chart.getStyler().setAnnotationTextPanelFont(new Font("Verdana", Font.BOLD, 12));
-        //chart.getStyler().setAnnotationTextPanelBackgroundColor(Color.RED);
-        //chart.getStyler().setAnnotationTextPanelBorderColor(Color.BLUE);
-        chart.getStyler().setAnnotationTextPanelFontColor(Color.BLACK);
-        chart.getStyler().setAnnotationTextPanelBorderColor(Color.WHITE);
-        */
+
         return chartlist;
     }
 

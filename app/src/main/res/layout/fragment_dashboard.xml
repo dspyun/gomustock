@@ -80,32 +80,11 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?android:attr/selectableItemBackground"/>
-                        <TextView
-                            android:id="@+id/tv_dummy01"
-                            android:layout_width="@dimen/grid_width"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical|right"
-                            android:text="그룹1\n"
-                            android:textColor="@color/LightGray"
-                            android:textSize="14sp"
-                            android:background="@xml/bg_custom_button"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?android:attr/selectableItemBackground"/>
-                        <TextView
-                            android:id="@+id/tv_dummy02"
-                            android:layout_width="@dimen/grid_width"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="그룹2\n"
-                            android:gravity="center_vertical|right"
-                            android:textColor="@color/LightGray"
-                            android:textSize="14sp"
-                            android:background="@xml/bg_custom_button"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?android:attr/selectableItemBackground"/>
+                        <Spinner
+                            android:id="@+id/spinner"
+                            android:layout_centerHorizontal="true"
+                            android:layout_width="160dp"
+                            android:layout_height="wrap_content"/>
 
                         <ImageView
                             android:id="@+id/dash_addnew"

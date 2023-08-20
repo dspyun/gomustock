@@ -23,6 +23,13 @@ public class PriceBox {
         loadExcelData();
     }
 
+    public boolean checkFile() {
+        boolean flag = false;
+        if(myexcel.file_check(STOCK_CODE)) flag = true;
+        else flag = false;
+
+        return flag;
+    }
     void loadExcelData() {
         List<FormatOHLCV> ohlcvlist = new ArrayList<>();
         ohlcvlist = myexcel.readall_ohlcv(STOCK_CODE);
