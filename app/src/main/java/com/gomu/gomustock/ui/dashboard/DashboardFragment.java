@@ -240,7 +240,7 @@ public class DashboardFragment extends Fragment {
                 if(!adapterList.contains(stock_code)) {
                     adapterList.add(stock_code);
                     // 파일에도 추가해주고..info는 추가로 불러와야 함
-                    addInfoFile(stock_code);
+                    addInfoFile(stock_code,bd_adapter.getFilename());
                     bd_adapter.putRecyclerList(adapterList);
                 }
 
@@ -284,7 +284,7 @@ public class DashboardFragment extends Fragment {
                     }
                 }
                 // 파일에도 추가해주고..info는 추가로 불러와야 함
-                delInfoFile(stock_code);
+                delInfoFile(stock_code,bd_adapter.getFilename());
                 bd_adapter.putRecyclerList(adapterList);
                 bd_adapter.refresh();
                 dialog_buy.dismiss(); // 다이얼로그 닫기
@@ -353,9 +353,9 @@ public class DashboardFragment extends Fragment {
         webView.loadUrl(myurl);;
     }
 
-    public void addInfoFile(String stockcode) {
+    public void addInfoFile(String stockcode,String filename) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfo();
+        List<FormatStockInfo> infolist = myexcel.readStockinfoCustom(filename);
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 없으면 추가, 있으면 건너뛰기
         int size = infolist.size();
@@ -368,11 +368,11 @@ public class DashboardFragment extends Fragment {
             newcode.addStockcode(stockcode);
             infolist.add(newcode);
         }
-        myexcel.writestockinfo(infolist);
+        myexcel.writestockinfoCustom(filename,infolist);
     }
-    public void delInfoFile(String stockcode) {
+    public void delInfoFile(String stockcode,String filename) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfo();
+        List<FormatStockInfo> infolist = myexcel.readStockinfoCustom(filename);
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 있으면 삭제
         int size = infolist.size();
@@ -382,7 +382,7 @@ public class DashboardFragment extends Fragment {
                 break;
             }
         }
-        myexcel.writestockinfo(infolist);
+        myexcel.writestockinfoCustom(filename,infolist);
     }
 
 

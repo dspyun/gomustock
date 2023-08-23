@@ -43,7 +43,7 @@ public class FormatStockInfo {
 
     public String toString() {
         String stock_info="";
-        stock_info += ranking + ", 배당률 = " +div_rate + "\n";
+        stock_info += ranking + ", 배당률 = " + div_rate + "\n";
         stock_info += "투자의견 = "+ recommend + "\n";
         stock_info += "PER = " + per + "\n";
         stock_info += "예상PER = " + expect_per + "\n";

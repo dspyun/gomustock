@@ -46,7 +46,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     public List<PriceBox> priceboxlist = new ArrayList<PriceBox>();
     List<String> recycler_list = new ArrayList<>();
     StockDic stockdic = new StockDic();
-    int INDEX;
+    String FILENAME;
 
 
     int TEST_PERIOD=120;
@@ -60,6 +60,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     public BoardAdapter(Activity context, String filename)
     {
         this.context = context;
+        this.FILENAME = filename;
         loadRecyclerList(filename);
         makePriceBox();
         int i =0;
@@ -96,6 +97,10 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             recycler_list.add(web_stockinfo.get(i).stock_code);
         }
         int i =0;
+    }
+
+    public String getFilename() {
+        return FILENAME;
     }
 
     public String getStockInfo(String stock_code) {
