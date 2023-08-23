@@ -154,15 +154,16 @@ public class MyWeb {
 
         List<String> agent = new ArrayList<>();
         List<String> fogn = new ArrayList<>();
+        // error 발생할 경우를 대비해 dummy를 채워 넣는다
+        for(int i =0;i<20;i++) {
+            agent.add("");
+            fogn.add("");
+            result.add(agent);
+            result.add(fogn);
+        }
 
         if(!checkKRStock(stock_code)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
-            for(int i =0;i<20;i++) {
-                agent.add("");
-                fogn.add("");
-            }
-            result.add(agent);
-            result.add(fogn);
             return result;
         }
 
@@ -175,6 +176,12 @@ public class MyWeb {
             Document doc;
             doc = Jsoup.connect(URL).get();
             Elements classinfo = doc.select(".inner_sub");
+            if(classinfo.size() == 0 ) {
+                return result;
+            }
+
+            agent.clear();
+            fogn.clear();
             Element table1 = classinfo.select("table").get(1);
             Elements trlist = table1.select("tr");
 
@@ -216,6 +223,9 @@ public class MyWeb {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            result.add(agent);
+            result.add(fogn);
+            return result;
         }
 
         result.add(agent);

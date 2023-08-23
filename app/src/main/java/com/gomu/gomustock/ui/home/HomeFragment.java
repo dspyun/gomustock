@@ -503,14 +503,18 @@ public class HomeFragment extends Fragment {
             return chartlist;
         }
 
-        java.util.List<String> dealprice = myexcel.readtodayprice(stock_code+"today","DEAL",-1,false);
-        java.util.List<String> sellprice = myexcel.readtodayprice(stock_code+"today","SELL",-1,false);
-        java.util.List<String> buyprice = myexcel.readtodayprice(stock_code+"today","BUY",-1,false);
-        java.util.List<String> volume = myexcel.readtodayprice(stock_code+"today","VOLUME",-1,false);
-        java.util.List<Float> kbband_deal = myexcel.string2float_fillpre(dealprice,1);
-        java.util.List<Float> kbband_sell = myexcel.string2float_fillpre(sellprice,1);
-        java.util.List<Float> kbband_buy = myexcel.string2float_fillpre(buyprice,1);
-        java.util.List<Float> kbband_vol = myexcel.string2float_fillpre(volume,1);
+        List<String> dealprice = myexcel.readtodayprice(stock_code+"today","DEAL",-1,false);
+        List<String> sellprice = myexcel.readtodayprice(stock_code+"today","SELL",-1,false);
+        List<String> buyprice = myexcel.readtodayprice(stock_code+"today","BUY",-1,false);
+        List<String> volume = myexcel.readtodayprice(stock_code+"today","VOLUME",-1,false);
+        List<Float> kbband_deal = myexcel.string2float_fillpre(dealprice,1);
+        List<Float> kbband_sell = myexcel.string2float_fillpre(sellprice,1);
+        List<Float> kbband_buy = myexcel.string2float_fillpre(buyprice,1);
+        List<Float> kbband_vol = myexcel.string2float_fillpre(volume,1);
+
+        if(kbband_deal.size() == 0 || kbband_sell.size()==0 ||kbband_buy.size() == 0 ||  kbband_vol.size()==0) {
+            return chartlist;
+        }
         List<Float> targetlist = new ArrayList<>();
         startprice = kbband_deal.get(0);
         nowprice = kbband_deal.get(kbband_deal.size()-1);

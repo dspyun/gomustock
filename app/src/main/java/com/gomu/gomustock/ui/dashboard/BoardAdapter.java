@@ -210,13 +210,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
             pricelist = myexcel.read_ohlcv("^KS200", "CLOSE", TEST_PERIOD, false);
             //pricelist = myexcel.arrangeRev_string(pricelist);
             chart_data2 = myexcel.oa_standardization(pricelist);
+            if(chart_data2.size() ==0) chart_data2 = chart_data1;
         }
         chartlist = standard_chart.adddata_float(chart_data2, "KOSPI200", context.getColor(R.color.White));
 
         //standard_chart.setYMinmax(-3, 3);
         standard_chart.multi_chart(lineChart, chartlist, "표준화차트", false);
         //kospi_chart.single_chart(lineChart,chart_data1,color1,true);
-
     }
 
     @Override
