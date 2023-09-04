@@ -10,10 +10,20 @@ public class BoardSubOption implements Serializable {
     String stock_name;
     String region;
     String basic_info;
+    String stat_info;
 
     public BoardSubOption(){
 
     }
+    public BoardSubOption(String layout, String stockcode, String stockname, String basicinfo, String statinfo){
+
+        this.layout = layout;
+        this.stock_code = stockcode;
+        this.stock_name = stockname;
+        this.basic_info = basicinfo;
+        this.stat_info = statinfo;
+    }
+
     public BoardSubOption(String layout, String stockcode, String stockname, String basicinfo){
 
         this.layout = layout;
@@ -38,5 +48,6 @@ public class BoardSubOption implements Serializable {
     public String getStockcode() { return stock_code; }
     public String getRegion() { return region; }
     public String getStockinfo() { return basic_info; }
+    public String getStatinfo() { return stat_info; }
 
 }

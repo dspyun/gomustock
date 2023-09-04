@@ -265,7 +265,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
                     //System.out.println("boardview " + stock_code + " " + stock_name + "finger " + String.valueOf(finger_position));
 
                     String stock_info = web_stockinfo.get(position).toString();
-                    BoardSubOption suboption = new BoardSubOption("inform",stock_code, stock_name, stock_info);
+                    String stock_stat = web_stockinfo.get(position).fninfo;
+                    BoardSubOption suboption = new BoardSubOption("inform",stock_code, stock_name, stock_info, stock_stat);
 
                     Intent intent = new Intent(context, BoardInfoActivity.class);
                     intent.putExtra("class",suboption);
@@ -283,7 +284,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
                     //System.out.println("boardview " + stock_code + " " + stock_name + "finger " + String.valueOf(finger_position));
 
                     String stock_info = web_stockinfo.get(position).toString();
-                    BoardSubOption suboption = new BoardSubOption("inform",stock_code, stock_name, stock_info);
+                    String stock_stat = web_stockinfo.get(position).fninfo;
+                    BoardSubOption suboption = new BoardSubOption("inform",stock_code, stock_name, stock_info, stock_stat);
 
                     Intent intent = new Intent(context, BoardChartActivity.class);
                     intent.putExtra("class",suboption);

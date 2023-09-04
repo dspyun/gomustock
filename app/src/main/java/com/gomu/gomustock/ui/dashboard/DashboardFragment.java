@@ -37,6 +37,7 @@ import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
+import com.gomu.gomustock.network.fnGuide;
 import com.gomu.gomustock.stockengin.MyScore;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -420,6 +421,7 @@ public class DashboardFragment extends Fragment {
                     int max = stock_list.size();
                     dlg_bar.setProgress(0);
                     new YFDownload("^KS200");
+                    fnGuide myfnguide = new fnGuide();
                     for(int i=0;i<stock_list.size();i++) {
                         dlg_bar.setProgress(100*(i+1)/max);
                         // 1. 주가를 다운로드 하고
@@ -433,10 +435,12 @@ public class DashboardFragment extends Fragment {
                                 market.equals("KOSDAQ GLOBAL") || market.equals("KONEX")) {
                             info = myweb.getNaverStockinfo(stock_list.get(i));
                             info.stock_code = stock_list.get(i);
+                            info.fninfo = myfnguide.getFnguideInfo(info.stock_code);
                         }
                         web_stockinfo.add(i,info);
                     }
-                    myexcel.writestockinfo(web_stockinfo);
+                    //myexcel.writestockinfo(web_stockinfo);
+                    myexcel.writestockinfoCustom(FILENAME,web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {

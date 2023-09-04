@@ -3,6 +3,7 @@ package com.gomu.gomustock.network;
 import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
+import com.gomu.gomustock.ui.format.FormatETFInfo;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
 import com.gomu.gomustock.ui.format.FormatSector;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -675,6 +676,65 @@ public class MyWeb {
             e.printStackTrace();
         };
         return naverpricelist;
+    }
+
+
+    public FormatETFInfo getNaverETFinfo(String stock_code) {
+        FormatETFInfo result = new FormatETFInfo();
+
+        System.out.println("stock_code = " + stock_code+"\n");
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            result.init();
+            return result;
+        }
+        try {
+            String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
+            //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
+            Element giname = classinfo0.select("h2").get(0);
+            result.stock_name = giname.text();
+
+            Elements plist = classinfo0.select(".summary_info");
+            int size = plist.size();
+            for(int i =0;i<size;i++) {
+                result.desc = plist.get(i).text() + "\n";
+            }
+
+            Elements classinfo1 = doc.select("#tab_con1"); // id 가져오기
+            Elements trlist = classinfo1.select("tr");
+
+            result.market_sum = trlist.get(0).select("td").get(0).text();
+            result.fund_fee =  trlist.get(6).select("td").get(0).text();
+            result.nav = trlist.get(8).select("td").get(0).text();
+            result.m1_profit_rate = trlist.get(9).select("td").get(0).text();
+            result.m3_profit_rate = trlist.get(10).select("td").get(0).text();
+            result.m6_profit_rate = trlist.get(11).select("td").get(0).text();
+            result.y1_profit_rate = trlist.get(12).select("td").get(0).text();
+            result.stock_code = stock_code;
+            //result.op_profit = td1_list.get(3).text();
+
+            Elements tableinfo = doc.getElementsByClass("section etf_asset"); // class 가져오기
+            //Elements classlinfo = doc.getElementsByClass("ETF 주요 구성자산");
+            //Elements tableinfo = classinfo2.select("table"); // class 가져오기
+            //Elements tbodyinfo = tableinfo.select("tbody"); // class 가져오기
+            Elements tdlist = tableinfo.select("td"); // class 가져오기
+            Elements linklist = tdlist.select("a");
+            result.companies="";// class 가져오기
+            int size1 = linklist.size();
+            for(int i =0;i<size1;i++) {
+                String name = linklist.get(i).text();
+                if(!name.equals("") && !name.equals("null")) result.companies += name +" ";
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
 

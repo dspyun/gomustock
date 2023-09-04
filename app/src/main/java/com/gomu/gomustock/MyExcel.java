@@ -798,8 +798,17 @@ public class MyExcel extends MyStat{
                         writablesheet.addCell(new Label(10, row, information.get(row).cur_price));
                         writablesheet.addCell(new Label(11, row, information.get(row).score));
                         writablesheet.addCell(new Label(12, row, information.get(row).desc));
-
-
+                        writablesheet.addCell(new Label(13, row, information.get(row).desc));
+                        writablesheet.addCell(new Label(14, row, information.get(row).news));
+                        writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
+                        writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
+                        writablesheet.addCell(new Label(17, row, information.get(row).nav));
+                        writablesheet.addCell(new Label(18, row, information.get(row).etfcompanies));
+                        writablesheet.addCell(new Label(19, row, "-"));
+                        writablesheet.addCell(new Label(20, row, "-"));
+                        writablesheet.addCell(new Label(21, row, "-"));
+                        writablesheet.addCell(new Label(22, row, "-"));
+                        writablesheet.addCell(new Label(23, row, "-"));
                     }
                 }
             }
@@ -822,44 +831,53 @@ public class MyExcel extends MyStat{
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
+        List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
+
         int line, col;
         String PathFile="";
         PathFile = INFODIR+filename+".xls";
-
-        List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
+        if(file_check(PathFile)) {
+            FormatStockInfo oneinfo = new FormatStockInfo();
+            oneinfo.init();
+            mArrayBuffer.add(oneinfo);
+            return mArrayBuffer;
+        }
 
         try {
             is =  new FileInputStream(PathFile);
             wb = Workbook.getWorkbook(is);
-            if(wb != null) {
-                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
-                if(sheet != null) {
-                    // line1, col1에서 contents를 읽는다.
-                    int size = sheet.getColumn(0).length;
-                    for(int i=1;i<size;i++) {
-                        FormatStockInfo temp = new FormatStockInfo();
-                        temp.stock_code = sheet.getCell(0, i).getContents();
-                        temp.stock_name = sheet.getCell(1, i).getContents();
-                        temp.ranking = sheet.getCell(2, i).getContents();
-                        temp.per = sheet.getCell(3, i).getContents();
-                        temp.expect_per = sheet.getCell(4, i).getContents();
-                        temp.area_per = sheet.getCell(5, i).getContents();
-                        temp.pbr = sheet.getCell(6, i).getContents();
-                        temp.div_rate = sheet.getCell(7, i).getContents();
-                        temp.fogn_rate = sheet.getCell(8, i).getContents();
-                        temp.recommend = sheet.getCell(9, i).getContents();
-                        temp.cur_price = sheet.getCell(10, i).getContents();
-                        temp.score = sheet.getCell(11, i).getContents();
-                        temp.desc = sheet.getCell(12, i).getContents();
-                        mArrayBuffer.add(temp);
-                    }
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                int start = 1;
+                for(int i=start;i<size;i++) {
+                    FormatStockInfo temp = new FormatStockInfo();
+                    temp.stock_code = sheet.getCell(0, i).getContents();
+                    temp.stock_name = sheet.getCell(1, i).getContents();
+                    temp.stock_type = sheet.getCell(2, i).getContents();
+                    temp.ranking = sheet.getCell(3, i).getContents();
+                    temp.per = sheet.getCell(4, i).getContents();
+                    temp.expect_per = sheet.getCell(5, i).getContents();
+                    temp.area_per = sheet.getCell(6, i).getContents();
+                    temp.pbr = sheet.getCell(7, i).getContents();
+                    temp.div_rate = sheet.getCell(8, i).getContents();
+                    temp.fogn_rate = sheet.getCell(9, i).getContents();
+                    temp.recommend = sheet.getCell(10, i).getContents();
+                    temp.cur_price = sheet.getCell(11, i).getContents();
+                    temp.score = sheet.getCell(12, i).getContents();
+                    temp.desc = sheet.getCell(13, i).getContents();
+                    temp.news = sheet.getCell(14, i).getContents();
+                    temp.fninfo = sheet.getCell(15, i).getContents();
+                    temp.etfinfo = sheet.getCell(16, i).getContents();
+                    temp.nav = sheet.getCell(17, i).getContents();
+                    temp.etfcompanies = sheet.getCell(18, i).getContents();
+                    mArrayBuffer.add(temp);
                 }
             }
             wb.close();
             is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (BiffException e) {
+        } catch (IOException | BiffException e) {
             e.printStackTrace();
         }
         return mArrayBuffer;
@@ -1253,13 +1271,13 @@ public class MyExcel extends MyStat{
         }
     }
 
-    public List<FormatMyStock> readMyStock() {
+    public List<FormatMyStock> readMyStock(String filename) {
         InputStream is=null;
         Workbook wb=null;
         String contents1=null;
         int line, col;
         String PathFile="";
-        PathFile = INFODIR+"mystock"+".xls";
+        PathFile = INFODIR+filename+".xls";
 
         List<FormatMyStock> mArrayBuffer = new ArrayList<>();
 

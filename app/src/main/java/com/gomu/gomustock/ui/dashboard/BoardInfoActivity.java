@@ -18,7 +18,7 @@ public class BoardInfoActivity extends AppCompatActivity {
     BoardSubOption suboption;
     FormatStockInfo basic_info = new FormatStockInfo();
 
-    TextView mytext, stock_news, company_info;
+    TextView mytext, stock_news, company_info, stock_stat;
     String SHORT_NEWS;
     String COMPANY_INFO;
 
@@ -33,15 +33,18 @@ public class BoardInfoActivity extends AppCompatActivity {
         setContentView(R.layout.board_sub_info);
 
         mytext = findViewById(R.id.bd_info_text);
+        stock_stat = findViewById(R.id.bd_stat_text);
         stock_news = findViewById(R.id.bd_news_text);
         company_info = findViewById(R.id.bd_company_info);
 
         String stock_name = suboption.getStockname();
         String stock_code = suboption.getStockcode();
         String stock_info = suboption.getStockinfo();
+        String stat_info = suboption.getStatinfo();
         String information = stock_name + " " + stock_code + "\n" +
                 stock_info + "\n";
         mytext.setText(information);
+        stock_stat.setText(stat_info);
 
         dl_shortnews(stock_code);
     }

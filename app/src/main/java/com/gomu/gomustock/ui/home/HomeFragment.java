@@ -33,6 +33,7 @@ import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentHomeBinding;
 import com.gomu.gomustock.graph.MyChart;
+import com.gomu.gomustock.network.InfoDownload;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.BBandTest;
@@ -98,7 +99,7 @@ public class HomeFragment extends Fragment {
         Cache mycache = new Cache();
         mycache.initialize();
 
-        mystocklist = myexcel.readMyStock();
+        mystocklist = myexcel.readMyStock("mystock");
         homestock_list = makeStocklist(mystocklist);
         FillPriceInStocklist(homestock_list,120);
         fill_chartdata();
@@ -193,7 +194,7 @@ public class HomeFragment extends Fragment {
                 String code = stockdic.getStockcode(name);
                 //String stock_no = myexcel.find_stockno(name);
                 if(code.equals("")) {
-                    EditText stock_code = dialog_buy.findViewById(R.id.stock_name);
+                    EditText stock_code = dialog_buy.findViewById(R.id.stock_code);
                     code = stock_code.getText().toString();
                     name = stockdic.getStockname(code);
                     if(name.equals("")) {
@@ -214,7 +215,7 @@ public class HomeFragment extends Fragment {
                 // 파일에 저장한다
                 MyExcel myexcel = new MyExcel();
                 List<FormatMyStock> mystock = new ArrayList<>();
-                mystock = myexcel.readMyStock();
+                mystock = myexcel.readMyStock("mystock");
                 FormatMyStock newstock = new FormatMyStock();
                 newstock.stock_code = code;
                 newstock.stock_name = name;
@@ -230,13 +231,13 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 EditText stock_name = dialog_buy.findViewById(R.id.stock_name);
                 String name = stock_name.getText().toString();
-                ;
+
                 StockDic stockdic = new StockDic();
 
                 String code = stockdic.getStockcode(name);
                 //String stock_no = myexcel.find_stockno(name);
                 if(code.equals("")) {
-                    EditText stock_code = dialog_buy.findViewById(R.id.stock_name);
+                    EditText stock_code = dialog_buy.findViewById(R.id.stock_code);
                     code = stock_code.getText().toString();
                     name = stockdic.getStockname(code);
                     if(name.equals("")) {
@@ -257,7 +258,7 @@ public class HomeFragment extends Fragment {
                 // 파일에 저장한다
                 MyExcel myexcel = new MyExcel();
                 List<FormatMyStock> mystock = new ArrayList<>();
-                mystock = myexcel.readMyStock();
+                mystock = myexcel.readMyStock("mystock");
                 int size = mystock.size();
                 for(int i =0;i<size;i++) {
                     if(mystock.get(i).stock_code.equals(code)) {
@@ -292,10 +293,12 @@ public class HomeFragment extends Fragment {
             MyWeb myweb = new MyWeb();
             MyExcel myexcel = new MyExcel();
             List<FormatStockInfo> web_stockinfo = new ArrayList<FormatStockInfo>();
+            FormatStockInfo oneinfo = new FormatStockInfo();
             public void run() {
                 try {
                     int hour = 4;
                     int max = stock_list.size();
+                    InfoDownload info = new InfoDownload();
                     dlg_bar.setProgress(0);
                     for(int i=0;i<stock_list.size();i++) {
                         dlg_bar.setProgress(100*(i+1)/max);
@@ -303,11 +306,14 @@ public class HomeFragment extends Fragment {
                         if(guide.equals("All")) {
                             new YFDownload(stock_list.get(i)); // 1년치를 다운로드 받고
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
+                            oneinfo = info.downloadStockInfoOne(stock_list.get(i));
+                            web_stockinfo.add(oneinfo);
                         } else {
                             // "TODAY"
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
                         }
                     }
+                    myexcel.writestockinfoCustom("mystock",web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
