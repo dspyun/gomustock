@@ -787,17 +787,17 @@ public class MyExcel extends MyStat{
                     for(int row =0;row<size;row++) {
                         writablesheet.addCell(new Label(0, row, information.get(row).stock_code));
                         writablesheet.addCell(new Label(1, row, information.get(row).stock_name));
-                        writablesheet.addCell(new Label(2, row, information.get(row).ranking));
-                        writablesheet.addCell(new Label(3, row, information.get(row).per));
-                        writablesheet.addCell(new Label(4, row, information.get(row).expect_per));
-                        writablesheet.addCell(new Label(5, row, information.get(row).area_per));
-                        writablesheet.addCell(new Label(6, row, information.get(row).pbr));
-                        writablesheet.addCell(new Label(7, row, information.get(row).div_rate));
-                        writablesheet.addCell(new Label(8, row, information.get(row).fogn_rate));
-                        writablesheet.addCell(new Label(9, row, information.get(row).recommend));
-                        writablesheet.addCell(new Label(10, row, information.get(row).cur_price));
-                        writablesheet.addCell(new Label(11, row, information.get(row).score));
-                        writablesheet.addCell(new Label(12, row, information.get(row).desc));
+                        writablesheet.addCell(new Label(2, row, information.get(row).stock_type));
+                        writablesheet.addCell(new Label(3, row, information.get(row).ranking));
+                        writablesheet.addCell(new Label(4, row, information.get(row).per));
+                        writablesheet.addCell(new Label(5, row, information.get(row).expect_per));
+                        writablesheet.addCell(new Label(6, row, information.get(row).area_per));
+                        writablesheet.addCell(new Label(7, row, information.get(row).pbr));
+                        writablesheet.addCell(new Label(8, row, information.get(row).div_rate));
+                        writablesheet.addCell(new Label(9, row, information.get(row).fogn_rate));
+                        writablesheet.addCell(new Label(10, row, information.get(row).recommend));
+                        writablesheet.addCell(new Label(11, row, information.get(row).cur_price));
+                        writablesheet.addCell(new Label(12, row, information.get(row).score));
                         writablesheet.addCell(new Label(13, row, information.get(row).desc));
                         writablesheet.addCell(new Label(14, row, information.get(row).news));
                         writablesheet.addCell(new Label(15, row, information.get(row).fninfo));

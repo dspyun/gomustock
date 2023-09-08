@@ -313,7 +313,7 @@ public class HomeFragment extends Fragment {
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
                         }
                     }
-                    myexcel.writestockinfoCustom("mystock",web_stockinfo);
+                    if(guide.equals("All")) myexcel.writestockinfoCustom("mystock",web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {

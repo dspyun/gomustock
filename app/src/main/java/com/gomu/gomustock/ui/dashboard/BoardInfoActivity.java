@@ -41,9 +41,8 @@ public class BoardInfoActivity extends AppCompatActivity {
         String stock_code = suboption.getStockcode();
         String stock_info = suboption.getStockinfo();
         String stat_info = suboption.getStatinfo();
-        String information = stock_name + " " + stock_code + "\n" +
-                stock_info + "\n";
-        mytext.setText(information);
+        String information = stock_info + "\n";
+        mytext.setText(stock_info);
         stock_stat.setText(stat_info);
 
         dl_shortnews(stock_code);
