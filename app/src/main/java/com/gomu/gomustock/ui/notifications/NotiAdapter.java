@@ -74,18 +74,20 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
 
         if (onesector1.chartdata.size() > 0) {
             String sector_info = onesector1.stock_name;
+            float min = Collections.min(onesector1.chartdata);
             float max = Collections.max(onesector1.chartdata);
             float last = onesector1.chartdata.get((onesector1.chartdata.size()-1));
-            sector_info += " " + String.format("%.0f", last) + "/" + String.format("%.0f",100*last/max);
+            sector_info += " " + String.format("%.0f", last) + "/" + String.format("%.0f",100*(last-min)/(max-min));
             MyChart noti_chart1 = new MyChart();
             noti_chart1.single_float(chart1, onesector1.chartdata, sector_info, false);
         }
 
         if (onesector2.chartdata.size() > 0 && (index + 1) < maxlist) {
             String sector_info2 = onesector2.stock_name;
+            float min = Collections.min(onesector2.chartdata);
             float max = Collections.max(onesector2.chartdata);
             float last = onesector2.chartdata.get((onesector2.chartdata.size()-1));
-            sector_info2 += " " + String.format("%.0f",last) + "/" + String.format("%.0f",100*last/max);
+            sector_info2 += " " + String.format("%.0f",last) + "/" + String.format("%.0f",100*(last-min)/(max-min));
             MyChart noti_chart2 = new MyChart();
             noti_chart2.single_float(chart2, onesector2.chartdata, sector_info2, false);
         }

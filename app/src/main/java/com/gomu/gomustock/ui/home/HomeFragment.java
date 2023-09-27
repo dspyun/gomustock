@@ -115,7 +115,6 @@ public class HomeFragment extends Fragment {
             stop_flag=true;
         }
 
-
         binding.filedownload.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -440,7 +439,7 @@ public class HomeFragment extends Fragment {
     public List<FormatChart> GetPeriodChart(String stock_code, int period) {
 
         List<FormatChart> chartlist = new ArrayList<FormatChart>();
-        float maxprice;
+        float maxprice,minprice;
 
 
         float position;
@@ -475,6 +474,7 @@ public class HomeFragment extends Fragment {
         RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
         List<Float> rsi_line = rsitest.test_line();
         maxprice = Collections.max(kbband_close);
+        minprice = Collections.min(kbband_close);
         lastprice = kbband_close.get(kbband_close.size()-1);
 
         // Create Chart & add first data
@@ -490,7 +490,7 @@ public class HomeFragment extends Fragment {
         chartlist = standard_chart.adddata_float(buyscore, "", context.getColor(R.color.Yellow));
 
 
-        Float diff_percent = 100*lastprice/maxprice;
+        Float diff_percent = 100*(lastprice-minprice)/(maxprice-minprice);
         g_period_level = String.format("%.0f",lastprice);
         g_period_level += " / " + String.format("%.1f",diff_percent);
 
