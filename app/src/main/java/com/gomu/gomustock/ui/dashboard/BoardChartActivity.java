@@ -115,7 +115,7 @@ public class BoardChartActivity extends AppCompatActivity {
             rsi_chartlist = mytalib.rsi(closeprice, TEST_PERIOD);
             rsi_chart.adddata_float(rsi_chartlist.get(0), "RSI", Color.YELLOW);
             rsi_chartdata = rsi_chart.adddata_float(rsi_chartlist.get(1), "Interval", Color.WHITE);
-            rsi_chart.multi_chart(rsiChart,rsi_chartdata,"RSI",false );
+            rsi_chart.multi_chart(rsiChart,rsi_chartdata,"RSI 30:과매도, 70:과매수",false );
 
             // macd test
             MyChart macd_chart = new MyChart();
@@ -127,7 +127,7 @@ public class BoardChartActivity extends AppCompatActivity {
             macd_chart.adddata_float(macd_chart_list.get(1), "slow", Color.WHITE);
             macd_chartdata = macd_chart.adddata_float(macd_chart_list.get(2), "signal", Color.RED);
             //macd_chart.setYMinmax(0, 0);
-            macd_chart.multi_chart(macdChart, macd_chartdata, "MACD", false);
+            macd_chart.multi_chart(macdChart, macd_chartdata, "MACD Y-12일 W-26일 R-9일", false);
 
 
             // adx test
@@ -141,7 +141,7 @@ public class BoardChartActivity extends AppCompatActivity {
             adxChart = findViewById(R.id.adx_chart);
             List<Float> adx_chartdata = new ArrayList<>();
             adx_chartdata = mytalib.mom(closeprice, TEST_PERIOD);
-            rsi_chart.single_float(adxChart,adx_chartdata,"MOM",false );
+            rsi_chart.single_float(adxChart,adx_chartdata,"MOM 10일기준 가격속도",false );
 
             // stoch test
             MyChart stoch_chart = new MyChart();
@@ -152,7 +152,7 @@ public class BoardChartActivity extends AppCompatActivity {
             stoch_chart.adddata_float(stoch_chart_list.get(0), "slow-K", Color.GRAY);
             stock_chartdata = stoch_chart.adddata_float(stoch_chart_list.get(1), "slow-D", Color.LTGRAY);
             //stoch_chart.setYMinmax(0, 0);
-            stoch_chart.multi_chart(stochChart, stock_chartdata, "스토케스틱", false);
+            stoch_chart.multi_chart(stochChart, stock_chartdata, "스토케스틱 최고최저구간에서 현재위치", false);
 
             mytext.setOnClickListener(new View.OnClickListener() {
                 @Override

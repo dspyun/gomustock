@@ -114,7 +114,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         latestOpenday = openday;
     }
 
-
     public void loadCurrentPrice() {
         // open api를 통해서 어제 종가를 가져와서
         // buy list에 넣는다

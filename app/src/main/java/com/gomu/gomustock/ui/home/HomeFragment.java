@@ -221,6 +221,8 @@ public class HomeFragment extends Fragment {
                 mystock.add(newstock);
                 myexcel.writeMyStock(mystock);
 
+                homestock_list.add(code);
+
                 dialog_buy.dismiss(); // 다이얼로그 닫기
             }
         });
