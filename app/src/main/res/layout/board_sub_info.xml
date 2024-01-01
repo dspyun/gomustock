@@ -8,22 +8,23 @@
     tools:context=".ui.dashboard.BoardInfoActivity">
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/bd_info_text"
-                android:layout_width="193dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="12sp" />
             <TextView
                 android:id="@+id/bd_stat_text"
-                android:layout_width="193dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="12sp" />
         </LinearLayout>
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"

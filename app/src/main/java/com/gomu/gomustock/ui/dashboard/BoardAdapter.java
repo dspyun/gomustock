@@ -90,7 +90,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
     }
 
     public void loadRecyclerList(String filename) {
-        web_stockinfo = myexcel.readStockinfoCustom(filename);
+        web_stockinfo = myexcel.readStockinfoCustomxls(filename);
         if(web_stockinfo !=null) recycler_list.clear();
         for (int i = 0; i < web_stockinfo.size(); i++) {
             //if(web_stockinfo.get(i).stock_code.equals("")) continue;

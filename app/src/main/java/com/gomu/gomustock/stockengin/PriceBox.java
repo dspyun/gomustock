@@ -34,6 +34,7 @@ public class PriceBox {
         List<FormatOHLCV> ohlcvlist = new ArrayList<>();
         ohlcvlist = myexcel.readall_ohlcv(STOCK_CODE);
         int size = ohlcvlist.size();
+        if(size<=1) return;
         FormatOHLCV preoneohlcv = new FormatOHLCV();
         for(int i=0;i<size;i++) {
             FormatOHLCV oneohlcv = ohlcvlist.get(i);

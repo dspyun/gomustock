@@ -6,15 +6,20 @@ import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +32,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
@@ -44,6 +48,7 @@ import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +68,7 @@ public class HomeFragment extends Fragment {
     List<FormatMyStock> mystocklist = new ArrayList<FormatMyStock>();
     List<String> homestock_list = new ArrayList<>();
     TextView filedown, infodown, dummy, history;
-
+    ImageView imgAddlist,imgDLlist,imgPrice,imgSync;
 
     public MyWeb myweb = new MyWeb();
     public MyExcel myexcel = new MyExcel();
@@ -73,7 +78,7 @@ public class HomeFragment extends Fragment {
     String latestOpenday; // 마지막 증시 오픈일, 오늘이 마지막증시 오픈일이 아니면 매도매수 안되게
     View root;
     String g_today_level="", g_period_level="";
-
+    String FILENAME;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -92,15 +97,28 @@ public class HomeFragment extends Fragment {
 
         recyclerView = root.findViewById(R.id.home_recycler_view);
         initialize_color();
-        top_board(root);
+        initResource(root);
 
         // 매수, 매도 DB를 합쳐서
         // 최종 보유주식과 매매 히스토리를 만든다.
         Cache mycache = new Cache();
         mycache.initialize();
 
-        mystocklist = myexcel.readMyStock("mystock");
+
+        // gomustock 파일 리스트를 불러온다
+        String[] filelist = getFileList();
+
+        // 파일리스트를 spinner에 넣어준다
+        Spinner folderspinner = root.findViewById(R.id.home_spinner);
+        ArrayAdapter fileAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, filelist);
+        fileAdapter.setDropDownViewResource(R.layout.spinner_list);
+        folderspinner.setAdapter(fileAdapter); //어댑터에 연결해줍니다.
+        folderspinner.setSelection(0);
+
+        //mystocklist = myexcel.readMyStock("mystock");
+        mystocklist = myexcel.readStockList("mystock.xls");
         homestock_list = makeStocklist(mystocklist);
+        //homestock_list = myexcel.readStockList("mystock.xls");
         FillPriceInStocklist(homestock_list,120);
         fill_chartdata();
 
@@ -115,43 +133,54 @@ public class HomeFragment extends Fragment {
             stop_flag=true;
         }
 
-        binding.filedownload.setOnClickListener(new View.OnClickListener()
+        folderspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("slected " + filelist[position]);
+                FILENAME = filelist[position];
+
+                mystocklist = myexcel.readStockList(FILENAME);
+                homestock_list = makeStocklist(mystocklist);
+
+                //FillPriceInStocklist(homestock_list,120);
+                //fill_chartdata();
+
+                // recycler view 준비
+                //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                //home_adapter = new HomeAdapter(getActivity(), mystocklist);
+                //binding.homeRecyclerView.setAdapter(home_adapter);
+
+                //home_adapter.refresh();
+                //fragment_refresh();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
+
+        imgDLlist.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 YFDownload_Dialog(homestock_list,"All");
+
+                FillPriceInStocklist(homestock_list,120);
+                fill_chartdata();
+
+                // recycler view 준비
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                home_adapter = new HomeAdapter(getActivity(), mystocklist);
+                binding.homeRecyclerView.setAdapter(home_adapter);
                 home_adapter.refresh();
                 fragment_refresh();
             }
         });
 
-        binding.infodownload.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                LineChart homeChart = root.findViewById(R.id.home_moeny_chart);
-                MyChart home_chart = new MyChart();
-
-                TextView tvhome_money_info = root.findViewById(R.id.home_money_info);
-                String money_info = home_adapter.update_top_board();
-                tvhome_money_info.setText(money_info);
-                List<Float> total_line = home_adapter.getMoneyLine();
-                home_chart.single_float(homeChart,total_line,"총자산변화",false );
-            }
-        });
-
-        binding.dummy.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                YFDownload_Dialog(homestock_list,"TODAY");
-            }
-        });
-
-        binding.buynew.setOnClickListener(new View.OnClickListener()
+        imgAddlist.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -161,6 +190,20 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        imgSync.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                FillPriceInStocklist(homestock_list,120);
+                fill_chartdata();
+
+                // recycler view 준비
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                home_adapter = new HomeAdapter(getActivity(), mystocklist);
+                binding.homeRecyclerView.setAdapter(home_adapter);
+            }
+        });
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
@@ -176,6 +219,17 @@ public class HomeFragment extends Fragment {
         ft.detach(this).attach(this).commit();
     }
 
+    public String[] getFileList() {
+        String root = Environment.getExternalStorageDirectory().toString();
+        File file = new File(root+"/Gomustock");
+        File flist[] = file.listFiles();
+
+        String[] temp = new String[flist.length];
+        for(int i =0;i<flist.length;i++) {
+            temp[i] = flist[i].getName();
+        }
+        return temp;
+    }
     public void showDialog_buy(){
 
         dialog_buy.show(); // 다이얼로그 띄우기
@@ -274,6 +328,13 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    public void initResource(View v) {
+        imgDLlist = v.findViewById(R.id.home_dlicon);
+        imgAddlist = v.findViewById(R.id.home_addnew);
+        imgPrice = v.findViewById(R.id.home_price);
+        imgSync = v.findViewById(R.id.home_sync);
+    }
+
     public void downloadNowPrice(List<String> stock_list, int hour) {
         int size = stock_list.size();
         String sizestr = Integer.toString(size);
@@ -307,14 +368,14 @@ public class HomeFragment extends Fragment {
                         if(guide.equals("All")) {
                             new YFDownload(stock_list.get(i)); // 1년치를 다운로드 받고
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
-                            oneinfo = info.downloadStockInfoOne(stock_list.get(i));
-                            web_stockinfo.add(oneinfo);
+                            //oneinfo = info.downloadStockInfoOne(stock_list.get(i));
+                            //web_stockinfo.add(oneinfo);
                         } else {
                             // "TODAY"
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
                         }
                     }
-                    if(guide.equals("All")) myexcel.writestockinfoCustom("mystock",web_stockinfo);
+                    //if(guide.equals("All")) myexcel.writestockinfoCustom("mystock",web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
@@ -402,13 +463,6 @@ public class HomeFragment extends Fragment {
     void update_account() {
         tuja_bt.setText(home_adapter.show_myaccount());
         home_adapter.refresh();
-    }
-
-    public void top_board(View view) {
-        filedown = view.findViewById(R.id.filedownload);
-        infodown = view.findViewById(R.id.infodownload);
-        dummy = view.findViewById(R.id.dummy);
-        history = view.findViewById(R.id.buysellhistory);
     }
 
     public void initialize_color() {

@@ -353,7 +353,7 @@ public class MyExcel extends MyStat{
     }
     public List<FormatOHLCV> readall_ohlcv(String stock_code) {
 
-        // data 저장순서는 현재>과거순으이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
+        // data 저장순서는 현재>과거순이다, 60일치를 읽으려면 0부터 60개를 읽으면 된다
 
         String PathFile = DATADIR+stock_code+".xls";;
         List<FormatOHLCV> ohlcvlist = new ArrayList<FormatOHLCV>();
@@ -385,8 +385,18 @@ public class MyExcel extends MyStat{
             is.close();
         } catch (IOException e) {
             e.printStackTrace();
+
+            FormatOHLCV oneohlcv = new FormatOHLCV();
+            oneohlcv.setheader();
+            ohlcvlist.add(oneohlcv);
+            return ohlcvlist;
         } catch (BiffException e) {
             e.printStackTrace();
+
+            FormatOHLCV oneohlcv = new FormatOHLCV();
+            oneohlcv.setheader();
+            ohlcvlist.add(oneohlcv);
+            return ohlcvlist;
         }
 
         return ohlcvlist;
@@ -764,7 +774,7 @@ public class MyExcel extends MyStat{
         WritableSheet writablesheet;
         WritableWorkbook workbook;
         String PathFile="";
-        PathFile = INFODIR+filename+".xls";
+        PathFile = INFODIR+filename;
         java.io.File file1 = new java.io.File(PathFile);
 
         // 헤더를 붙여준다
@@ -883,6 +893,61 @@ public class MyExcel extends MyStat{
         return mArrayBuffer;
     }
 
+    public List<FormatStockInfo> readStockinfoCustomxls(String filename) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        List<FormatStockInfo> mArrayBuffer = new ArrayList<FormatStockInfo>();
+
+        int line, col;
+        String PathFile="";
+        PathFile = INFODIR+filename;
+        if(file_check(PathFile)) {
+            FormatStockInfo oneinfo = new FormatStockInfo();
+            oneinfo.init();
+            mArrayBuffer.add(oneinfo);
+            return mArrayBuffer;
+        }
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+            if(sheet != null) {
+                // line1, col1에서 contents를 읽는다.
+                int size = sheet.getColumn(0).length;
+                int start = 1;
+                for(int i=start;i<size;i++) {
+                    FormatStockInfo temp = new FormatStockInfo();
+                    temp.stock_code = sheet.getCell(0, i).getContents();
+                    temp.stock_name = sheet.getCell(1, i).getContents();
+                    temp.stock_type = sheet.getCell(2, i).getContents();
+                    temp.ranking = sheet.getCell(3, i).getContents();
+                    temp.per = sheet.getCell(4, i).getContents();
+                    temp.expect_per = sheet.getCell(5, i).getContents();
+                    temp.area_per = sheet.getCell(6, i).getContents();
+                    temp.pbr = sheet.getCell(7, i).getContents();
+                    temp.div_rate = sheet.getCell(8, i).getContents();
+                    temp.fogn_rate = sheet.getCell(9, i).getContents();
+                    temp.recommend = sheet.getCell(10, i).getContents();
+                    temp.cur_price = sheet.getCell(11, i).getContents();
+                    temp.score = sheet.getCell(12, i).getContents();
+                    temp.desc = sheet.getCell(13, i).getContents();
+                    temp.news = sheet.getCell(14, i).getContents();
+                    temp.fninfo = sheet.getCell(15, i).getContents();
+                    temp.etfinfo = sheet.getCell(16, i).getContents();
+                    temp.nav = sheet.getCell(17, i).getContents();
+                    temp.etfcompanies = sheet.getCell(18, i).getContents();
+                    mArrayBuffer.add(temp);
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException | BiffException e) {
+            e.printStackTrace();
+        }
+        return mArrayBuffer;
+    }
 
 
     public List<FormatMyStock> readSectorinfo(boolean header) {
@@ -1309,6 +1374,100 @@ public class MyExcel extends MyStat{
         }
         return mArrayBuffer;
     }
+
+
+    public List<FormatMyStock>readStockList(String filename) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile="";
+        PathFile = INFODIR+filename;
+
+        List<FormatMyStock> mArrayBuffer = new ArrayList<>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatMyStock temp = new FormatMyStock();
+                        temp.stock_code = sheet.getCell(0, i).getContents();
+                        temp.stock_name = sheet.getCell(1, i).getContents();
+                        temp.quantity = sheet.getCell(2, i).getContents();
+                        temp.buy_price = sheet.getCell(3, i).getContents();
+                        temp.memo01 = sheet.getCell(4, i).getContents();
+                        mArrayBuffer.add(temp);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+        return mArrayBuffer;
+    }
+
+
+
+    public void writelist(String filename,List<List<String>> multilist) {
+
+        WritableSheet writablesheet;
+        String PathFile = INFODIR+filename+".xls";
+
+        File file1 = new File(PathFile);
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            WritableWorkbook workbook = Workbook.createWorkbook(file1);
+            workbook.createSheet("sheet1", 0);
+            writablesheet = workbook.getSheet(0);
+
+            if(writablesheet != null) {
+
+                int size = multilist.size();
+                for(int i=0;i<size;i++) {
+                    List<String> onelist = multilist.get(i);
+                    int rowlength = onelist.size();
+                    for(int j =1;j<rowlength;j++) {
+                        writablesheet.addCell(new Label(i, j, onelist.get(j)));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+        } catch (IOException | WriteException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public List<FormatStockInfo> stock20format(List<List<String>> multilist) {
+        List<FormatStockInfo> empty = new ArrayList<>();
+
+        List<String> codelist = multilist.get(0);
+        List<String> namelist = multilist.get(1);
+        int size = codelist.size();
+
+        for(int i =0;i<size;i++) {
+            FormatStockInfo onelist = new FormatStockInfo();
+            onelist.fill_empty();
+            empty.add(onelist);
+        }
+
+        for(int i=0;i<size;i++) {
+            empty.get(i).stock_code = codelist.get(i);
+            empty.get(i).stock_name = namelist.get(i);
+        }
+        return empty;
+    }
+
 
 }
 

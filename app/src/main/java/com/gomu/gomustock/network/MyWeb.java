@@ -681,6 +681,11 @@ public class MyWeb {
 
     public FormatETFInfo getNaverETFinfo(String stock_code) {
         FormatETFInfo result = new FormatETFInfo();
+        List<List<String>> multilist = new ArrayList<List<String>>();
+        List<String> namelist = new ArrayList<>();
+        List<String> codelist = new ArrayList<>();
+        MyExcel myexcel = new MyExcel();
+        String filename;
 
         System.out.println("stock_code = " + stock_code+"\n");
         if(!checkKRStock(stock_code)) {
@@ -696,6 +701,7 @@ public class MyWeb {
             Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
             Element giname = classinfo0.select("h2").get(0);
             result.stock_name = giname.text();
+            filename = result.stock_name.replaceAll(" ", "_");
 
             Elements plist = classinfo0.select(".summary_info");
             int size = plist.size();
@@ -723,20 +729,80 @@ public class MyWeb {
             Elements tdlist = tableinfo.select("td"); // class 가져오기
             Elements linklist = tdlist.select("a");
             result.companies="";// class 가져오기
+
             int size1 = linklist.size();
-            for(int i =0;i<size1;i++) {
+            for (int i = 0; i < size1; i++) {
                 String name = linklist.get(i).text();
-                if(!name.equals("") && !name.equals("null")) result.companies += name +" ";
+                String code = linklist.get(i).attr("href");
+                code = code.substring(code.lastIndexOf("=")+1);
+                if (!name.equals("") && !name.equals("null")) result.companies += name + " ";
+                namelist.add(name);
+                codelist.add(code);
             }
+            multilist.add(0,codelist);
+            multilist.add(1,namelist);
+            myexcel.writelist(filename,multilist);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         return result;
     }
 
 
+    public FormatETFInfo getNaverETFAsset(String stock_code) {
+        FormatETFInfo result = new FormatETFInfo();
+        List<List<String>> multilist = new ArrayList<List<String>>();
+        List<String> namelist = new ArrayList<>();
+        List<String> codelist = new ArrayList<>();
+        MyExcel myexcel = new MyExcel();
+        String filename;
 
+        System.out.println("stock_code = " + stock_code+"\n");
+        if(!checkKRStock(stock_code)) {
+            // 외국주식이면 빈칸으로 채우고 건너뜀
+            result.init();
+            return result;
+        }
+        try {
+            String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
+            //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+            Document doc;
+            doc = Jsoup.connect(URL).get();
+            Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
+            Element giname = classinfo0.select("h2").get(0);
+            result.stock_name = giname.text();
+            filename = result.stock_name.replaceAll(" ", "_");
+
+            Elements tableinfo = doc.getElementsByClass("section etf_asset"); // class 가져오기
+            //Elements classlinfo = doc.getElementsByClass("ETF 주요 구성자산");
+            //Elements tableinfo = classinfo2.select("table"); // class 가져오기
+            //Elements tbodyinfo = tableinfo.select("tbody"); // class 가져오기
+            Elements tdlist = tableinfo.select("td"); // class 가져오기
+            Elements linklist = tdlist.select("a");
+            result.companies="";// class 가져오기
+
+            int size1 = linklist.size();
+            for (int i = 0; i < size1; i++) {
+                String name = linklist.get(i).text();
+                String code = linklist.get(i).attr("href");
+                code = code.substring(code.lastIndexOf("=")+1);
+                if (!name.equals("") && !name.equals("null")) result.companies += name + " ";
+                namelist.add(name);
+                codelist.add(code);
+            }
+            multilist.add(0,codelist);
+            multilist.add(1,namelist);
+
+            List<FormatStockInfo> empty = new ArrayList<>();
+            empty = myexcel.stock20format(multilist);
+            myexcel.writestockinfoCustom(filename+".xls",empty);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

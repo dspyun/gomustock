@@ -3,9 +3,9 @@ package com.gomu.gomustock.ui.dashboard;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +30,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.databinding.FragmentDashboardBinding;
@@ -42,9 +40,8 @@ import com.gomu.gomustock.stockengin.MyScore;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -53,8 +50,8 @@ public class DashboardFragment extends Fragment {
     private DashboardViewModel dashboardViewModel;
     private FragmentDashboardBinding binding;
 
-    ImageView imgAddlist;
-    TextView tvDownload, tvUpdate,tvDummy01,tvDummy02;
+    ImageView imgAddlist,imgDLlist,imgPrice,imgSync;
+    TextView tvDownload;
     RecyclerView recyclerView;
 
     BoardAdapter bd_adapter;
@@ -82,44 +79,33 @@ public class DashboardFragment extends Fragment {
         dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         dialog_progress.setContentView(R.layout.dialog_progress);
 
-
         initResource(root);
 
-        ImageView na_zumimage =  binding.zumchartNa;
-        ImageView kr_zumimage = binding.zumchartKr;
-        // zoom image link는 스마트폰 > 줌투자 > 새탭에서 이미지열기 > 링크 복사를 해서 사용한다
+        // gomustock 파일 리스트를 불러온다
+        String[] filelist = getFileList();
 
-        Date todaydate = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        String today = format.format(todaydate);
-        String kr_imageUrl ="https://t1.daumcdn.net/finance/chart/kr/stock/m3/KGG01P.png?timestamp="+today;
-        Glide.with(context).load(kr_imageUrl)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(kr_zumimage);
-        kr_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
-        String na_imageUrl = "https://t1.daumcdn.net/finance/chart/us/stock/m3/SP500.png?timestamp="+today;
-        Glide.with(context).load(na_imageUrl)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(na_zumimage);
-        na_zumimage.setScaleType(ImageView.ScaleType.FIT_XY);
+        // 파일리스트를 spinner에 넣어준다
+        Spinner folderspinner = root.findViewById(R.id.folder_spinner);
+        ArrayAdapter fileAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, filelist);
+        fileAdapter.setDropDownViewResource(R.layout.spinner_list);
+        folderspinner.setAdapter(fileAdapter); //어댑터에 연결해줍니다.
+        folderspinner.setSelection(0);
 
-        String[] items = {"stockinfo","grp_manual","monitor"};
-        Spinner spinner = root.findViewById(R.id.spinner);
-        spinner = root.findViewById(R.id.spinner);
 
-        ArrayAdapter monthAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, items);
-        //R.array.test는 저희가 정의해놓은 1월~12월 / android.R.layout.simple_spinner_dropdown_item은 기본으로 제공해주는 형식입니다.
-        monthAdapter.setDropDownViewResource(R.layout.spinner_list);
-        spinner.setAdapter(monthAdapter); //어댑터에 연결해줍니다.
-        spinner.setSelection(0);
-
-        FILENAME = "stockinfo";
+        //FILENAME1 = filelist[0];
+        FILENAME = "monitor.xls";
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         bd_adapter = new BoardAdapter( getActivity(),FILENAME);
         binding.recyclerView.setAdapter(bd_adapter);
 
+        //----------------------------------------------------------
+
+        /*
+        FILENAME = "stockinfo";
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        bd_adapter = new BoardAdapter( getActivity(),FILENAME);
+        binding.recyclerView.setAdapter(bd_adapter);
+        */
         // adapter초기화 후 생성된 recyclerlist를
         // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
         // scoring을 할 준비를 한다
@@ -127,51 +113,33 @@ public class DashboardFragment extends Fragment {
         myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
         myscore.getPriceThreadStart();
 
-        na_zumimage.setOnClickListener(new View.OnClickListener() {
+        imgDLlist.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
-                // 전체화면으로 보여준다
-                Intent intent = new Intent(getActivity(), BoardChartActivity.class);
-                BoardSubOption suboption = new BoardSubOption("popup","oversea");
-                intent.putExtra("class",suboption);
-                startActivity(intent);
-            }
-        });
-        kr_zumimage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 전체화면으로 보여준다
-                Intent intent = new Intent(getActivity(), BoardChartActivity.class);
-                BoardSubOption suboption = new BoardSubOption("popup","domestic");
-                intent.putExtra("class",suboption);
-                startActivity(intent);
-            }
-        });
-
-        tvDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 YFDownload_Dialog(recyclerlist);
+
+                // 다운로드 후 adapter를 refresh한다
+                bd_adapter = new BoardAdapter( getActivity(),FILENAME);
+                bd_adapter.loadRecyclerList(FILENAME);
+                binding.recyclerView.setAdapter(bd_adapter);
+
                 bd_adapter.refresh();
                 fragment_refresh();
+                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                myscore.getPriceThreadStart();
             }
         });
 
-        tvUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<String> recyclerlist = bd_adapter.getRecyclerList();
-                scoringstock(recyclerlist);
-            }
-        });
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        folderspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("slected " + items[position]);
-                FILENAME = items[position];
+                System.out.println("slected " + filelist[position]);
+                FILENAME = filelist[position];
                 bd_adapter = new BoardAdapter( getActivity(),FILENAME);
+                bd_adapter.loadRecyclerList(FILENAME);
                 binding.recyclerView.setAdapter(bd_adapter);
 
                 bd_adapter.refresh();
@@ -187,13 +155,40 @@ public class DashboardFragment extends Fragment {
 
         });
 
-        binding.dashAddnew.setOnClickListener(new View.OnClickListener()
+
+        imgAddlist.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 showDialog_buy();
                 //app_restart();
+            }
+        });
+
+        imgPrice.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                List<String> recyclerlist = bd_adapter.getRecyclerList();
+                scoringstock(recyclerlist);
+            }
+        });
+
+        imgSync.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                bd_adapter = new BoardAdapter( getActivity(),FILENAME);
+                bd_adapter.loadRecyclerList(FILENAME);
+                binding.recyclerView.setAdapter(bd_adapter);
+
+                bd_adapter.refresh();
+                fragment_refresh();
+                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                myscore.getPriceThreadStart();
             }
         });
 
@@ -204,6 +199,19 @@ public class DashboardFragment extends Fragment {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();
     }
+
+    public String[] getFileList() {
+        String root = Environment.getExternalStorageDirectory().toString();
+        File file = new File(root+"/Gomustock");
+        File flist[] = file.listFiles();
+
+        String[] temp = new String[flist.length];
+        for(int i =0;i<flist.length;i++) {
+            temp[i] = flist[i].getName();
+        }
+        return temp;
+    }
+
 
     public void showDialog_buy(){
 
@@ -295,18 +303,19 @@ public class DashboardFragment extends Fragment {
     }
 
     public void initResource(View v) {
-        tvDownload= v.findViewById(R.id.tv_dl);
-        tvUpdate = v.findViewById(R.id.tv_update);
+        imgDLlist = v.findViewById(R.id.dash_dlicon);
         imgAddlist = v.findViewById(R.id.dash_addnew);
+        imgPrice = v.findViewById(R.id.dash_price);
+        imgSync = v.findViewById(R.id.dash_sync);
         recyclerView = v.findViewById(R.id.recycler_view);
     }
 
     boolean stop_flag;
     private BackgroundThread scoring_thread = new BackgroundThread();
-    public class BackgroundThread extends Thread {
+    public static class BackgroundThread extends Thread {
         public void run() {
             try {
-                myscore.addCurprice2Scorebox();
+                //myscore.addCurprice2Scorebox();
                 Thread.sleep(1000L);
                 //myscoring2();
             } catch (InterruptedException e) {
@@ -356,7 +365,7 @@ public class DashboardFragment extends Fragment {
 
     public void addInfoFile(String stockcode,String filename) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfoCustom(filename);
+        List<FormatStockInfo> infolist = myexcel.readStockinfoCustomxls(filename);
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 없으면 추가, 있으면 건너뛰기
         int size = infolist.size();
@@ -373,7 +382,7 @@ public class DashboardFragment extends Fragment {
     }
     public void delInfoFile(String stockcode,String filename) {
         List<String> codelist = new ArrayList<>();
-        List<FormatStockInfo> infolist = myexcel.readStockinfoCustom(filename);
+        List<FormatStockInfo> infolist = myexcel.readStockinfoCustomxls(filename);
         // infofile을 읽어서 stockcode 정보가 있는지 검사한다.
         // 있으면 삭제
         int size = infolist.size();
@@ -428,7 +437,7 @@ public class DashboardFragment extends Fragment {
                         new YFDownload(stock_list.get(i));
                         // 2. 외국인/기관 매매정보를 다운로드 하고
                         myweb.dl_fogninfo_one(stock_list.get(i));
-                        // 3. 종몪정보를 다운로드 한다
+                        // 3. 종몪정보를 다운로드 한다(네이버와 fnguide 정보를 가져온다)
                         FormatStockInfo info = new FormatStockInfo();
                         String market = stockdic.getMarket(stock_list.get(i));
                         if(market.equals("KOSPI") || market.equals("KOSDAQ") ||
@@ -439,7 +448,6 @@ public class DashboardFragment extends Fragment {
                         }
                         web_stockinfo.add(i,info);
                     }
-                    //myexcel.writestockinfo(web_stockinfo);
                     myexcel.writestockinfoCustom(FILENAME,web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();

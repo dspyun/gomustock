@@ -10,97 +10,46 @@ tools:context=".ui.home.HomeFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
-        <!-- com.github.mikephil.charting.charts.CandleStickChart -->
+        android:orientation="horizontal">
 
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/home_moeny_chart"
-                android:layout_width="200dp"
-                android:layout_height="150dp"
-                android:layout_rowSpan="2"
-                android:layout_column="0"
-                android:layout_gravity = "fill_horizontal"
-                android:layout_row="0" />
+        <Spinner
+            android:id="@+id/home_spinner"
+            android:layout_width="180dp"
+            android:layout_height="@dimen/topline"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:gravity="center|end"
+            android:background="@color/darkmode_dark_4a4a4a_8f9097"/>
 
-        <TextView
-            android:id="@+id/home_money_info"
-            android:layout_width="wrap_content"
-            android:layout_height="130dp"
-            android:layout_column="1"
-            android:layout_gravity = "fill_horizontal"
-            android:layout_row="1" />
+        <ImageView
+            android:id="@+id/home_dlicon"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/download_white_48dp" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/home_price"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/price_tag" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        <ImageView
+            android:id="@+id/home_addnew"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/add_circle_white_48dp"/>
 
-            <TextView
-                android:id="@+id/filedownload"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical|right"
-                android:textColor="@color/LightGray"
-                android:text="주가\n다운로드"
-                android:textSize="14sp"
-                android:background="@xml/bg_custom_button"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"/>
-            <TextView
-                android:id="@+id/infodownload"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical|right"
-                android:text="자산총액\n차트보기"
-                android:textColor="@color/LightGray"
-                android:textSize="14sp"
-                android:background="@xml/bg_custom_button"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"/>
-            <TextView
-                android:id="@+id/dummy"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical|right"
-                android:text="오늘주가\n"
-                android:textColor="@color/LightGray"
-                android:textSize="14sp"
-                android:background="@xml/bg_custom_button"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"/>
-            <TextView
-                android:id="@+id/buysellhistory"
-                android:layout_width="@dimen/grid_width"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="매매\n이력"
-                android:gravity="center_vertical|right"
-                android:textColor="@color/LightGray"
-                android:textSize="14sp"
-                android:background="@xml/bg_custom_button"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"/>
-
-            <ImageView
-                android:id="@+id/buynew"
-                android:layout_width="@dimen/grid_imagewidth"
-                android:layout_height="38dp"
-                android:layout_column="4"
-                android:layout_rowSpan="2"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:src="@drawable/stock_add_48px"/>
+        <ImageView
+            android:id="@+id/home_sync"
+            android:layout_width="50dp"
+            android:layout_height="@dimen/topline"
+            android:layout_row="0"
+            android:layout_column="4"
+            android:gravity="center"
+            android:src="@drawable/sync_white_48" />
 
     </LinearLayout>
 
@@ -108,14 +57,14 @@ tools:context=".ui.home.HomeFragment">
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="10">
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/home_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="70dp"
-        android:clipToPadding="false"
-        tools:listitem="@layout/home_list_row"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/home_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingBottom="70dp"
+            android:clipToPadding="false"
+            tools:listitem="@layout/home_list_row"/>
     </FrameLayout>
 
 </LinearLayout>
