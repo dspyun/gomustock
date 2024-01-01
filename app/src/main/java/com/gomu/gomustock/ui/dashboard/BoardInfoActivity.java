@@ -40,8 +40,8 @@ public class BoardInfoActivity extends AppCompatActivity {
         String stock_name = suboption.getStockname();
         String stock_code = suboption.getStockcode();
         String stock_info = suboption.getStockinfo();
-        String stat_info = suboption.getStatinfo();
-        String information = stock_info + "\n";
+        String stat_info = suboption.getStatinfo()+"\r\n";
+        String information = stock_info + "\r\n";
         mytext.setText(stock_info);
         stock_stat.setText(stat_info);
 

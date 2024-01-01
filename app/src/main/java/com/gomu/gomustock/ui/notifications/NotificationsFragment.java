@@ -67,7 +67,6 @@ public class NotificationsFragment extends Fragment {
         initResource();
         dl_shortnews();
 
-
         sectorinfo = myexcel.readSectorinfo(false);
         int size = sectorinfo.size();
         for(int i =0;i<size;i++) {

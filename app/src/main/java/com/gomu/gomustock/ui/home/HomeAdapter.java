@@ -6,15 +6,10 @@ import static android.view.View.VISIBLE;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.os.Environment;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,22 +24,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
-import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
-import com.gomu.gomustock.stockengin.BBandTest;
-import com.gomu.gomustock.stockengin.PriceBox;
-import com.gomu.gomustock.stockengin.RSITest;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +64,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     View view;
     String today_level="", period_level="";
     int imgbuf_with, imgbuf_height;
+    String FILENAME;
 
     public HomeAdapter(Activity context, List<FormatMyStock> input_mystocklist)
     {
@@ -376,8 +366,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
         public ViewHolder(View view)
         {
             super(view);
-
-            tvhome_money_info = view.findViewById(R.id.home_money_info);
 
             homeChart = view.findViewById(R.id.home_chart);
             tv_name = view.findViewById(R.id.stock_name);
