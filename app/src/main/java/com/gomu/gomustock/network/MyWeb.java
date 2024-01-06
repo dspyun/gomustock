@@ -15,7 +15,10 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyWeb {
 
@@ -741,7 +744,7 @@ public class MyWeb {
             }
             multilist.add(0,codelist);
             multilist.add(1,namelist);
-            myexcel.writelist(filename,multilist);
+            myexcel.writelist(filename+".xls",multilist);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -805,4 +808,53 @@ public class MyWeb {
         }
         return result;
     }
+
+    public String getNPSlist() {
+
+        String result="";
+        Map<String, String> npsmap = new HashMap<>();
+
+
+        String URL = "https://comp.fnguide.com/SVO/WooriRenewal/inst.asp";
+        //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+        Document doc;
+
+        try {
+
+            Thread.sleep(5000);
+            Jsoup.connect(URL).wait();
+            doc = Jsoup.connect(URL).timeout(5000).get();
+
+            Elements tbodylist =doc.select("tbody");
+            Elements trlist = tbodylist.get(0).getElementsByTag("tr");
+            String selected = tbodylist.toString();
+
+            int size = trlist.size();
+            if(size > 0) {
+                for (int i = 0; i < size; i++) {
+
+                    Elements tdlist = trlist.get(i).getElementsByTag("td");
+                    String stock_name = tdlist.get(1).text();
+                    String buytime = tdlist.get(6).text();
+                    npsmap.put(buytime, stock_name);
+                }
+                ArrayList<String> keyList = new ArrayList<>(npsmap.keySet());
+                //keyList.sort((s1, s2) -> s1.compareTo(s2));
+                Collections.sort(keyList, Collections.reverseOrder());
+
+                for (String key : keyList) {
+                    result += key + " " + npsmap.get(key)+"\n";
+                }
+                System.out.println(result);
+                //driver.close();
+            } else {
+                //System.out.println( driver.toString());
+            }
+        } catch (IOException | InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }

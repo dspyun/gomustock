@@ -1,36 +1,35 @@
 package com.gomu.gomustock.ui.simulation;
 
-import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
-
 import android.app.Dialog;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.gomu.gomustock.Fullpopup;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
-import com.gomu.gomustock.network.MyWeb;
-import com.gomu.gomustock.network.YFDownload;
-import com.gomu.gomustock.stockengin.BBandTest;
-import com.gomu.gomustock.stockengin.Balance;
-import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.stockengin.StockDic;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,12 +84,21 @@ public class SimulationFragment extends Fragment {
     private List<String> sim_stock = new ArrayList<>();
     Dialog dialog_listmanagery; // 커스텀 다이얼로그
     Dialog dialog_progress; // 커스텀 다이얼로그
-    private List<Integer> chartcolor = new ArrayList<>();
+
     MyExcel myexcel = new MyExcel();
-    StockDic stockdic = new StockDic();
-    List<BBandTest> bbandtestlist = new ArrayList<>();
 
+    WebView webView;
+    String source;
 
+    TextView reload,review;
+
+    List<String> latest_list = new ArrayList<>();
+    List<String> namelist = new ArrayList<>();
+    List<String> codelist = new ArrayList<>();
+    List<Float> profitlist = new ArrayList<>();
+    static int LIST_SIZE = 25;
+    String FILENAME;
+    private Fullpopup fullpopup;
     public static SimulationFragment newInstance(String param1, String param2) {
         SimulationFragment fragment = new SimulationFragment();
         Bundle args = new Bundle();
@@ -123,329 +131,176 @@ public class SimulationFragment extends Fragment {
         dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         dialog_progress.setContentView(R.layout.dialog_progress);
 
-        SimulationView(view);
+
+        reload = view.findViewById(R.id.reload);
+        review = view.findViewById(R.id.review);
+
+        webView = view.findViewById(R.id.webView);
+
+
+        //WebView 자바스크립트 활성화
+        webView.getSettings().setJavaScriptEnabled(true);
+        // 자바스크립트인터페이스 연결
+        // 이걸 통해 자바스크립트 내에서 자바함수에 접근할 수 있음.
+        webView.addJavascriptInterface(new MyJavascriptInterface(), "Android");
+        // 페이지가 모두 로드되었을 때, 작업 정의
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // 자바스크립트 인터페이스로 연결되어 있는 getHTML를 실행
+                // 자바스크립트 기본 메소드로 html 소스를 통째로 지정해서 인자로 넘김
+                view.loadUrl("javascript:window.Android.getHtml(document.getElementsByTagName('body')[0].innerHTML);");
+            }
+            @Override
+            public void onLoadResource(WebView view, String url)  {
+                super.onPageFinished(view, url);
+                // 자바스크립트 인터페이스로 연결되어 있는 getHTML를 실행
+                // 자바스크립트 기본 메소드로 html 소스를 통째로 지정해서 인자로 넘김
+                view.loadUrl("javascript:window.Android.getHtml(document.getElementsByTagName('body')[0].innerHTML);");
+            }
+        });
+        //지정한 URL을 웹 뷰로 접근하기
+        String URL = "https://comp.fnguide.com/SVO/WooriRenewal/inst.asp";
+        //URL = "www.naver.com";
+        webView.loadUrl(URL);
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                webView.reload();
+            }
+        });
+
+        review.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<List<String>> multilist = new ArrayList<List<String>>();
+                String stocklist="";
+
+                if(codelist.size() > 0 && namelist.size() > 0) {
+                    multilist.add(0, codelist);
+                    multilist.add(1, namelist);
+                    List<FormatStockInfo> empty = new ArrayList<>();
+                    empty = myexcel.stock20format(multilist);
+                    //myexcel.writestockinfoCustom(filename+".xls",empty);
+                    myexcel.writestockinfoCustom(FILENAME, empty);
+                    int size = codelist.size();
+                    for (int i = 0; i < size ; i++) {
+                        stocklist += latest_list.get(i) + "\n\r";
+                        //stocklist += npslist.get(i).stock_code + " " + npslist.get(i).stock_name + "\r\n";
+                    }
+
+                    fullpopup = new Fullpopup(getActivity(), stocklist);
+                    fullpopup.show();
+                }
+            }
+        });
+
         return view;
     }
-    public void SimulationView(View view) {
 
-        init_resource(view);
-        simulation();
+    public class MyJavascriptInterface {
+        @JavascriptInterface
+        public void getHtml(String html) {
+            //위 자바스크립트가 호출되면 여기로 html이 반환됨
+            StockDic stockdic = new StockDic();
 
-        simselect_bt.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                setDefaultTextColor();
-                sim_stock = myexcel.readSimullist();
-                notice_ok(0);
-            }
-        });
+            String result="";
+            Map<String, String> npsmap = new HashMap<>();
+            ArrayList<String> keyList;// = new ArrayList<>(npsmap.keySet());
+            ArrayList<Float> profitkeyList;
 
-        simdl_bt.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                setDefaultTextColor();
-                sim_stock = myexcel.readSimullist();
-                YFDownload_Dialog(sim_stock);
-            }
-        });
+            source = html;
+            Document doc = Jsoup.parseBodyFragment(html);
+            Elements tbodylist =doc.select("tbody");
 
-        simtool_bt.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                String code, name;
-                setDefaultTextColor();
-                // backtest용 data를 만들어 excel에 저장한다
-                for(int i =0;i<sim_stock.size();i++) {
-                    code = sim_stock.get(i);
-                    //MyMagic01 mymagic01 = new MyMagic01(code, "069500");
-                    //mymagic01.makeBackdata();
-                    PriceBox pricebox = new PriceBox(code);
-                    List<Float> closeprice = pricebox.getClose();
-                    BBandTest bbtest = new BBandTest(code,closeprice, 60);
-                    bbandtestlist.add(bbtest);
-                }
-                simul_adapter.putBBandTestList(bbandtestlist);
-                notice_ok(2);
-            }
-        });
+            Elements tb_trlist = tbodylist.get(0).getElementsByTag("tr");
+            String selected = tbodylist.toString();
 
-        simsim_bt.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                setDefaultTextColor();
-                simulation();
-                notice_ok(3);
-            }
-        });
+            int size = tb_trlist.size();
+            if(size > 0) {
+                Elements theadlist =doc.select("thead");
+                Elements th_thlist = theadlist.get(0).getElementsByTag("th");
+                //String index6 = th_thlist.get(6).text();
+                String index3 = th_thlist.get(3).text();
+                Map<Float, String> profitmap = new HashMap<>();
 
-        addnew_img.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                listmanager_dialog();
-                //app_restart();
-            }
-        });
+                if( !index3.equals("우선주")) {
+                    // 펀더멘탈, 수급종목은 이쪽으로 들어온다
+                    latest_list.clear();
+                    namelist.clear();
+                    codelist.clear();
+                    for (int i = 0; i < LIST_SIZE; i++) {
+                        Elements tdlist = tb_trlist.get(i).getElementsByTag("td");
+                        String name = tdlist.get(1).text();
+                        Float profit = Float.parseFloat(tdlist.get(3).text().replace(",",""));
+                        namelist.add(name);
+                        codelist.add(stockdic.getStockcode(name));
+                        profitmap.put(profit, name);
+                        latest_list.add(codelist.get(i) + " " + namelist.get(i) + " " + profit);
+                    }
+                    profitkeyList = new ArrayList<>(profitmap.keySet());
+                    profitkeyList.sort((s1, s2) -> s1.compareTo(s2));
+                    // 최신 순으로 정렬한다
+                    Collections.sort(profitkeyList, Collections.reverseOrder());
 
-    }
-
-    public String code2name(List<String> codelist) {
-        String name = " 시뮬레이션 종목 리스트 : \n";
-        StockDic stockdic = new StockDic();
-        int size = codelist.size();
-        if(size <= 0) {
-            name = " 종목을 추가해주세요 \n";
-        }
-        else {
-            for (int i = 0; i < size; i++) {
-                name += stockdic.getStockname(codelist.get(i));
-                name += " ";
-            }
-        }
-        return name;
-    }
-
-    public boolean checkTestFile(List<String> codelist) {
-        // 파일이 없으면 false, 있으면 true를 반환한다
-        boolean flag=true;
-        int size = codelist.size();
-        for(int i =0;i<size;i++) {
-            if(!myexcel.file_check(sim_stock.get(i)+"_testset")) {
-                flag = false;
-                break;
-            }
-        }
-        return flag;
-    }
-
-    public void listmanager_dialog(){
-
-        dialog_listmanagery.show(); // 다이얼로그 띄우기
-        dialog_listmanagery.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                // 원하는 기능 구현
-
-                // dialog 화면에서 입력된 정보를 읽어온다
-                EditText NAME = dialog_listmanagery.findViewById(R.id.stock_name);
-                EditText CODE = dialog_listmanagery.findViewById(R.id.stock_code);
-                String name = NAME.getText().toString();
-                String code = CODE.getText().toString();
-
-                String stock_code="",stock_name="";
-                if(!name.equals("")) {
-                    stock_code = stockdic.getStockcode(name);
-                    stock_name = name;
-                    if (stock_code.equals("")){
-                        Toast.makeText(context, "종목코드 오류", Toast.LENGTH_SHORT).show();
-                        return;
+                    int i = 0;
+                    latest_list.clear();
+                    namelist.clear();
+                    codelist.clear();
+                    for (Float key : profitkeyList) {
+                        // result = 시간 + 종목
+                        //result += key + " " + npsmap.get(key)+"\n";
+                        namelist.add(profitmap.get(key));
+                        codelist.add(stockdic.getStockcode(profitmap.get(key)));
+                        latest_list.add(key + " " + codelist.get(i) + " " + profitmap.get(key));
+                        i++;
+                        if (i >= LIST_SIZE) break;
                     }
 
-                } else if(!code.equals("")) {
-                    stock_name = stockdic.getStockname(code);
-                    stock_code = code;
-                    if (stock_name.equals("")){
-                        Toast.makeText(context, "종목명 오류", Toast.LENGTH_SHORT).show();
-                        return;
+                    index3 = th_thlist.get(3).text();
+                    if(index3.equals("수익률(%)")) {
+                        latest_list.add(0,"수급종목");
+                        FILENAME = "fnguide_수급.xls";
+                    } else {
+                        latest_list.add(0,"펀더멘탈");
+                        FILENAME = "fnguide_펀더멘탈.xls";
                     }
-                }
-
-                // adapter list에 종목코드가 없으면 update사켜주고
-                List<String> adapterList = simul_adapter.getRecyclerList();
-                if(!adapterList.contains(stock_code)) {
-                    adapterList.add(stock_code);
-                    // 파일에도 추가해주고..info는 추가로 불러와야 함
-                    addSimulFile(stock_code);
-                    //simul_adapter.putRecyclerList(adapterList);
-                }
-
-                // list를 update하며 안된다
-                // 정보가 없으니까...정보불러오기 끝나고 simul 버튼 누른 후 update 시키는 것으로
-                // simul_adapter.putStocklist(sim_stock);
-
-                simul_adapter.refresh();
-                dialog_listmanagery.dismiss(); // 다이얼로그 닫기
-            }
-        });
-        //  버튼
-        dialog_listmanagery.findViewById(R.id.cancelBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText stock_name = dialog_listmanagery.findViewById(R.id.stock_name);
-                String name = stock_name.getText().toString();
-
-                String stock_no = stockdic.getStockcode(name);
-                if(stock_no.equals("")) {
-                    Toast.makeText(context, "종목명 오류",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                delSimulFile(stock_no);
-
-                // 지우는 것은 price 파일을 불러올 필요없으니
-                // 리스트에서 바로 삭제한다
-                int index = sim_stock.indexOf(stock_no);
-                sim_stock.remove(index);
-                simul_adapter.putRecyclerList(sim_stock);
-                simul_adapter.refresh();
-                dialog_listmanagery.dismiss(); // 다이얼로그 닫기
-            }
-        });
-    }
-
-
-    void dl_yahoofinance_price(List<String> stocklist) {
-        MyWeb myweb = new MyWeb();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                for(int i=0;i<stocklist.size();i++) {
-                    new YFDownload(stocklist.get(i));
-                }
-                notice_ok(1);
-            }
-        }).start();
-    }
-
-    public void notice_ok(int i) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1L); // 잠시라도 정지해야 함
-                    //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
-                    if(i==0) simselect_bt.setTextColor(Color.YELLOW);
-                    if(i==1) simdl_bt.setTextColor(Color.YELLOW);
-                    if(i==2) simtool_bt.setTextColor(Color.YELLOW);
-                    if(i==3) simsim_bt.setTextColor(Color.YELLOW);
-                } catch (Exception e) {
-                    System.out.println("인터럽트로 인한 스레드 종료.");
-                    return;
-                }
-            }
-        });
-    }
-
-
-    public void delSimulFile(String stockcode) {
-        List<String> filelist = new ArrayList<>();
-        filelist = myexcel.readSimullist();
-        int index = filelist.indexOf(stockcode);
-        filelist.remove(index);
-        myexcel.writeSimullist(filelist);
-    }
-
-    public void addSimulFile(String stockcode) {
-        List<String> filelist = new ArrayList<>();
-        filelist = myexcel.readSimullist();
-        if(!filelist.contains(stockcode)) {
-            // 중복된 파일이 없으면 추가해준다.
-            // file이 없으면 size()가 0이다. 0이어도 add, 아니어도 add한다.
-            filelist.add(stockcode);
-            myexcel.writeSimullist(filelist);
-        }
-    }
-
-    public void init_resource(View view) {
-
-        simselect_bt = view.findViewById(R.id.sim_selectitem);;
-        simdl_bt = view.findViewById(R.id.sim_dl);
-        simtool_bt = view.findViewById(R.id.sim_tool);;
-        simsim_bt = view.findViewById(R.id.sim_sim);
-        noti_board = view.findViewById(R.id.noti_board);
-        addnew_img = view.findViewById(R.id.sim_addnew);
-    }
-
-    public void simulation() {
-
-        sim_stock = myexcel.readSimullist();
-        noti_board.setText(code2name(sim_stock));
-        if((sim_stock.size() <= 0) || (!checkTestFile(sim_stock))) {
-            String info = "test파일이 없습니다\n"+"조건식파일생성 버튼을 눌러주세요";
-            noti_board.setText(info);
-        }
-        // simulation 재진입 시, 이전의 testlist를 지워준다
-        // 아래처럼 testlist는 add만 있기 때문에 추가되면
-        // 반드시 지워주고 rebuild해야 한다
-        bbandtestlist.clear();
-        List<Balance> balancelist = new ArrayList<Balance>();
-        int size=sim_stock.size();
-        for(int i =0;i<size;i++) {
-            String code = sim_stock.get(i);
-            if(!myexcel.file_check(code)) continue;
-            PriceBox pricebox = new PriceBox(code);
-            List<Float> closeprice = new ArrayList<>();
-            closeprice = pricebox.getClose();
-            BBandTest bbtest = new BBandTest(code,closeprice, 60);
-            bbandtestlist.add(bbtest);
-            Balance balance = new Balance(code,0);
-            balancelist.add(balance);
-        }
-
-        // recycler view 준비
-        recyclerView = view.findViewById(R.id.sim_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setItemAnimator(null);
-        //recyclerView.setItemViewCacheSize(10);
-        //pf_adapter = new PortfolioAdapter(getActivity(), portfolioList);
-        simul_adapter = new SimulAdapter(getActivity(), sim_stock);
-        recyclerView.setAdapter(simul_adapter);
-        simul_adapter.putBBandTestList(bbandtestlist);
-        simul_adapter.putChartdata(balancelist);
-        simul_adapter.refresh();
-    }
-
-    public void setDefaultTextColor() {
-        simselect_bt.setTextColor(Color.LTGRAY);
-        simdl_bt.setTextColor(Color.LTGRAY);
-        simtool_bt.setTextColor(Color.LTGRAY);
-        simsim_bt.setTextColor(Color.LTGRAY);
-
-    }
-
-
-    /* Handler 클래스를 상속한 ProgressHandler 클래스를 새로 정의
-        이유는 handleMessage() 메소드를 다시 정의하여 메시지가
-        메인 스레드에서 수행될 때 필요한 기능을 정하기 위해서 새로 정의
-    */
-
-
-    public void YFDownload_Dialog(List<String> stock_list){
-        dialog_progress.show(); // 다이얼로그 띄우기
-        dialog_progress.setCanceledOnTouchOutside(false);
-        dialog_progress.setCancelable(false);
-        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
-
-        Thread dlg_thread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    int max = stock_list.size();
-                    dlg_bar.setProgress(0);
-                    for(int i=0;i<stock_list.size();i++) {
-                        dlg_bar.setProgress(100*(i+1)/max);
-                        new YFDownload(stock_list.get(i));
-                        //Thread.sleep(1000L);
+                } else {
+                    // 국민연금은 여기로 들어온다
+                    for (int i = 0; i < size; i++) {
+                        Elements tdlist = tb_trlist.get(i).getElementsByTag("td");
+                        String stock_name = tdlist.get(1).text();
+                        //if(i < save_list_size) namelist.add(stock_name);
+                        String buytime = tdlist.get(6).text();
+                        npsmap.put(buytime, stock_name);
                     }
-                    dialog_progress.dismiss();
-                } catch (Exception ex) {
-                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
+                    keyList = new ArrayList<>(npsmap.keySet());
+                    keyList.sort((s1, s2) -> s1.compareTo(s2));
+                    // 최신 순으로 정렬한다
+                    Collections.sort(keyList, Collections.reverseOrder());
+
+                    int i = 0;
+                    latest_list.clear();
+                    namelist.clear();
+                    codelist.clear();
+                    for (String key : keyList) {
+                        // result = 시간 + 종목
+                        //result += key + " " + npsmap.get(key)+"\n";
+                        namelist.add(npsmap.get(key));
+                        codelist.add(stockdic.getStockcode(npsmap.get(key)));
+                        latest_list.add(key + " " + codelist.get(i) + " " + npsmap.get(key));
+                        i++;
+                        if (i >= LIST_SIZE) break;
+                    }
+                    latest_list.add(0,"국민연금");
+                    FILENAME = "fnguide_국민연금.xls";
                 }
+
+            } else {
+                //System.out.println( driver.toString());
             }
-        });
-
-        dlg_thread.start();
+        }
     }
-
 
 }

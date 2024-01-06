@@ -194,7 +194,6 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         holder.tvStockinfo.setText(getStockInfo(stock_code));
 
         // 차트에 코스피와 종목 데이터를 넣어준다
-
         standard_chart.clearbuffer();
         chartlist = new ArrayList<FormatChart>();
         int size = priceboxlist.size();

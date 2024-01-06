@@ -29,6 +29,7 @@ import com.gomu.gomustock.databinding.FragmentNotificationsBinding;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.PriceBox;
+import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
@@ -97,7 +98,23 @@ public class NotificationsFragment extends Fragment {
                 dl_shortnews();
             }
         });
+        tvSignal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread dlg_thread = new Thread(new Runnable() {
+                    StockDic stockdic = new StockDic();
 
+                    public void run() {
+                        try {
+                            stockdic.reMakeDic();
+                        } catch (Exception ex) {
+                            Log.e("MainActivity", "Exception in processing mesasge.", ex);
+                        }
+                    }
+                });
+                //dl_shortnews();
+            }
+        });
 
         notificationsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -185,6 +202,17 @@ public class NotificationsFragment extends Fragment {
         });
     }
 
+    public void dl_npslist() {
+        MyWeb myweb = new MyWeb();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                SHORT_NEWS = myweb.getNPSlist();
+                notice_ok(2);
+            }
+        }).start();
+    }
 
     public void dl_shortnews() {
         MyWeb myweb = new MyWeb();

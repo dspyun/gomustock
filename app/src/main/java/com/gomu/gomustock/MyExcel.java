@@ -437,6 +437,7 @@ public class MyExcel extends MyStat{
                         MARKET.add(sheet1.getCell(6, i).getContents());
                     }
                 }
+                /*
                 Sheet sheet2 = wb.getSheet(2);   // 시트 불러오기
                 if(sheet2 != null) {
                     // line1, col1에서 contents를 읽는다.
@@ -447,6 +448,8 @@ public class MyExcel extends MyStat{
                         MARKET.add(sheet2.getCell(6, i).getContents());
                     }
                 }
+                */
+
             }
             wb.close();
             is.close();
@@ -845,7 +848,7 @@ public class MyExcel extends MyStat{
 
         int line, col;
         String PathFile="";
-        PathFile = INFODIR+filename+".xls";
+        PathFile = INFODIR+filename;
         if(file_check(PathFile)) {
             FormatStockInfo oneinfo = new FormatStockInfo();
             oneinfo.init();
@@ -1420,7 +1423,7 @@ public class MyExcel extends MyStat{
     public void writelist(String filename,List<List<String>> multilist) {
 
         WritableSheet writablesheet;
-        String PathFile = INFODIR+filename+".xls";
+        String PathFile = INFODIR+filename;
 
         File file1 = new File(PathFile);
         try {

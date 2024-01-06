@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.note.NoteFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/memoedit"
+            android:layout_width="200dp"
+            android:layout_height="@dimen/topline"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="Edit"/>
+        <Button
+            android:id="@+id/memosave"
+            android:layout_width="200dp"
+            android:layout_height="@dimen/topline"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="Save"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/editor_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/myeditor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:textIsSelectable="true"
+            android:gravity="top|left"
+            android:imeOptions="actionDone"
+            android:inputType="textMultiLine"
+            android:textSize="14sp" />
+    </ScrollView>
+
+</LinearLayout>

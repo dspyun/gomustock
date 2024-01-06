@@ -23,16 +23,15 @@
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications"/>
 
-
-    <fragment
-        android:id="@+id/navigation_robotrade"
-        android:name="com.gomu.gomustock.ui.simulation.SimulationFragment"
-        android:label="@string/title_robotrade"
-        tools:layout="@layout/fragment_robotrade"/>
-
     <fragment
         android:id="@+id/navigation_simulation"
         android:name="com.gomu.gomustock.ui.simulation.SimulationFragment"
         android:label="@string/title_simulation"
         tools:layout="@layout/fragment_simulation"/>
+
+    <fragment
+        android:id="@+id/navigation_note"
+        android:name="com.gomu.gomustock.ui.note.NoteFragment"
+        android:label="@string/title_Note"
+        tools:layout="@layout/fragment_note"/>
 </navigation>

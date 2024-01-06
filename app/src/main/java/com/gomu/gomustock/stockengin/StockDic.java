@@ -61,7 +61,7 @@ public class StockDic {
         return onedic.market;
     }
 
-    public void reMakeDic(List<String> stock_code, List<String> stock_name) {
+    public void reMakeDic() {
         stockdic_db = StockDicDB.getInstance(context);
         diclist = stockdic_db.dicDao().getAll();
         diclist.clear();

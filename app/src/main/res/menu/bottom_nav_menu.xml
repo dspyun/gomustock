@@ -17,11 +17,12 @@
         android:title="@string/title_notifications"/>
 
     <item
-        android:id="@+id/navigation_robotrade"
-        android:icon="@drawable/robot_48px"
-        android:title="@string/title_robotrade"/>
-    <item
         android:id="@+id/navigation_simulation"
         android:icon="@drawable/ic_simulation"
         android:title="@string/title_simulation"/>
+
+    <item
+        android:id="@+id/navigation_note"
+        android:icon="@drawable/note_white_48"
+        android:title="@string/title_Note"/>
 </menu>

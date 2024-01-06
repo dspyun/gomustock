@@ -101,9 +101,10 @@ public class HomeFragment extends Fragment {
 
         // 매수, 매도 DB를 합쳐서
         // 최종 보유주식과 매매 히스토리를 만든다.
-        Cache mycache = new Cache();
-        mycache.initialize();
-
+        //Cache mycache = new Cache();
+        //mycache.initialize();
+        //makeStockDic();
+        StockDic stockdic = new StockDic();
 
         // gomustock 파일 리스트를 불러온다
         String[] filelist = getFileList();
@@ -202,6 +203,8 @@ public class HomeFragment extends Fragment {
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 home_adapter = new HomeAdapter(getActivity(), mystocklist);
                 binding.homeRecyclerView.setAdapter(home_adapter);
+
+                makeStockDic();
             }
         });
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -363,6 +366,9 @@ public class HomeFragment extends Fragment {
                     InfoDownload info = new InfoDownload();
                     dlg_bar.setProgress(0);
                     for(int i=0;i<stock_list.size();i++) {
+                        if(stock_list.get(i)=="") {
+                            continue;
+                        }
                         dlg_bar.setProgress(100*(i+1)/max);
                         // 1. 주가를 다운로드 하고
                         if(guide.equals("All")) {
@@ -399,7 +405,6 @@ public class HomeFragment extends Fragment {
             }
         }).start();
     }
-
 
     private BackgroundThread update_thread = new BackgroundThread();
 
@@ -441,7 +446,20 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    public void makeStockDic() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
+        Thread dlg_thread = new Thread(new Runnable() {
+            StockDic stockdic = new StockDic();
+            public void run() {
+                try {
+                    stockdic.reMakeDic();
+                } catch (Exception ex) {
+                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
+                }
+            }
+        });
+    }
     public void notice_ok() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 

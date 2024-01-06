@@ -432,6 +432,7 @@ public class DashboardFragment extends Fragment {
                     new YFDownload("^KS200");
                     fnGuide myfnguide = new fnGuide();
                     for(int i=0;i<stock_list.size();i++) {
+                        if(stock_list.get(i)=="") continue;
                         dlg_bar.setProgress(100*(i+1)/max);
                         // 1. 주가를 다운로드 하고
                         new YFDownload(stock_list.get(i));
