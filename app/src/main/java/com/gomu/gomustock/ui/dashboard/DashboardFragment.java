@@ -89,13 +89,13 @@ public class DashboardFragment extends Fragment {
         ArrayAdapter fileAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, filelist);
         fileAdapter.setDropDownViewResource(R.layout.spinner_list);
         folderspinner.setAdapter(fileAdapter); //어댑터에 연결해줍니다.
-        folderspinner.setSelection(0);
+        //folderspinner.setSelection(0);
 
 
         //FILENAME1 = filelist[0];
-        FILENAME = "monitor.xls";
+        FILENAME = "mystock.xls";
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bd_adapter = new BoardAdapter( getActivity(),FILENAME);
+        bd_adapter = new BoardAdapter(getActivity(),FILENAME);
         binding.recyclerView.setAdapter(bd_adapter);
 
         //----------------------------------------------------------
@@ -136,21 +136,24 @@ public class DashboardFragment extends Fragment {
         folderspinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("slected " + filelist[position]);
-                FILENAME = filelist[position];
-                bd_adapter = new BoardAdapter( getActivity(),FILENAME);
-                bd_adapter.loadRecyclerList(FILENAME);
-                binding.recyclerView.setAdapter(bd_adapter);
+                //System.out.println("slected " + filelist[position]);
 
-                bd_adapter.refresh();
-                fragment_refresh();
-                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
-                myscore.getPriceThreadStart();
+                FILENAME = filelist[position];
+                if(!FILENAME.equals(bd_adapter.getFilename())) {
+                    bd_adapter = new BoardAdapter(getActivity(), FILENAME);
+                    bd_adapter.loadRecyclerList(FILENAME);
+                    binding.recyclerView.setAdapter(bd_adapter);
+
+                    bd_adapter.refresh();
+                    //fragment_refresh();
+                    myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                    myscore.getPriceThreadStart();
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                System.out.println("slected ");
             }
 
         });

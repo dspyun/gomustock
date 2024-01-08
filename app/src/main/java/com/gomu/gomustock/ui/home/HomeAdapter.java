@@ -93,7 +93,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
     {
         return mystocklist.size();
     }
-
+    public String getFilename() {
+        return FILENAME;
+    }
     public void refresh( ) {
         notifyDataSetChanged();
     }
@@ -279,7 +281,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             }
         });
 
-        /*
+/*
         homeChart.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -379,6 +381,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             home_list_item = view.findViewById(R.id.home_list_layout);
             home_buysell_item =  view.findViewById(R.id.home_buysell_layout);
 
+            // 차트는 보여준다
+            // home_list_item.setVisibility(View.GONE);
+            // 차트아래의 buy, sell 버튼은 감춘다
+            home_buysell_item.setVisibility(View.GONE);
+
             home_list_item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -395,8 +402,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
                 }
             });
             */
-
         }
+
         public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener onViewHolderItemClickListener)
         {
             this.onViewHolderItemClickListener = onViewHolderItemClickListener;

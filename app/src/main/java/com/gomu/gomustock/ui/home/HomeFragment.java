@@ -42,7 +42,6 @@ import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.BBandTest;
 import com.gomu.gomustock.stockengin.PriceBox;
-import com.gomu.gomustock.stockengin.RSITest;
 import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
@@ -79,6 +78,8 @@ public class HomeFragment extends Fragment {
     View root;
     String g_today_level="", g_period_level="";
     String FILENAME;
+    ProgressBar progress_bar;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -114,10 +115,11 @@ public class HomeFragment extends Fragment {
         ArrayAdapter fileAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, filelist);
         fileAdapter.setDropDownViewResource(R.layout.spinner_list);
         folderspinner.setAdapter(fileAdapter); //어댑터에 연결해줍니다.
-        folderspinner.setSelection(0);
+        //folderspinner.setSelection(0);
+        FILENAME = filelist[folderspinner.getSelectedItemPosition()];
 
         //mystocklist = myexcel.readMyStock("mystock");
-        mystocklist = myexcel.readStockList("mystock.xls");
+        mystocklist = myexcel.readStockList(FILENAME);
         homestock_list = makeStocklist(mystocklist);
         //homestock_list = myexcel.readStockList("mystock.xls");
         FillPriceInStocklist(homestock_list,120);
@@ -140,9 +142,10 @@ public class HomeFragment extends Fragment {
                 System.out.println("slected " + filelist[position]);
                 FILENAME = filelist[position];
 
-                mystocklist = myexcel.readStockList(FILENAME);
-                homestock_list = makeStocklist(mystocklist);
-
+                if(!FILENAME.equals(home_adapter.getFilename())) {
+                    mystocklist = myexcel.readStockList(FILENAME);
+                    homestock_list = makeStocklist(mystocklist);
+                }
                 //FillPriceInStocklist(homestock_list,120);
                 //fill_chartdata();
 
@@ -197,14 +200,15 @@ public class HomeFragment extends Fragment {
             public void onClick(View v)
             {
                 FillPriceInStocklist(homestock_list,120);
-                fill_chartdata();
+                fill_chartdata_progress();
 
                 // recycler view 준비
+                /*
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 home_adapter = new HomeAdapter(getActivity(), mystocklist);
                 binding.homeRecyclerView.setAdapter(home_adapter);
-
-                makeStockDic();
+                */
+                //makeStockDic();
             }
         });
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -215,7 +219,6 @@ public class HomeFragment extends Fragment {
         });
         return root;
     }
-
 
     public void fragment_refresh() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -374,14 +377,14 @@ public class HomeFragment extends Fragment {
                         if(guide.equals("All")) {
                             new YFDownload(stock_list.get(i)); // 1년치를 다운로드 받고
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
-                            //oneinfo = info.downloadStockInfoOne(stock_list.get(i));
-                            //web_stockinfo.add(oneinfo);
+                            oneinfo = info.downloadStockInfoOne(stock_list.get(i));
+                            web_stockinfo.add(oneinfo);
                         } else {
                             // "TODAY"
                             myweb.getNaverpriceByToday(stock_list.get(i), 6 * hour); // hour시간을 읽어서 저장한다.
                         }
                     }
-                    //if(guide.equals("All")) myexcel.writestockinfoCustom("mystock",web_stockinfo);
+                    if(guide.equals("All")) myexcel.writestockinfoCustom(FILENAME,web_stockinfo);
                     notice_ok();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
@@ -478,6 +481,29 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    public void update_list() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1L); // 잠시라도 정지해야 함
+
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    home_adapter = new HomeAdapter(getActivity(), mystocklist);
+                    binding.homeRecyclerView.setAdapter(home_adapter);
+                    home_adapter.refresh();
+                    fragment_refresh();
+
+                } catch (Exception e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
+            }
+        });
+    }
+
     void update_account() {
         tuja_bt.setText(home_adapter.show_myaccount());
         home_adapter.refresh();
@@ -508,6 +534,58 @@ public class HomeFragment extends Fragment {
             mystocklist.get(i).chartdata = pricebox.getClose(days);
         }
     }
+
+    public void fill_chartdata_progress(){
+
+        dialog_progress.show(); // 다이얼로그 띄우기
+        dialog_progress.setCanceledOnTouchOutside(false);
+        dialog_progress.setCancelable(false);
+        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
+
+        Thread dlg_thread = new Thread(new Runnable() {
+
+            public void run() {
+                try {
+                    dlg_bar.setProgress(0);
+
+                    int max = mystocklist.size();
+                    for (int i = 0; i < max; i++) {
+                        dlg_bar.setProgress(100 * (i + 1) / max);
+                        String stock_code = mystocklist.get(i).stock_code;
+                        mystocklist.get(i).chartlist1 = new ArrayList<FormatChart>();
+                        mystocklist.get(i).chartlist2 = new ArrayList<FormatChart>();
+                        mystocklist.get(i).chartlist1 = GetPeriodChart(stock_code, 120);
+                        mystocklist.get(i).period_level = g_period_level;
+                        mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
+                        mystocklist.get(i).today_level = g_today_level;
+                    }
+
+                    update_list();
+                    dialog_progress.dismiss();
+
+
+                } catch (Exception e) {
+                    System.out.println("인터럽트로 인한 스레드 종료.");
+                    return;
+                }
+            }
+        });
+        dlg_thread.start();
+    }
+
+    public void fill_chartdata() {
+        int size = mystocklist.size();
+        for(int i =0;i<size;i++) {
+            String stock_code = mystocklist.get(i).stock_code;
+            mystocklist.get(i).chartlist1 = new ArrayList<FormatChart>();
+            mystocklist.get(i).chartlist2 = new ArrayList<FormatChart>();
+            mystocklist.get(i).chartlist1 = GetPeriodChart(stock_code, 120);
+            mystocklist.get(i).period_level = g_period_level;
+            mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
+            mystocklist.get(i).today_level = g_today_level;
+        }
+    }
+
 
     float lastprice;
     public List<FormatChart> GetPeriodChart(String stock_code, int period) {
@@ -545,8 +623,8 @@ public class HomeFragment extends Fragment {
             return chartlist;
         }
         BBandTest bbtest = new BBandTest(stock_code,kbband_close,test_period);
-        RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
-        List<Float> rsi_line = rsitest.test_line();
+        //RSITest rsitest = new RSITest(stock_code,kbband_close,test_period);
+        //List<Float> rsi_line = rsitest.test_line();
         maxprice = Collections.max(kbband_close);
         minprice = Collections.min(kbband_close);
         lastprice = kbband_close.get(kbband_close.size()-1);
@@ -562,7 +640,6 @@ public class HomeFragment extends Fragment {
         standard_chart.adddata_float(bbtest.getLowLine(), "", context.getColor(R.color.LightGray));
         List<Float> buyscore = bbtest.scaled_percentb();
         chartlist = standard_chart.adddata_float(buyscore, "", context.getColor(R.color.Yellow));
-
 
         Float diff_percent = 100*(lastprice-minprice)/(maxprice-minprice);
         g_period_level = String.format("%.0f",lastprice);
@@ -630,18 +707,7 @@ public class HomeFragment extends Fragment {
         return chartlist;
     }
 
-    public void fill_chartdata() {
-        int size = mystocklist.size();
-        for(int i =0;i<size;i++) {
-            String stock_code = mystocklist.get(i).stock_code;
-            mystocklist.get(i).chartlist1 = new ArrayList<FormatChart>();
-            mystocklist.get(i).chartlist2 = new ArrayList<FormatChart>();
-            mystocklist.get(i).chartlist1 = GetPeriodChart(stock_code, 120);
-            mystocklist.get(i).period_level = g_period_level;
-            mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
-            mystocklist.get(i).today_level = g_today_level;
-        }
-    }
+
 
     @Override
     public void onDestroyView() {
