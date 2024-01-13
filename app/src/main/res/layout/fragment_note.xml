@@ -7,26 +7,58 @@
     android:orientation="vertical"
     tools:context=".ui.note.NoteFragment">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <Button
+
+        <Spinner
+            android:id="@+id/memo_spinner"
+            android:layout_width="180dp"
+            android:layout_height="@dimen/topline"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:gravity="center|end"
+            android:background="@color/darkmode_dark_4a4a4a_8f9097"/>
+
+        <ImageView
             android:id="@+id/memoedit"
-            android:layout_width="200dp"
+            android:layout_width="@dimen/grid_imagewidth"
             android:layout_height="@dimen/topline"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="Edit"/>
-        <Button
+            android:gravity="center"
+            android:src="@drawable/edit_white_48" />
+
+        <ImageView
             android:id="@+id/memosave"
-            android:layout_width="200dp"
+            android:layout_width="@dimen/grid_imagewidth"
             android:layout_height="@dimen/topline"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="Save"/>
+            android:gravity="center"
+            android:src="@drawable/save_white_48" />
+        <ImageView
+            android:id="@+id/portfolio"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/controls_white" />
+
+        <ImageView
+            android:id="@+id/newdic"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/menu_book_white_48"/>
 
     </LinearLayout>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/ifa_chart"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_rowSpan="2"
+        android:layout_column="0"
+        android:layout_gravity = "fill_horizontal"
+        android:layout_row="0" />
 
     <ScrollView
         android:id="@+id/editor_scroll"

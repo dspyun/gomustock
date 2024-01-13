@@ -4,7 +4,6 @@ import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
@@ -146,6 +145,7 @@ public class HomeFragment extends Fragment {
                     mystocklist = myexcel.readStockList(FILENAME);
                     homestock_list = makeStocklist(mystocklist);
                 }
+                reload_adapter();
                 //FillPriceInStocklist(homestock_list,120);
                 //fill_chartdata();
 
@@ -160,9 +160,8 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                System.out.println("slected " + FILENAME);
             }
-
         });
 
         imgDLlist.setOnClickListener(new View.OnClickListener()
@@ -172,15 +171,6 @@ public class HomeFragment extends Fragment {
             {
                 YFDownload_Dialog(homestock_list,"All");
 
-                FillPriceInStocklist(homestock_list,120);
-                fill_chartdata();
-
-                // recycler view 준비
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                home_adapter = new HomeAdapter(getActivity(), mystocklist);
-                binding.homeRecyclerView.setAdapter(home_adapter);
-                home_adapter.refresh();
-                fragment_refresh();
             }
         });
 
@@ -199,15 +189,16 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                FillPriceInStocklist(homestock_list,120);
-                fill_chartdata_progress();
+                mystocklist = myexcel.readStockList(FILENAME);
+                homestock_list = makeStocklist(mystocklist);
+                //FillPriceInStocklist(homestock_list,120);
+                //fill_chartdata_progress();
 
                 // recycler view 준비
-                /*
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 home_adapter = new HomeAdapter(getActivity(), mystocklist);
                 binding.homeRecyclerView.setAdapter(home_adapter);
-                */
+
                 //makeStockDic();
             }
         });
@@ -385,7 +376,8 @@ public class HomeFragment extends Fragment {
                         }
                     }
                     if(guide.equals("All")) myexcel.writestockinfoCustom(FILENAME,web_stockinfo);
-                    notice_ok();
+                    //notice_ok();
+                    reload_adapter();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
                     Log.e("MainActivity", "Exception in processing mesasge.", ex);
@@ -472,7 +464,7 @@ public class HomeFragment extends Fragment {
                 try {
                     Thread.sleep(1L); // 잠시라도 정지해야 함
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
-                    filedown.setTextColor(Color.YELLOW);
+                    //filedown.setTextColor(Color.YELLOW);
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -481,6 +473,41 @@ public class HomeFragment extends Fragment {
         });
     }
 
+
+    public void reload_adapter() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                    // 현재 UI 스레드가 아니기 때문에 메시지 큐에 Runnable을 등록 함
+                    getActivity().runOnUiThread(new Runnable() {
+                        public void run() {
+                            try {
+                                Thread.sleep(1L); // 잠시라도 정지해야 함
+                                //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
+                                //filedown.setTextColor(Color.YELLOW);
+                                FillPriceInStocklist(homestock_list,120);
+                                fill_chartdata();
+
+                                // recycler view 준비
+                                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                                home_adapter = new HomeAdapter(getActivity(), mystocklist);
+                                binding.homeRecyclerView.setAdapter(home_adapter);
+                                home_adapter.refresh();
+                                fragment_refresh();
+
+                            } catch (Exception e) {
+                                System.out.println("인터럽트로 인한 스레드 종료.");
+                                return;
+                            }
+                        }
+                    });
+
+            }
+        }).start();
+
+    }
     public void update_list() {
         Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
@@ -559,11 +586,8 @@ public class HomeFragment extends Fragment {
                         mystocklist.get(i).chartlist2 = GetTodayChart(stock_code, 1);
                         mystocklist.get(i).today_level = g_today_level;
                     }
-
                     update_list();
                     dialog_progress.dismiss();
-
-
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
                     return;
@@ -657,6 +681,7 @@ public class HomeFragment extends Fragment {
 
         MyExcel myexcel = new MyExcel();
         if(!myexcel.file_check(stock_code+"today")) {
+
             return chartlist;
         }
 

@@ -1,6 +1,7 @@
 package com.gomu.gomustock.ui.simulation;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,8 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.gomu.gomustock.Fullpopup;
+import com.gomu.gomustock.FullPopup_Option;
+import com.gomu.gomustock.FulllPopup;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.stockengin.StockDic;
@@ -90,7 +92,7 @@ public class SimulationFragment extends Fragment {
     WebView webView;
     String source;
 
-    TextView reload,review;
+    ImageView reload,review;
 
     List<String> latest_list = new ArrayList<>();
     List<String> namelist = new ArrayList<>();
@@ -98,7 +100,7 @@ public class SimulationFragment extends Fragment {
     List<Float> profitlist = new ArrayList<>();
     static int LIST_SIZE = 25;
     String FILENAME;
-    private Fullpopup fullpopup;
+
     public static SimulationFragment newInstance(String param1, String param2) {
         SimulationFragment fragment = new SimulationFragment();
         Bundle args = new Bundle();
@@ -190,15 +192,22 @@ public class SimulationFragment extends Fragment {
                         //stocklist += npslist.get(i).stock_code + " " + npslist.get(i).stock_name + "\r\n";
                     }
 
-                    fullpopup = new Fullpopup(getActivity(), stocklist);
-                    fullpopup.show();
+                    full_popup(stocklist);
                 }
             }
         });
 
         return view;
     }
+    public void full_popup(String stocklist) {
+        //Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
+        FullPopup_Option popup_option = new FullPopup_Option(stocklist);
+
+        Intent intent = new Intent(getActivity(), FulllPopup.class);
+        intent.putExtra("class",popup_option);
+        getActivity().startActivity(intent);
+    }
     public class MyJavascriptInterface {
         @JavascriptInterface
         public void getHtml(String html) {

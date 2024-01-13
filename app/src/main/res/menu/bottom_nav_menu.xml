@@ -4,22 +4,22 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/wallet_48px"
-        android:title="@string/title_home" />
+        android:title="Now" />
 
     <item
         android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/monitoring_48px"
-        android:title="@string/title_dashboard" />
+        android:icon="@drawable/white_glass"
+        android:title="Analysis" />
 
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@drawable/area_chart_48px"
-        android:title="@string/title_notifications"/>
+        android:icon="@drawable/etf_find"
+        android:title="ETF"/>
 
     <item
         android:id="@+id/navigation_simulation"
-        android:icon="@drawable/ic_simulation"
-        android:title="@string/title_simulation"/>
+        android:icon="@drawable/function_48px"
+        android:title="fnGuide"/>
 
     <item
         android:id="@+id/navigation_note"

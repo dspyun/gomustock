@@ -2,6 +2,7 @@ package com.gomu.gomustock.ui.notifications;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.gomu.gomustock.FullPopup_Option;
+import com.gomu.gomustock.FulllPopup;
+import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.ui.format.FormatMyStock;
+import com.gomu.gomustock.ui.format.FormatStockInfo;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,7 +31,9 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
     private static Activity context;
     private LineChart chart2,chart1;
     String get_stock_code;
-    getAssetThread getassetthread = new getAssetThread();
+
+    getAssetThread getassetthread;
+
     public NotiAdapter(Activity context, List<FormatMyStock> input_mystocklist) {
         this.context = context;
         this.sectorinfo = input_mystocklist;
@@ -66,6 +74,7 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
 
                     get_stock_code = onesector1.stock_code;
                     //dlSectorAsset(onesector1.stock_code);
+                    getassetthread = new getAssetThread();
                     getassetthread.start();
                 }
             });
@@ -80,6 +89,7 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
                     onesector1 = sectorinfo.get(index+1);
                     get_stock_code = onesector1.stock_code;
                     //dlSectorAsset(onesector1.stock_code);
+                    getassetthread = new getAssetThread();
                     getassetthread.start();
                 }
             });
@@ -135,15 +145,33 @@ public class NotiAdapter extends RecyclerView.Adapter<NotiAdapter.ViewHolder>{
         public void run() {
 
             try {
-                Thread.sleep(1L); // 진입 시 잠시라도 정지해야 함
+                Thread.sleep(100L); // 진입 시 잠시라도 정지해야 함
                 // 60초*60분마다 한 번씩 웹크롤링으로 현재가 update
                 MyWeb myweb = new MyWeb();
-                myweb.getNaverETFAsset(get_stock_code);
+                MyExcel myexcel = new MyExcel();
+                String filename="";
+                filename = myweb.getNaverETFAsset(get_stock_code);
+                List<FormatStockInfo> etflist = new ArrayList<>();
+                etflist = myexcel.readStockinfoCustomxls(filename+".xls");
+                int size = etflist.size();
+                String stocklist="";
+                for(int i =0;i<size;i++) {
+                    stocklist += etflist.get(i).stock_name + "\r\n";
+                }
+                full_popup(stocklist);
             } catch (InterruptedException e) {
                 System.out.println("인터럽트로 인한 스레드 종료.");
                 return;
             }
-
         }
+    }
+    public void full_popup(String stocklist) {
+        //Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        FullPopup_Option popup_option = new FullPopup_Option(stocklist);
+
+        Intent intent = new Intent(context, FulllPopup.class);
+        intent.putExtra("class",popup_option);
+        context.startActivity(intent);
     }
 }

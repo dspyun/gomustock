@@ -5,6 +5,7 @@ import static java.lang.Boolean.TRUE;
 
 import android.os.Environment;
 
+import com.gomu.gomustock.ui.format.FormatIFA;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -1471,6 +1472,98 @@ public class MyExcel extends MyStat{
         return empty;
     }
 
+    public void writeIFAinfo(String filename, List<FormatIFA> ifa_list) {
 
+        WritableSheet writablesheet;
+        WritableWorkbook workbook;
+        String PathFile="";
+        PathFile = DATADIR+filename;
+        java.io.File file1 = new java.io.File(PathFile);
+
+        // 헤더를 붙여준다
+        FormatIFA header = new FormatIFA();
+        header.setheader();
+        ifa_list.add(0,header);
+
+        try {
+            // 오픈한 파일은 엑셀파일로 바꾸고
+            workbook = Workbook.createWorkbook(file1);
+            //Toast.makeText(getActivity(), " workbook open ok", Toast.LENGTH_SHORT).show();
+
+            if(workbook != null) {
+                //Toast.makeText(getContext(), " write ready ", Toast.LENGTH_SHORT).show();
+                workbook.createSheet("sheet0", 0);
+                writablesheet = workbook.getSheet(0);
+                //Toast.makeText(getContext(), " sheet open ok", Toast.LENGTH_SHORT).show();
+                int size = ifa_list.size();
+                if(writablesheet != null) {
+                    for(int row =0;row<size;row++) {
+                        writablesheet.addCell(new Label(0, row, ifa_list.get(row).day));
+                        writablesheet.addCell(new Label(1, row, ifa_list.get(row).indi));
+                        writablesheet.addCell(new Label(2, row, ifa_list.get(row).foreign));
+                        writablesheet.addCell(new Label(3, row, ifa_list.get(row).agency));
+                    }
+                }
+            }
+            workbook.write();
+            workbook.close();
+            //Toast.makeText(getContext(), "init excel write ok", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            //Toast.makeText(getContext(), "io error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            //Toast.makeText(getContext(), "write error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+    public List<FormatIFA>readIFAinfo(String filename) {
+        InputStream is=null;
+        Workbook wb=null;
+        String contents1=null;
+        int line, col;
+        String PathFile="";
+        PathFile = DATADIR+filename;
+
+        List<FormatIFA> price_Buffer = new ArrayList<>();
+
+        try {
+            is =  new FileInputStream(PathFile);
+            wb = Workbook.getWorkbook(is);
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    // line1, col1에서 contents를 읽는다.
+                    int size = sheet.getColumn(0).length;
+                    for(int i=1;i<size;i++) {
+                        FormatIFA temp = new FormatIFA();
+                        temp.day = sheet.getCell(0, i).getContents();
+                        temp.indi = sheet.getCell(1, i).getContents();
+                        temp.foreign = sheet.getCell(2, i).getContents();
+                        temp.agency = sheet.getCell(3, i).getContents();
+                        price_Buffer.add(temp);
+                    }
+                }
+            }
+            wb.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
+
+        List<FormatIFA> price_rev = new ArrayList<>();
+        int size = price_Buffer.size();
+        for(int i =size-1;i>=0;i--) {
+            price_rev.add(price_Buffer.get(i));
+        }
+
+        return price_rev;
+    }
 }
 

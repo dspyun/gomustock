@@ -1,11 +1,13 @@
 package com.gomu.gomustock.ui.dashboard;
 
+import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -417,6 +419,41 @@ public class DashboardFragment extends Fragment {
     }
 
 
+    public void reload_adapter() {
+        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 현재 UI 스레드가 아니기 때문에 메시지 큐에 Runnable을 등록 함
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
+                            Thread.sleep(1L); // 잠시라도 정지해야 함
+
+                            if(!FILENAME.equals(bd_adapter.getFilename())) {
+                                bd_adapter = new BoardAdapter(getActivity(), FILENAME);
+                                bd_adapter.loadRecyclerList(FILENAME);
+                                binding.recyclerView.setAdapter(bd_adapter);
+
+                                bd_adapter.refresh();
+                                //fragment_refresh();
+                                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                                myscore.getPriceThreadStart();
+                            }
+
+                        } catch (Exception e) {
+                            System.out.println("인터럽트로 인한 스레드 종료.");
+                            return;
+                        }
+                    }
+                });
+
+            }
+        }).start();
+
+    }
+
 
     public void YFDownload_Dialog(List<String> stock_list){
         dialog_progress.show(); // 다이얼로그 띄우기
@@ -453,7 +490,7 @@ public class DashboardFragment extends Fragment {
                         web_stockinfo.add(i,info);
                     }
                     myexcel.writestockinfoCustom(FILENAME,web_stockinfo);
-                    notice_ok();
+                    reload_adapter();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {
                     Log.e("MainActivity", "Exception in processing mesasge.", ex);

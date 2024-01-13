@@ -3,7 +3,6 @@ package com.gomu.gomustock.ui.notifications;
 import static android.content.ContentValues.TAG;
 
 import android.app.Dialog;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -11,7 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,7 +31,6 @@ import com.gomu.gomustock.databinding.FragmentNotificationsBinding;
 import com.gomu.gomustock.network.MyWeb;
 import com.gomu.gomustock.network.YFDownload;
 import com.gomu.gomustock.stockengin.PriceBox;
-import com.gomu.gomustock.stockengin.StockDic;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
 
@@ -42,6 +43,7 @@ public class NotificationsFragment extends Fragment {
     private NotificationsViewModel notificationsViewModel;
     private FragmentNotificationsBinding binding;
     TextView tvDownload, tvUpdate,tvSignal,tvDummy,tvNews;
+    ImageView etf_dlicon,etf_news,etf_sync;
     LineChart kospi, snp500,nasdaq, dow, sox;
     MyExcel myexcel = new MyExcel();
     List<Float> kospi_index = new ArrayList<>();
@@ -65,6 +67,13 @@ public class NotificationsFragment extends Fragment {
         dialog_progress.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         dialog_progress.setContentView(R.layout.dialog_progress);
 
+        // 파일리스트를 spinner에 넣어준다
+        String[] filelist = {"etf1","etf2"};
+        Spinner folderspinner = root.findViewById(R.id.etf_spinner);
+        ArrayAdapter fileAdapter = new ArrayAdapter<String>(root.getContext(), R.layout.spinner_list, filelist);
+        fileAdapter.setDropDownViewResource(R.layout.spinner_list);
+        folderspinner.setAdapter(fileAdapter); //어댑터에 연결해줍니다.
+
         initResource();
         dl_shortnews();
 
@@ -79,7 +88,7 @@ public class NotificationsFragment extends Fragment {
         noti_adapter = new NotiAdapter(getActivity(), sectorinfo);
         binding.notiRecyclerView.setAdapter(noti_adapter);
 
-        tvDownload.setOnClickListener(new View.OnClickListener() {
+        etf_dlicon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -92,27 +101,16 @@ public class NotificationsFragment extends Fragment {
                 //dl_yahoofinance_price();
             }
         });
-        tvUpdate.setOnClickListener(new View.OnClickListener() {
+        etf_news.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dl_shortnews();
             }
         });
-        tvSignal.setOnClickListener(new View.OnClickListener() {
+        etf_sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Thread dlg_thread = new Thread(new Runnable() {
-                    StockDic stockdic = new StockDic();
-
-                    public void run() {
-                        try {
-                            stockdic.reMakeDic();
-                        } catch (Exception ex) {
-                            Log.e("MainActivity", "Exception in processing mesasge.", ex);
-                        }
-                    }
-                });
-                //dl_shortnews();
+                dl_shortnews();
             }
         });
 
@@ -125,10 +123,10 @@ public class NotificationsFragment extends Fragment {
         return root;
     }
     public void initResource() {
-        tvDownload= root.findViewById(R.id.tv_noti_dl);
-        tvUpdate = root.findViewById(R.id.tv_noti_update);
-        tvSignal = root.findViewById(R.id.tv_noti_signal);
-        tvDummy = root.findViewById(R.id.tv_noti_dummy);
+        etf_dlicon= root.findViewById(R.id.etf_dlicon);
+        etf_news = root.findViewById(R.id.etf_news);
+        etf_sync = root.findViewById(R.id.etf_sync);
+
         tvNews = root.findViewById(R.id.short_news);
     }
 
@@ -191,8 +189,7 @@ public class NotificationsFragment extends Fragment {
                 try {
                     Thread.sleep(1L); // 잠시라도 정지해야 함
                     //Toast.makeText(context, "home fragment", Toast.LENGTH_SHORT).show();
-                    if(i==1) tvDownload.setTextColor(Color.YELLOW);
-                    else if(i==2) tvNews.setText(SHORT_NEWS);
+                    if(i==2) tvNews.setText(SHORT_NEWS);
                     noti_adapter.refresh();
                 } catch (Exception e) {
                     System.out.println("인터럽트로 인한 스레드 종료.");
@@ -202,17 +199,6 @@ public class NotificationsFragment extends Fragment {
         });
     }
 
-    public void dl_npslist() {
-        MyWeb myweb = new MyWeb();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-                SHORT_NEWS = myweb.getNPSlist();
-                notice_ok(2);
-            }
-        }).start();
-    }
 
     public void dl_shortnews() {
         MyWeb myweb = new MyWeb();

@@ -62,24 +62,31 @@ public class PriceBox {
     }
     public List<Float> getClose(int days) {
         List<Float>closeprice=new ArrayList<>();
-        if(CLOSEPRICE.size()>0) {
-            int size = CLOSEPRICE.size();
-            for(int i =0;i<days;i++) {
-                closeprice.add(CLOSEPRICE.get(size-days+i));
-            }
-        } else  {
+        int size = CLOSEPRICE.size();
+        if(size <= 0) {
             for(int i =0;i<days;i++) {
                 closeprice.add(0f);
+            }
+        } else  {
+            for (int i = 0; i < days; i++) {
+                closeprice.add(CLOSEPRICE.get(size - days + i));
             }
         }
         return closeprice;
     }
+
     public List<Float> getStdClose(int days) {
         MyExcel myexcel = new MyExcel();
         List<Float>closeprice=new ArrayList<>();
         int size = CLOSEPRICE.size();
-        for(int i =0;i<days;i++) {
-            closeprice.add(CLOSEPRICE.get(size-days+i));
+        if(size <= 0 ) {
+            for(int i =0;i<days;i++) {
+                closeprice.add(0f);
+            }
+        } else  {
+            for (int i = 0; i < days; i++) {
+                closeprice.add(CLOSEPRICE.get(size-days+i));
+            }
         }
         CLOSESTDPRICE = myexcel.standardization_lib(closeprice);
         return CLOSESTDPRICE;

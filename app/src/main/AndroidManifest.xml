@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gomu.gomustock" >
+    package="com.gomu.gomustock">
 
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -18,7 +18,13 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GomuStock" >
+        android:theme="@style/Theme.GomuStock">
+        <activity
+            android:name=".FullPopup_Option"
+            android:exported="false" />
+        <activity
+            android:name=".FulllPopup"
+            android:exported="false" />
         <activity
             android:name=".ui.dashboard.BoardChartActivity"
             android:exported="false"
@@ -33,7 +39,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustPan|adjustUnspecified" >
+            android:windowSoftInputMode="adjustPan|adjustUnspecified">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -7,38 +7,51 @@
     android:orientation="vertical"
     tools:context=".ui.notifications.NotificationsFragment">
 
-    <TableLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:orientation="horizontal">
 
-        <TableRow>
-            <Button
-                android:id="@+id/tv_noti_dl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="정보DL"
-                android:layout_weight = "1"/>
-            <Button
-                android:id="@+id/tv_noti_update"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Update"
-                android:layout_weight = "1"/>
-            <Button
-                android:id="@+id/tv_noti_signal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NewDic"
-                android:layout_weight = "1"/>
-            <Button
-                android:id="@+id/tv_noti_dummy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="dummy"
-                android:layout_weight = "1"/>
-        </TableRow>
-    </TableLayout>
+        <Spinner
+            android:id="@+id/etf_spinner"
+            android:layout_width="180dp"
+            android:layout_height="@dimen/topline"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:gravity="center|end"
+            android:background="@color/darkmode_dark_4a4a4a_8f9097"/>
+
+        <ImageView
+            android:id="@+id/etf_dlicon"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/download_white_48dp" />
+
+        <ImageView
+            android:id="@+id/etf_news"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/newspaper_white_48" />
+
+        <ImageView
+            android:id="@+id/etf_addnew"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/add_circle_white_48dp"/>
+
+        <ImageView
+            android:id="@+id/etf_sync"
+            android:layout_width="50dp"
+            android:layout_height="@dimen/topline"
+            android:layout_row="0"
+            android:layout_column="4"
+            android:gravity="center"
+            android:src="@drawable/sync_white_48" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/short_news"
@@ -46,16 +59,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity = "fill_horizontal"/>
 
+
+
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="10">
+        android:layout_height="wrap_content">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/noti_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:paddingBottom="70dp"
             android:clipToPadding="false"
             tools:listitem="@layout/noti_list_row"/>
     </FrameLayout>

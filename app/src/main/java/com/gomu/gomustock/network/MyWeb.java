@@ -4,6 +4,7 @@ import com.gomu.gomustock.MyDate;
 import com.gomu.gomustock.MyExcel;
 import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.ui.format.FormatETFInfo;
+import com.gomu.gomustock.ui.format.FormatIFA;
 import com.gomu.gomustock.ui.format.FormatOHLCV;
 import com.gomu.gomustock.ui.format.FormatSector;
 import com.gomu.gomustock.ui.format.FormatStockInfo;
@@ -15,10 +16,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MyWeb {
 
@@ -754,19 +752,19 @@ public class MyWeb {
     }
 
 
-    public FormatETFInfo getNaverETFAsset(String stock_code) {
+    public String getNaverETFAsset(String stock_code) {
         FormatETFInfo result = new FormatETFInfo();
         List<List<String>> multilist = new ArrayList<List<String>>();
         List<String> namelist = new ArrayList<>();
         List<String> codelist = new ArrayList<>();
         MyExcel myexcel = new MyExcel();
-        String filename;
+        String filename="";
 
         System.out.println("stock_code = " + stock_code+"\n");
         if(!checkKRStock(stock_code)) {
             // 외국주식이면 빈칸으로 채우고 건너뜀
             result.init();
-            return result;
+            return filename;
         }
         try {
             String URL = "https://finance.naver.com/item/main.naver?code="+stock_code;
@@ -806,55 +804,51 @@ public class MyWeb {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return result;
+        return filename;
     }
 
-    public String getNPSlist() {
+    public List<FormatIFA> getNaverPFA(String page) {
 
         String result="";
-        Map<String, String> npsmap = new HashMap<>();
+        List<FormatIFA> ifa_list = new ArrayList<>();
 
-
-        String URL = "https://comp.fnguide.com/SVO/WooriRenewal/inst.asp";
+                     // https://finance.naver.com/sise/investorDealTrendDay.naver?bizdate=20240112&sosok=&page=2
+        String URL = "https://finance.naver.com/sise/investorDealTrendDay.naver?bizdate=20240112&sosok=&page="+page;
         //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
         Document doc;
 
         try {
 
-            Thread.sleep(5000);
-            Jsoup.connect(URL).wait();
-            doc = Jsoup.connect(URL).timeout(5000).get();
+            doc = Jsoup.connect(URL).get();
 
-            Elements tbodylist =doc.select("tbody");
-            Elements trlist = tbodylist.get(0).getElementsByTag("tr");
-            String selected = tbodylist.toString();
+            Elements tablelist =doc.select("table");
+            Elements trlist = tablelist.get(0).getElementsByTag("tr");
 
             int size = trlist.size();
-            if(size > 0) {
-                for (int i = 0; i < size; i++) {
-
-                    Elements tdlist = trlist.get(i).getElementsByTag("td");
-                    String stock_name = tdlist.get(1).text();
-                    String buytime = tdlist.get(6).text();
-                    npsmap.put(buytime, stock_name);
-                }
-                ArrayList<String> keyList = new ArrayList<>(npsmap.keySet());
-                //keyList.sort((s1, s2) -> s1.compareTo(s2));
-                Collections.sort(keyList, Collections.reverseOrder());
-
-                for (String key : keyList) {
-                    result += key + " " + npsmap.get(key)+"\n";
-                }
-                System.out.println(result);
-                //driver.close();
-            } else {
-                //System.out.println( driver.toString());
+            for (int i = 3; i < 5+3; i++) {
+                FormatIFA oneifa = new FormatIFA();
+                Elements tdlist = trlist.get(i).getElementsByTag("td");
+                oneifa.day = tdlist.get(0).text();
+                oneifa.indi = tdlist.get(1).text();
+                oneifa.foreign = tdlist.get(2).text();
+                oneifa.agency = tdlist.get(3).text();
+                ifa_list.add(oneifa);
             }
-        } catch (IOException | InterruptedException e) {
+            for (int i = 11; i < 5+11; i++) {
+                FormatIFA oneifa = new FormatIFA();
+                Elements tdlist = trlist.get(i).getElementsByTag("td");
+                oneifa.day = tdlist.get(0).text();
+                oneifa.indi = tdlist.get(1).text();
+                oneifa.foreign = tdlist.get(2).text();
+                oneifa.agency = tdlist.get(3).text();
+                ifa_list.add(oneifa);
+            }
+
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return result;
+        return ifa_list;
     }
 
 }

@@ -7,24 +7,26 @@
     android:orientation="vertical"
     tools:context=".ui.simulation.SimulationFragment">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <TextView
+
+
+        <ImageView
             android:id="@+id/reload"
             android:layout_width="200dp"
             android:layout_height="@dimen/topline"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="Reload"/>
-        <TextView
+            android:gravity="center"
+            android:src="@drawable/sync_white_48" />
+
+        <ImageView
             android:id="@+id/review"
             android:layout_width="200dp"
             android:layout_height="@dimen/topline"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="Review"/>
+            android:gravity="center"
+            android:src="@drawable/format_list_white_48" />
 
     </LinearLayout>
     <WebView
