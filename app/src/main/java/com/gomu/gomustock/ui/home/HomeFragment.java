@@ -104,7 +104,7 @@ public class HomeFragment extends Fragment {
         //Cache mycache = new Cache();
         //mycache.initialize();
         //makeStockDic();
-        StockDic stockdic = new StockDic();
+        //StockDic stockdic = new StockDic();
 
         // gomustock 파일 리스트를 불러온다
         String[] filelist = getFileList();
@@ -559,6 +559,8 @@ public class HomeFragment extends Fragment {
         for(int i =0;i<size;i++) {
             PriceBox pricebox = new PriceBox(stock_list.get(i));
             mystocklist.get(i).chartdata = pricebox.getClose(days);
+            //int last = pricebox.getHigh().size();
+            //mystocklist.get(i).expect_profit = Float.toString(pricebox.getHigh().get(last));
         }
     }
 
@@ -731,8 +733,6 @@ public class HomeFragment extends Fragment {
 
         return chartlist;
     }
-
-
 
     @Override
     public void onDestroyView() {

@@ -217,10 +217,9 @@ public class MyScore {
     }
 
     public void getPriceThreadStart() {
+        BackgroundThread scoring_thread = new BackgroundThread();
         scoring_thread.start();
     }
-
-    public BackgroundThread scoring_thread = new BackgroundThread();
 
     class BackgroundThread extends Thread {
         public void run() {

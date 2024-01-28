@@ -814,15 +814,16 @@ public class MyExcel extends MyStat{
                         writablesheet.addCell(new Label(12, row, information.get(row).score));
                         writablesheet.addCell(new Label(13, row, information.get(row).desc));
                         writablesheet.addCell(new Label(14, row, information.get(row).news));
-                        writablesheet.addCell(new Label(15, row, information.get(row).fninfo));
-                        writablesheet.addCell(new Label(16, row, information.get(row).etfinfo));
-                        writablesheet.addCell(new Label(17, row, information.get(row).nav));
-                        writablesheet.addCell(new Label(18, row, information.get(row).etfcompanies));
-                        writablesheet.addCell(new Label(19, row, "-"));
+                        writablesheet.addCell(new Label(15, row, information.get(row).op_profit));
+                        writablesheet.addCell(new Label(16, row, information.get(row).fninfo));
+                        writablesheet.addCell(new Label(17, row, information.get(row).etfinfo));
+                        writablesheet.addCell(new Label(18, row, information.get(row).nav));
+                        writablesheet.addCell(new Label(19, row, information.get(row).etfcompanies));
                         writablesheet.addCell(new Label(20, row, "-"));
                         writablesheet.addCell(new Label(21, row, "-"));
                         writablesheet.addCell(new Label(22, row, "-"));
                         writablesheet.addCell(new Label(23, row, "-"));
+                        writablesheet.addCell(new Label(24, row, "-"));
                     }
                 }
             }
@@ -882,10 +883,11 @@ public class MyExcel extends MyStat{
                     temp.score = sheet.getCell(12, i).getContents();
                     temp.desc = sheet.getCell(13, i).getContents();
                     temp.news = sheet.getCell(14, i).getContents();
-                    temp.fninfo = sheet.getCell(15, i).getContents();
-                    temp.etfinfo = sheet.getCell(16, i).getContents();
-                    temp.nav = sheet.getCell(17, i).getContents();
-                    temp.etfcompanies = sheet.getCell(18, i).getContents();
+                    temp.op_profit = sheet.getCell(15, i).getContents();
+                    temp.fninfo = sheet.getCell(16, i).getContents();
+                    temp.etfinfo = sheet.getCell(17, i).getContents();
+                    temp.nav = sheet.getCell(18, i).getContents();
+                    temp.etfcompanies = sheet.getCell(19, i).getContents();
                     mArrayBuffer.add(temp);
                 }
             }
@@ -938,10 +940,11 @@ public class MyExcel extends MyStat{
                     temp.score = sheet.getCell(12, i).getContents();
                     temp.desc = sheet.getCell(13, i).getContents();
                     temp.news = sheet.getCell(14, i).getContents();
-                    temp.fninfo = sheet.getCell(15, i).getContents();
-                    temp.etfinfo = sheet.getCell(16, i).getContents();
-                    temp.nav = sheet.getCell(17, i).getContents();
-                    temp.etfcompanies = sheet.getCell(18, i).getContents();
+                    temp.op_profit = sheet.getCell(15, i).getContents();
+                    temp.fninfo = sheet.getCell(16, i).getContents();
+                    temp.etfinfo = sheet.getCell(17, i).getContents();
+                    temp.nav = sheet.getCell(18, i).getContents();
+                    temp.etfcompanies = sheet.getCell(19, i).getContents();
                     mArrayBuffer.add(temp);
                 }
             }

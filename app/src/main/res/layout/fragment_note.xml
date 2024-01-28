@@ -36,30 +36,40 @@
             android:gravity="center"
             android:src="@drawable/save_white_48" />
         <ImageView
-            android:id="@+id/portfolio"
+            android:id="@+id/dl_price"
             android:layout_width="@dimen/grid_imagewidth"
             android:layout_height="@dimen/topline"
             android:gravity="center"
-            android:src="@drawable/controls_white" />
+            android:src="@drawable/download_white_48dp" />
 
         <ImageView
-            android:id="@+id/newdic"
+            android:id="@+id/view_price"
             android:layout_width="@dimen/grid_imagewidth"
             android:layout_height="@dimen/topline"
             android:gravity="center"
             android:src="@drawable/menu_book_white_48"/>
+        <ImageView
+            android:id="@+id/swap_price"
+            android:layout_width="@dimen/grid_imagewidth"
+            android:layout_height="@dimen/topline"
+            android:gravity="center"
+            android:src="@drawable/swap_horiz_white_48" />
 
     </LinearLayout>
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/ifa_chart"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_rowSpan="2"
-        android:layout_column="0"
-        android:layout_gravity = "fill_horizontal"
-        android:layout_row="0" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/money_chart"
+            android:layout_width="380dp"
+            android:layout_height="200dp"
+            android:layout_rowSpan="2"
+            android:layout_column="0"
+            android:layout_gravity = "fill_horizontal"
+            android:layout_row="0" />
 
+    </LinearLayout>
     <ScrollView
         android:id="@+id/editor_scroll"
         android:layout_width="match_parent"
@@ -79,7 +89,9 @@
             android:gravity="top|left"
             android:imeOptions="actionDone"
             android:inputType="textMultiLine"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:paddingBottom="70dp"
+            android:clipToPadding="false"/>
     </ScrollView>
 
 </LinearLayout>

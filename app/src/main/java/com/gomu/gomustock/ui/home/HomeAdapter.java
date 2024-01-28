@@ -6,6 +6,7 @@ import static android.view.View.VISIBLE;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +25,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.gomu.gomustock.MyExcel;
+import com.gomu.gomustock.MyStat;
 import com.gomu.gomustock.R;
 import com.gomu.gomustock.graph.MyChart;
 import com.gomu.gomustock.network.MyOpenApi;
 import com.gomu.gomustock.network.MyWeb;
+import com.gomu.gomustock.stockengin.PriceBox;
 import com.gomu.gomustock.stockengin.StockDic;
+import com.gomu.gomustock.stockengin.TAlib;
 import com.gomu.gomustock.ui.format.FormatChart;
 import com.gomu.gomustock.ui.format.FormatMyStock;
 
@@ -256,8 +260,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
 
         String head_info =
                 Integer.toString(position) + " " +
-                stock_name + "(" + stock_code +"}"+" "+
-                        "현재가 " + mystock.cur_price;
+                stock_name + "(" + stock_code +")"+" "+
+                        "현재가 " + mystock.cur_price +" ";
+                        //"단기" + mystock.expect_profit;
         holder.tvhead_info.setText(head_info);
 
         //holder.btexpand.setImageResource(R.drawable.circle_plus);
@@ -515,6 +520,21 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>{
             sumline.set(k,sumline.get(k)/10000);
         }
         return sumline;
+    }
+
+    public float get_high(String stock_code) {
+
+        int TEST_PERIOD=120;
+        TAlib mytalib = new TAlib();
+        MyStat mystat = new MyStat();
+
+        PriceBox pricebox = new PriceBox(stock_code);
+        List<Float> closeprice = mystat.trim_float(pricebox.getClose(), TEST_PERIOD);
+
+        List<List<Float>> bb_chart_list = new ArrayList<List<Float>>();
+        bb_chart_list = mytalib.bbands(closeprice,TEST_PERIOD);
+        int last = bb_chart_list.get(0).size();
+        return bb_chart_list.get(0).get(last);
     }
 
 }

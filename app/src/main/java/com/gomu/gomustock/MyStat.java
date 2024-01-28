@@ -56,50 +56,50 @@ public class MyStat {
 
 
 
-    public List<Float> string2float(List<String> input, int scale) {
+    public List<Float> string2float(List<String> input, float scale) {
         List<Float> result = new ArrayList<Float>();
         String temp, pre_temp="0";
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
             if(temp ==null || temp.length() == 0 || temp.equals("null")) {
-                result.add(Float.parseFloat(pre_temp)/scale);
+                result.add(Float.parseFloat(pre_temp)*scale);
             }
             else {
                 if(temp.equals("")) temp = "0";
-                result.add(Float.parseFloat(temp)/scale);
+                result.add(Float.parseFloat(temp)*scale);
                 pre_temp = temp;
             }
         }
         return result;
     }
-    public List<Integer> string2int(List<String> input, int scale) {
+    public List<Integer> string2int(List<String> input, float scale) {
         List<Integer> result = new ArrayList<Integer>();
         String temp,pre_temp="";;
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
             if(temp ==null || temp.length() == 0 || temp.equals("null")) {
-                result.add(Integer.parseInt(pre_temp)/scale);
+                result.add((int)(Float.parseFloat(pre_temp)*scale));
             }
             else {
-                result.add(Integer.parseInt(temp) / scale);
+                result.add((int)(Float.parseFloat(temp)*scale));
                 pre_temp = temp;
             }
         }
         return result;
     }
-    public List<Double> string2double(List<String> input, int scale) {
+    public List<Double> string2double(List<String> input, float scale) {
         List<Double> result = new ArrayList<Double>();
         String temp, pre_temp="";
         int size = input.size();
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
             if(temp ==null || temp.length() == 0 || temp.equals("null")) {
-                result.add(Double.valueOf(pre_temp)/scale);
+                result.add(Double.valueOf(pre_temp)*scale);
             }
             else {
-                result.add(Double.valueOf(temp) / scale);
+                result.add(Double.valueOf(temp)*scale);
                 pre_temp = temp;
             }
         }
@@ -117,7 +117,7 @@ public class MyStat {
         }
         return result;
     }
-    public List<Float> string2float_fillpre(List<String> input, int scale) {
+    public List<Float> string2float_fillpre(List<String> input, float scale) {
         List<Float> result = new ArrayList<Float>();
         String temp, pretemp="";
         pretemp = findNotZero(input);
@@ -126,7 +126,7 @@ public class MyStat {
         for(int i=0;i< size;i++) {
             temp = input.get(i).replaceAll(",", "");
             if(temp.equals("0") || temp.equals("") || temp.isEmpty()) temp = pretemp;
-            result.add(Float.parseFloat(temp)/scale);
+            result.add(Float.parseFloat(temp)*scale);
             pretemp = temp;
         }
         return result;
@@ -337,6 +337,29 @@ public class MyStat {
         // 그래서 잘라줌
         return temp;
     }
+
+
+    public List<Float> magnify_float(List<Float> rawdata, int zoom) {
+
+        List<Float> mag_data = new ArrayList<Float>();
+
+        int size = rawdata.size();
+        for(int i=0;i<size;i++) {
+            mag_data.add(rawdata.get(i)*zoom);
+        }
+        return mag_data;
+    }
+    public List<Integer> magnify_integer(List<Integer> rawdata, int zoom) {
+
+        List<Integer> mag_data = new ArrayList<Integer>();
+
+        int size = rawdata.size();
+        for(int i=0;i<size;i++) {
+            mag_data.add(rawdata.get(i)*zoom);
+        }
+        return mag_data;
+    }
+
     public boolean checkKRStock(String stock_code) {
         // 숫자 스트링이면 true, 문자가 있으면 false를 반환한다.
         // 즉 한국주식이면 true, 외국주식이면 false 반환

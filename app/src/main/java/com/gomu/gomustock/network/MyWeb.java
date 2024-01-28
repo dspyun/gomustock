@@ -262,7 +262,7 @@ public class MyWeb {
             String vsyesterday = todaylist.get(3).text().split(" ")[4];
             */
             stockprice = juga;
-            System.out.println(stockcode + " 주가 : "+juga);
+            //System.out.println(stockcode + " 주가 : "+juga);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -808,13 +808,11 @@ public class MyWeb {
     }
 
     public List<FormatIFA> getNaverPFA(String page) {
-
+        MyDate mydate = new MyDate();
+        String today = mydate.getToday();
         String result="";
         List<FormatIFA> ifa_list = new ArrayList<>();
-
-                     // https://finance.naver.com/sise/investorDealTrendDay.naver?bizdate=20240112&sosok=&page=2
-        String URL = "https://finance.naver.com/sise/investorDealTrendDay.naver?bizdate=20240112&sosok=&page="+page;
-        //String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
+        String URL = "https://finance.naver.com/sise/investorDealTrendDay.naver?bizdate="+today+"&sosok=&page="+page;
         Document doc;
 
         try {

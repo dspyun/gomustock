@@ -31,8 +31,15 @@ public class fnGuide {
         List<String> op_profit_rate = new ArrayList<>(); // 영업이익률
     }
 
+
+    String header="", revenue="매출액 ",op_profit="영업이익 ", net_income="당기순이익 ", op_rate="영업이익률 ";
+    public String getOPprofit() {
+        return op_profit;
+    }
+
     public String getFnguideInfo(String stock_code) {
         String result="";
+        fninfo myfninfo = new fninfo();
 
         //System.out.println("stock_code = " + stock_code+"\n");
         if(!checkKRStock(stock_code)) {
@@ -40,7 +47,7 @@ public class fnGuide {
             return result="empty";
         }
         try {
-            fninfo myfninfo = new fninfo();
+
             String URL = "https://comp.fnguide.com/SVO2/ASP/SVD_main.asp?gicode=A"+stock_code;
             Document doc;
             doc = Jsoup.connect(URL).get();
@@ -69,7 +76,7 @@ public class fnGuide {
             for(int i =4;i<8;i++) { // 영업이익률
                 myfninfo.op_profit_rate.add(trlist.get(14).select("td").get(i).text());
             }
-            String header="", revenue="매출액 ",op_profit="영업이익 ", net_income="당기순이익 ", op_rate="영업이익률 ";
+            header=""; revenue="매출액 "; op_profit="영업이익\n"; net_income="당기순이익 "; op_rate="영업이익률 ";
             for(int i=0;i<4;i++) {
                 header += myfninfo.header.get(i) + " / ";
                 revenue += myfninfo.revenue.get(i) + " / ";
@@ -94,6 +101,7 @@ public class fnGuide {
         }
         return result;
     }
+
 
     class fnetfinfo {
         String risk_info; // 평가시작

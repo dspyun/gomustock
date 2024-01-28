@@ -47,6 +47,7 @@ public class FormatStockInfo {
         cur_price="";
         score="";
         desc="";
+        op_profit="";
         fninfo="";
         etfinfo="";
         nav="";
@@ -69,6 +70,7 @@ public class FormatStockInfo {
         score="시그널";
         desc="정보";
         news="뉴스";
+        op_profit="영업이익";
         fninfo="수익테이블";
         etfinfo="etf정보";
         nav="nav";
@@ -82,13 +84,16 @@ public class FormatStockInfo {
 
     public String toString() {
         String stock_info="";
-        stock_info += stock_name + " " + stock_code + "\n";
+        //stock_info += stock_name + " " + stock_code + "\n";
         stock_info += ranking + ", 배당률 = " +div_rate + "\n";
         stock_info += "투자의견 = "+ recommend + "\n";
         stock_info += "PER = " + per + "\n";
         stock_info += "예상PER = " + expect_per + "\n";
-        stock_info += "업종PER = " + area_per + "\n";
+        stock_info += "업종PER = " + area_per;
         return stock_info;
+    }
+    public String getOpprofit() {
+        return op_profit;
     }
 
     public void setHeader() {
@@ -109,6 +114,7 @@ public class FormatStockInfo {
         score="시그널";
         desc="정보";
         news="뉴스";
+        op_profit="영업이익";
         fninfo="fn정보";
         etfinfo="ETF정보";
         nav="nav";

@@ -1,11 +1,10 @@
 package com.gomu.gomustock.graph;
 
+import static androidx.core.content.ContextCompat.getColor;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 import static java.lang.Boolean.TRUE;
 
 import android.graphics.Color;
-
-import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -114,7 +113,7 @@ public class MyChart {
             entrychart.add(new Entry(i,chartdata.get(i)));
         }
         // 데이터가 담긴 Arraylist 를 BarDataSet 으로 변환한다.
-        linedata.addDataSet(setLinedata(entrychart,Color.CYAN,description));
+        linedata.addDataSet(setLinedata(entrychart,getColor(context, R.color.SeaGreen),description));
         /*
         LineDataSet lineDataSet = new LineDataSet(entrychart, "linedata");
         lineDataSet.setColor(Color.CYAN);
@@ -154,8 +153,8 @@ public class MyChart {
         LineDataSet lineDataSet = new LineDataSet(entrychart, "linedataset");
 
         for(int i=0;i<chartdata.size();i++) {
-            if(chartdata.get(i)<0) color.add(ContextCompat.getColor(context,R.color.CharBlue));
-            else color.add(ContextCompat.getColor(context,R.color.Salmon));
+            if(chartdata.get(i)<0) color.add(getColor(context,R.color.CharBlue));
+            else color.add(getColor(context,R.color.Salmon));
         }
         linedata.addDataSet(setLinedata(entrychart,Color.CYAN,description));
         lineDataSet.setColors(R.color.Red);
@@ -192,8 +191,8 @@ public class MyChart {
         BarDataSet barDataSet = new BarDataSet(entrychart, "bardataset");
 
         for(int i=0;i<size;i++) {
-            if(chartdata.get(i)<0) color.add(ContextCompat.getColor(context, R.color.CharBlue));
-            else color.add(ContextCompat.getColor(context,R.color.Salmon));
+            if(chartdata.get(i)<0) color.add(getColor(context, R.color.CharBlue));
+            else color.add(getColor(context,R.color.Salmon));
         }
         barDataSet.setColors(color);
 
@@ -201,8 +200,8 @@ public class MyChart {
         bardata.addDataSet(barDataSet); // 해당 BarDataSet 을 적용될 차트에 들어갈 DataSet 에 넣는다.
 
         barchart.setData(bardata); // 차트에 위의 DataSet 을 넣는다.
-        setyRAxis(barchart,false,false);
-        setxAaxis(barchart, false, false);
+        setyRAxis(barchart,true,true);
+        setxAaxis(barchart, true, true);
         //setyLAxis(barchart,false,false);
         YAxis yLAxis = barchart.getAxisLeft();
         setlegend(barchart,false);
@@ -277,6 +276,9 @@ public class MyChart {
         yLAxis.setTextColor(Color.WHITE);
         yLAxis.setDrawLabels(true);
         if(GRID_SHOW == TRUE ) {
+            yLAxis.setDrawAxisLine(true);
+            yLAxis.setDrawGridLines(true);
+        } else {
             yLAxis.setDrawAxisLine(false);
             yLAxis.setDrawGridLines(false);
         }
@@ -287,6 +289,9 @@ public class MyChart {
         yLAxis.setTextColor(Color.WHITE);
         yLAxis.setDrawLabels(true);
         if(GRID_SHOW == TRUE ) {
+            yLAxis.setDrawAxisLine(true);
+            yLAxis.setDrawGridLines(true);
+        } else {
             yLAxis.setDrawAxisLine(false);
             yLAxis.setDrawGridLines(false);
         }
@@ -299,6 +304,9 @@ public class MyChart {
         yLAxis.setTextColor(Color.WHITE);
         yLAxis.setDrawLabels(true);
         if(GRID_SHOW == TRUE ) {
+            yLAxis.setDrawAxisLine(true);
+            yLAxis.setDrawGridLines(true);
+        } else {
             yLAxis.setDrawAxisLine(false);
             yLAxis.setDrawGridLines(false);
         }

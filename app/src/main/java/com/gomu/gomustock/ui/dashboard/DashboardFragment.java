@@ -1,13 +1,11 @@
 package com.gomu.gomustock.ui.dashboard;
 
-import static android.content.ContentValues.TAG;
 import static com.gun0912.tedpermission.provider.TedPermissionProvider.context;
 
 import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +50,7 @@ public class DashboardFragment extends Fragment {
     private DashboardViewModel dashboardViewModel;
     private FragmentDashboardBinding binding;
 
-    ImageView imgAddlist,imgDLlist,imgPrice,imgSync;
+    ImageView imgAddlist,imgDLlist,imgPriceScore,imgSync;
     TextView tvDownload;
     RecyclerView recyclerView;
 
@@ -101,19 +99,12 @@ public class DashboardFragment extends Fragment {
         binding.recyclerView.setAdapter(bd_adapter);
 
         //----------------------------------------------------------
-
-        /*
-        FILENAME = "stockinfo";
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        bd_adapter = new BoardAdapter( getActivity(),FILENAME);
-        binding.recyclerView.setAdapter(bd_adapter);
-        */
         // adapter초기화 후 생성된 recyclerlist를
         // signal에 입력시키고 현재가격을 불러오는 thread를 시작하여
         // scoring을 할 준비를 한다
         // 나중에 사용자가 update버튼으로 score를 수동 update한다.
         myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
-        myscore.getPriceThreadStart();
+        //myscore.getPriceThreadStart();
 
         imgDLlist.setOnClickListener(new View.OnClickListener()
         {
@@ -122,7 +113,7 @@ public class DashboardFragment extends Fragment {
             {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
                 YFDownload_Dialog(recyclerlist);
-
+                /*
                 // 다운로드 후 adapter를 refresh한다
                 bd_adapter = new BoardAdapter( getActivity(),FILENAME);
                 bd_adapter.loadRecyclerList(FILENAME);
@@ -130,8 +121,10 @@ public class DashboardFragment extends Fragment {
 
                 bd_adapter.refresh();
                 fragment_refresh();
-                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
-                myscore.getPriceThreadStart();
+                //myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                //myscore.getPriceThreadStart();
+                */
+
             }
         });
 
@@ -146,10 +139,13 @@ public class DashboardFragment extends Fragment {
                     bd_adapter.loadRecyclerList(FILENAME);
                     binding.recyclerView.setAdapter(bd_adapter);
 
-                    bd_adapter.refresh();
-                    //fragment_refresh();
-                    myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
-                    myscore.getPriceThreadStart();
+                    //myscore.calcScore();
+                    //bd_adapter.setScorebox( myscore.getScorebox());
+
+                    //bd_adapter.refresh();
+                    fragment_refresh();
+                    //myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                    //myscore.getPriceThreadStart();
                 }
             }
 
@@ -171,13 +167,14 @@ public class DashboardFragment extends Fragment {
             }
         });
 
-        imgPrice.setOnClickListener(new View.OnClickListener()
+        imgPriceScore.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 List<String> recyclerlist = bd_adapter.getRecyclerList();
-                scoringstock(recyclerlist);
+                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
+                NorPriceDownload_Dialog(recyclerlist, myscore);
             }
         });
 
@@ -186,14 +183,18 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                bd_adapter = new BoardAdapter( getActivity(),FILENAME);
-                bd_adapter.loadRecyclerList(FILENAME);
-                binding.recyclerView.setAdapter(bd_adapter);
 
-                bd_adapter.refresh();
-                fragment_refresh();
+                bd_adapter = new BoardAdapter(getActivity(), FILENAME);
+                bd_adapter.loadRecyclerList(FILENAME);
+
+                // yf_download에서 다운로드한 현재가격을 adapter로 넘겨준다
                 myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
-                myscore.getPriceThreadStart();
+                myscore.calcScore();
+                bd_adapter.setScorebox( myscore.getScorebox());
+
+                binding.recyclerView.setAdapter(bd_adapter);
+                //bd_adapter.refresh();
+                fragment_refresh();
             }
         });
 
@@ -310,7 +311,7 @@ public class DashboardFragment extends Fragment {
     public void initResource(View v) {
         imgDLlist = v.findViewById(R.id.dash_dlicon);
         imgAddlist = v.findViewById(R.id.dash_addnew);
-        imgPrice = v.findViewById(R.id.dash_price);
+        imgPriceScore = v.findViewById(R.id.dash_price);
         imgSync = v.findViewById(R.id.dash_sync);
         recyclerView = v.findViewById(R.id.recycler_view);
     }
@@ -420,7 +421,6 @@ public class DashboardFragment extends Fragment {
 
 
     public void reload_adapter() {
-        Log.d(TAG, "changeButtonText myLooper() " + Looper.myLooper());
 
         new Thread(new Runnable() {
             @Override
@@ -431,16 +431,19 @@ public class DashboardFragment extends Fragment {
                         try {
                             Thread.sleep(1L); // 잠시라도 정지해야 함
 
-                            if(!FILENAME.equals(bd_adapter.getFilename())) {
+                            //if(!FILENAME.equals(bd_adapter.getFilename())) {
                                 bd_adapter = new BoardAdapter(getActivity(), FILENAME);
                                 bd_adapter.loadRecyclerList(FILENAME);
                                 binding.recyclerView.setAdapter(bd_adapter);
 
-                                bd_adapter.refresh();
-                                //fragment_refresh();
-                                myscore = new MyScore(bd_adapter.getRecyclerList(), "^KS200");
-                                myscore.getPriceThreadStart();
-                            }
+                                // yf_download에서 다운로드한 현재가격을 adapter로 넘겨준다
+                                myscore.calcScore();
+                                bd_adapter.setScorebox( myscore.getScorebox());
+
+                                //bd_adapter.refresh();
+                                fragment_refresh();
+
+                            //}
 
                         } catch (Exception e) {
                             System.out.println("인터럽트로 인한 스레드 종료.");
@@ -486,10 +489,48 @@ public class DashboardFragment extends Fragment {
                             info = myweb.getNaverStockinfo(stock_list.get(i));
                             info.stock_code = stock_list.get(i);
                             info.fninfo = myfnguide.getFnguideInfo(info.stock_code);
+                            info.op_profit = myfnguide.getOPprofit();
                         }
                         web_stockinfo.add(i,info);
+                        // 현재가격을 불러온다
+                        //String cur_price = myweb.getCurrentStockPrice(stock_list.get(i));
+                        //myscore.scorebox.get(i).cur_price = cur_price;
                     }
                     myexcel.writestockinfoCustom(FILENAME,web_stockinfo);
+
+                    reload_adapter();
+                    dialog_progress.dismiss();
+                } catch (Exception ex) {
+                    Log.e("MainActivity", "Exception in processing mesasge.", ex);
+                }
+            }
+        });
+
+        dlg_thread.start();
+    }
+
+
+    public void NorPriceDownload_Dialog(List<String> stock_list, MyScore score){
+        dialog_progress.show(); // 다이얼로그 띄우기
+        dialog_progress.setCanceledOnTouchOutside(false);
+        dialog_progress.setCancelable(false);
+        ProgressBar dlg_bar = dialog_progress.findViewById(R.id.dialog_progressBar);
+
+        Thread dlg_thread = new Thread(new Runnable() {
+            MyWeb myweb = new MyWeb();
+
+            public void run() {
+                try {
+                    int max = stock_list.size();
+                    int index = 0;
+                    dlg_bar.setProgress(0);
+                    for( index=0;index<stock_list.size();index++) {
+                        if(stock_list.get(index)=="") continue;
+                        dlg_bar.setProgress(100*(index+1)/max);
+                        // 현재가격을 불러온다
+                        String cur_price = myweb.getCurrentStockPrice(stock_list.get(index));
+                        score.scorebox.get(index).cur_price = cur_price.replaceAll(",", "");;
+                    }
                     reload_adapter();
                     dialog_progress.dismiss();
                 } catch (Exception ex) {

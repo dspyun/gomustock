@@ -20,6 +20,8 @@ public class FormatMyStock {
     public String today_level;
     public String period_level;
 
+    public String expect_profit;
+
     public void setheader() {
         stock_code="종목코드";
         stock_name="종목명";

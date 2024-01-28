@@ -1,5 +1,7 @@
 package com.gomu.gomustock;
 
+import static android.view.View.TEXT_ALIGNMENT_VIEW_START;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -26,7 +28,17 @@ public class FulllPopup extends AppCompatActivity {
 
         mytext = findViewById(R.id.fullpopup_list);
 
-        String filelist = popupoption.getFilelist();
-        mytext.setText(filelist);
+        String contents = popupoption.getContents();
+        String type = popupoption.getContentsType();
+        switch(type) {
+            case "news":
+                mytext.setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
+                mytext.setTextSize(14);
+                mytext.setText(contents);
+                break;
+            default:
+                mytext.setText(contents);
+                break;
+        }
     }
 }

@@ -212,7 +212,7 @@ public class BoardChartActivity extends AppCompatActivity {
         MyExcel myexcel = new MyExcel();
         // 파일을 읽어서 int data로 변환
         List<String> temp = myexcel.readFogninfo(stock_code,"FOGN", false);
-        chart_data = myexcel.string2float(temp, 1000);
+        chart_data = myexcel.string2float(temp, (float)0.001);
 
         fogn_chart.barchart_float(fognChart,chart_data,"외국인",false );
     }
@@ -223,7 +223,7 @@ public class BoardChartActivity extends AppCompatActivity {
         MyExcel myexcel = new MyExcel();
         // 파일을 읽어서 int data로 변환
         List<String> temp = myexcel.readFogninfo(stock_code,"AGENCY", false);
-        chart_data = myexcel.string2float(temp, 1000);
+        chart_data = myexcel.string2float(temp, (float)0.001);
 
         fogn_chart.barchart_float(agencyChart,chart_data,"기관",false );
     }

@@ -115,6 +115,21 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         }
         return result;
     }
+
+    public String getOPprofit(String stock_code) {
+        String result="";
+
+        int size = web_stockinfo.size();
+        for(int i =0;i<size;i++)
+        {
+            if(stock_code.equals(web_stockinfo.get(i).stock_code)) {
+                 result = web_stockinfo.get(i).getOpprofit();
+                break;
+            }
+        }
+        return result;
+    }
+
     public String getStockname(String stock_code) {
         String result="";
         int size = web_stockinfo.size();
@@ -158,7 +173,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
         if(!myexcel.file_check(stock_code+"fogn")) return result;
         List<String> FognAgency = myexcel.readTodayFogninfo(stock_code,false);
 
-        result += "외국인 : " + FognAgency.get(0) + "\n";
+        result += "외국인 : " + FognAgency.get(0) + ", ";
         result += "기관 : " + FognAgency.get(1);
 
         return result;
@@ -190,8 +205,8 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.ViewHolder>
 
         String stock_name = stockdic.getStockname(stock_code);
         //holder.tvStockinfo.setText(getStockinfo(stock_code,stock_name,position));
-        holder.tvscoreboard.setText(getScore(stock_name, stock_code));
-        holder.tvStockinfo.setText(getStockInfo(stock_code));
+        holder.tvscoreboard.setText(getScore(stock_name, stock_code)+"\n"+getOPprofit(stock_code));
+        holder.tvStockinfo.setText(getStockInfo(stock_code)+"\n");
 
         // 차트에 코스피와 종목 데이터를 넣어준다
         standard_chart.clearbuffer();

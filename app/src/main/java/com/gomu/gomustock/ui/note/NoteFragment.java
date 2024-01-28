@@ -46,7 +46,7 @@ public class NoteFragment extends Fragment {
     private String mParam2;
 
     private View view;
-    ImageView editicon, saveicon,dicticon,portfolio;
+    ImageView editicon, saveicon,dlprice,viewprice,swapchart;
     EditText mynote;
 
     FileControl filecontrol;
@@ -55,6 +55,7 @@ public class NoteFragment extends Fragment {
     private LineChart lineChart;
     Dialog dialog_progress; // 커스텀 다이얼로그
     MyExcel myexcel = new MyExcel();
+    int chart_index=0;
 
     public NoteFragment() {
         // Required empty public constructor
@@ -99,10 +100,11 @@ public class NoteFragment extends Fragment {
 
         editicon = view.findViewById(R.id.memoedit);
         saveicon = view.findViewById(R.id.memosave);
-        portfolio = view.findViewById(R.id.portfolio);
-        dicticon = view.findViewById(R.id.newdic);
+        dlprice = view.findViewById(R.id.dl_price);
+        viewprice = view.findViewById(R.id.view_price);
+        swapchart = view.findViewById(R.id.swap_price);
         mynote = view.findViewById(R.id.myeditor);
-        lineChart = view.findViewById(R.id.ifa_chart);
+        lineChart = view.findViewById(R.id.money_chart);
 
         String[] filelist = {"memo1","memo2"};
         Spinner folderspinner = view.findViewById(R.id.memo_spinner);
@@ -115,6 +117,8 @@ public class NoteFragment extends Fragment {
         mymemo = Read_Information(MEMOFILE);
         mynote.setText(mymemo);
         setUseableEditText(mynote, false);
+        chart_index=0;
+        chart_raw();
 
         saveicon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,23 +138,47 @@ public class NoteFragment extends Fragment {
                 mynote.setText(mymemo);
             }
         });
-        portfolio.setOnClickListener(new View.OnClickListener() {
+        dlprice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 2페이지 = 1달
-                // 6페이지 = 3달
-                NaverDownloadIFA_Dialog(6);
+                // 2페이지 = 1달, 6페이지 = 3달
+                // 12페이지 = 6달, 24페이지 = 12달
+                NaverDownloadIFA_Dialog(24);
                 //update_stockdic();
             }
         });
-        dicticon.setOnClickListener(new View.OnClickListener() {
+        viewprice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                show_chart();
-                //update_stockdic();
+                chart_raw();
             }
         });
-        // Inflate the layout for this fragment
+        swapchart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(chart_index) {
+                    case 0: chart_raw(); chart_index = 1; break;
+                    case 1: chart_standard_expect(); chart_index = 0; break;
+                    default : chart_raw();
+                }
+            }
+        });
+
+        /*
+        lineChart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(chart_index) {
+                    case 0: chart_raw(); chart_index = 1; break;
+                    case 1: chart_standard_expect(); chart_index = 0; break;
+                    default : chart_raw();
+                }
+            }
+        });
+        */
+
+        // Inflate the lay
+        // out for this fragment
         return view;
     }
     public void hideBottomNavigation(Boolean bool) {
@@ -219,27 +247,25 @@ public class NoteFragment extends Fragment {
         dlg_thread.start();
     }
 
-    MyChart three_chart = new MyChart();
-    List<FormatChart> chartlist = new ArrayList<FormatChart>();
-    private List<Integer> chart_indi = new ArrayList<Integer>();;
-    private List<Integer> chart_foreign = new ArrayList<Integer>();;
-    private List<Integer> chart_agency = new ArrayList<Integer>();;
-    private List<Integer> chart_total = new ArrayList<Integer>();;
-    public void show_chart() {
-        three_chart.clearbuffer();
-        chartlist = new ArrayList<FormatChart>();
-        read_ifa();
-        chartlist = three_chart.adddata_int(chart_indi, "indi", getActivity().getColor(R.color.White));
-        chartlist = three_chart.adddata_int(chart_foreign, "foreign", getActivity().getColor(R.color.Red));
-        chartlist = three_chart.adddata_int(chart_agency, "agency", getActivity().getColor(R.color.Yellow));
-        chartlist = three_chart.adddata_int(chart_total, "total", getActivity().getColor(R.color.Blue));
-        three_chart.multi_chart(lineChart, chartlist, "W:개인,R:외국인,Y:기관,B:총", false);
-    }
-    public void read_ifa() {
+
+
+    public void chart_raw() {
+
+        MyChart three_chart = new MyChart();
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+
+        List<Integer> chart_indi = new ArrayList<Integer>();
+        List<Integer> chart_foreign = new ArrayList<Integer>();
+        List<Integer> chart_agency = new ArrayList<Integer>();
+        List<Integer> chart_total = new ArrayList<Integer>();
+
+
         MyStat mystat = new MyStat();
         List<String> indi = new ArrayList<>();
         List<String> foreign = new ArrayList<>();
         List<String> agency = new ArrayList<>();
+
+
         List<FormatIFA> ifa_list = new ArrayList<>();
         ifa_list = myexcel.readIFAinfo("ifa_info.xls");
         int size = ifa_list.size();
@@ -252,11 +278,142 @@ public class NoteFragment extends Fragment {
         chart_foreign = mystat.string2int(foreign,1);
         chart_agency = mystat.string2int(agency,1);
 
+
         for(int i=0;i<size;i++) {
             chart_total.add(chart_indi.get(i)+chart_foreign.get(i)+chart_agency.get(i));
         }
+        chart_total = mystat.magnify_integer(chart_total,3);
+
+        three_chart.adddata_int(chart_indi, "indi", getActivity().getColor(R.color.White));
+        three_chart.adddata_int(chart_foreign, "foreign", getActivity().getColor(R.color.Red));
+        three_chart.adddata_int(chart_agency, "agency", getActivity().getColor(R.color.Yellow));
+        chartlist = three_chart.adddata_int(chart_total, "total", getActivity().getColor(R.color.Blue));
+        three_chart.multi_chart(lineChart, chartlist, "W:개인,R:외국인,Y:기관,B:총", false);
+    }
+    public void chart_standard() {
+        MyStat mystat = new MyStat();
+        MyChart three_chart = new MyChart();
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+
+        List<Float> chart_indi = new ArrayList<>();
+        List<Float> chart_foreign = new ArrayList<>();
+        List<Float> chart_agency = new ArrayList<>();
+        List<Float> chart_total = new ArrayList<>();
+
+
+        List<String> indi = new ArrayList<>();
+        List<String> foreign = new ArrayList<>();
+        List<String> agency = new ArrayList<>();
+
+        int TEST_PERIOD = 240;
+        List<String> pricelist = new ArrayList<String>();
+        List<Float> chart_kospi200 = new ArrayList<Float>();;
+
+
+        List<FormatIFA> ifa_list = new ArrayList<>();
+        ifa_list = myexcel.readIFAinfo("ifa_info.xls");
+        int size = ifa_list.size();
+        for(int i =0;i<size;i++) {
+            indi.add(ifa_list.get(i).indi);
+            foreign.add(ifa_list.get(i).foreign);
+            agency.add(ifa_list.get(i).agency);
+        }
+        pricelist = myexcel.read_ohlcv("^KS200", "CLOSE", TEST_PERIOD, false);
+
+        chart_indi = myexcel.oa_standardization(indi);
+        chart_foreign = myexcel.oa_standardization(foreign);
+        chart_agency = myexcel.oa_standardization(agency);
+        chart_kospi200 = myexcel.oa_standardization(pricelist);
+
+        three_chart.adddata_float(chart_indi, "indi", getActivity().getColor(R.color.White));
+        three_chart.adddata_float(chart_foreign, "foreign", getActivity().getColor(R.color.Red));
+        three_chart.adddata_float(chart_agency, "agency", getActivity().getColor(R.color.Yellow));
+        three_chart.adddata_float(chart_kospi200, "ko200", getActivity().getColor(R.color.Blue));
+
+
+        chart_kospi200 = mystat.magnify_float(chart_kospi200,2);
+        chartlist = three_chart.adddata_float(chart_kospi200, "KOSPI200", getActivity().getColor(R.color.Blue));
+
+        three_chart.multi_chart(lineChart, chartlist, "W:개인,R:외국인,Y:기관,B:KO200", false);
     }
 
+    public void chart_standard_expect() {
+
+        int expect_day=7;
+        MyChart three_chart = new MyChart();
+        MyStat mystat = new MyStat();
+        List<FormatChart> chartlist = new ArrayList<FormatChart>();
+
+        List<Float> chart_indi = new ArrayList<>();
+        List<Float> chart_foreign = new ArrayList<>();
+        List<Float> chart_agency = new ArrayList<>();
+
+        List<Float> chart_ex_indi = new ArrayList<>();
+        List<Float> chart_ex_foreign = new ArrayList<>();
+        List<Float> chart_ex_agency = new ArrayList<>();
+        List<Float> chart_ex_kospi200 = new ArrayList<>();
+
+        List<String> indi = new ArrayList<>();
+        List<String> foreign = new ArrayList<>();
+        List<String> agency = new ArrayList<>();
+
+        float indi_total_f7=0, foreign_total_f7=0, agency_total_f7=0, kospi200_total_f7=0;
+
+        int TEST_PERIOD = 240;
+        List<String> pricelist = new ArrayList<String>();
+        List<Float> chart_kospi200 = new ArrayList<Float>();;
+
+        List<FormatIFA> ifa_list = new ArrayList<>();
+        ifa_list = myexcel.readIFAinfo("ifa_info.xls");
+        int size = ifa_list.size();
+        for(int i =0;i<size;i++) {
+            indi.add(ifa_list.get(i).indi);
+            foreign.add(ifa_list.get(i).foreign);
+            agency.add(ifa_list.get(i).agency);
+        }
+        pricelist = myexcel.read_ohlcv("^KS200", "CLOSE", TEST_PERIOD, false);
+
+        chart_indi = myexcel.oa_standardization(indi);
+        chart_foreign = myexcel.oa_standardization(foreign);
+        chart_agency = myexcel.oa_standardization(agency);
+        chart_kospi200 = myexcel.oa_standardization(pricelist);
+
+        for(int i=0;i<expect_day;i++) {
+            indi_total_f7 += chart_indi.get(i);
+            agency_total_f7 += chart_agency.get(i);
+            foreign_total_f7 += chart_foreign.get(i);
+            kospi200_total_f7 += chart_kospi200.get(i);
+        }
+        indi_total_f7 = indi_total_f7/expect_day;
+        agency_total_f7 = agency_total_f7/expect_day;
+        foreign_total_f7 = foreign_total_f7/expect_day;
+        kospi200_total_f7 = kospi200_total_f7/expect_day;
+
+        // 앞의 7일을 건너뛰고 차트 데이터를 만든다
+        for(int i=expect_day;i<size;i++) {
+            chart_ex_indi.add(chart_indi.get(i));
+            chart_ex_agency.add(chart_agency.get(i));
+            chart_ex_foreign.add(chart_foreign.get(i));
+            chart_ex_kospi200.add(chart_kospi200.get(i));
+        }
+        // 만들어진 차트 데이터의 뒷쪽 7일을
+        // 건너뛴 7일치 차트데이터의 평균치를 넣어준다
+        // 이것이 7일 예상치이다
+        for(int i=0;i<expect_day;i++) {
+            chart_ex_indi.add(indi_total_f7);
+            chart_ex_agency.add(agency_total_f7);
+            chart_ex_foreign.add(foreign_total_f7);
+            chart_ex_kospi200.add(kospi200_total_f7);
+        }
+
+        three_chart.adddata_float(chart_ex_indi, "indi", getActivity().getColor(R.color.White));
+        three_chart.adddata_float(chart_ex_foreign, "foreign", getActivity().getColor(R.color.Red));
+         three_chart.adddata_float(chart_ex_agency, "agency", getActivity().getColor(R.color.Yellow));
+        chart_ex_kospi200 = mystat.magnify_float(chart_ex_kospi200,2);
+        chartlist = three_chart.adddata_float(chart_ex_kospi200, "KOSPI200", getActivity().getColor(R.color.Blue));
+
+        three_chart.multi_chart(lineChart, chartlist, "W:개인,R:외국인,Y:기관,B:KO200", false);
+    }
     public void update_stockdic() {
         Thread dlg_thread = new Thread(new Runnable() {
             StockDic stockdic = new StockDic();
