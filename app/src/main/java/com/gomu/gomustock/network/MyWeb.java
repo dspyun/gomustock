@@ -116,7 +116,7 @@ public class MyWeb {
 
             String URL = "https://finance.naver.com/item/coinfo.naver?code="+stock_code;
             Document doc;
-            doc = Jsoup.connect(URL).get();
+            doc = Jsoup.connect(URL).header("Content-Type", "application/json;charset=UTF-8").get();
             Elements classinfo0 = doc.select(".wrap_company"); // class가져오기
             Element giname = classinfo0.select("h2").get(0);
             result.stock_name = giname.text();
@@ -137,12 +137,16 @@ public class MyWeb {
 
             result.per = trlist.get(9).select("td").get(0).text();
             result.expect_per = trlist.get(10).select("td").get(0).text();
-            String temp_pbr =  trlist.get(11).select("td").get(0).text();
-            result.pbr = temp_pbr.replaceAll("\\.", "");
+            Elements emlist =  trlist.get(11).select("td").select("em");
+            String bps = emlist.get(1).text().replaceAll(",", "");
             result.div_rate = trlist.get(12).select("td").get(0).text();
             result.area_per = trlist.get(13).select("td").get(0).text();
-            //result.op_profit = td1_list.get(3).text();
 
+            Elements classinfo2 = doc.select(".today");
+            Elements spanlist = classinfo2.select("span");
+            result.cur_price = spanlist.get(0).ownText().replaceAll(",", "");;
+            float pbr = Float.parseFloat(result.cur_price)/Float.parseFloat(bps);
+            result.pbr = String.format("%.2f",pbr) + "/" + bps;
 
         } catch (IOException e) {
             // TODO Auto-generated catch block

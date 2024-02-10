@@ -89,7 +89,8 @@ public class FormatStockInfo {
         stock_info += "투자의견 = "+ recommend + "\n";
         stock_info += "PER = " + per + "\n";
         stock_info += "예상PER = " + expect_per + "\n";
-        stock_info += "업종PER = " + area_per;
+        stock_info += "업종PER = " + area_per+"\n";
+        stock_info += "PBR = " + pbr;
         return stock_info;
     }
     public String getOpprofit() {
